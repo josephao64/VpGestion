@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empresa Main</title>
+    <link rel="stylesheet" href="EmpresaMain.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="../../FirebaseConfig.js"></script>
+    <script src="EmpresaMain.js" defer></script>
+</head>
+<body>
+    <h2>Panel de Administración de Empresa</h2>
+    <div class="buttons">
+        <button id="gestionarEmpresasBtn" disabled>Gestionar Empresas/sucursales</button>
+        <button id="gestionarSucursalesBtn" disabled>Gestionar proveedores/productos</button>
+        <button id="recursosHumanosBtn" disabled>Registro de Recursos Humanos</button>
+        <button id="logoutBtn">Cerrar Sesión</button>
+        <button onclick="window.location.href='../../Main/Main.HTML'">Volver a Principal</button>
+    </div>
+</body>
+</html>

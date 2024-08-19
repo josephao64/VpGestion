@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Usuarios</title>
+  <link rel="stylesheet" href="GestionUsuarios.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="../FirebaseConfig.js"></script>
+  <script src="GestionUsuarios.js" defer></script>
+</head>
+<body>
+  <div class="main-container">
+    <div class="sidebar">
+      <div class="user-info">
+        <span id="loggedUser"></span>
+      </div>
+      <div class="tab"></div>
+    </div>
+    <div class="content">
+      <h2>Listado de Usuarios</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+          </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+      </table>
+    </div>
+    <div class="action-buttons">
+      <button id="newBtn">Nuevo</button>
+      <button id="editBtn">Modificar</button>
+      <button id="saveBtn">Guardar</button>
+      <button id="deleteBtn">Eliminar</button>
+      <button id="logoutBtn">Salir</button>
+    </div>
+  </div>
+
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2 id="modalTitle">Crear/Editar Usuario</h2>
+      <form id="userForm">
+        <label for="username">Nombre de Usuario:</label>
+        <input type="text" id="username" required>
+        <br><br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" required>
+        <br><br>
+        <label for="role">Rol:</label>
+        <select id="role" required>
+          <option value="admin">Administrador</option>
+          <option value="digitador">Digitador</option>
+        </select>
+        <br><br>
+        <fieldset>
+          <legend>Permisos Generales</legend>
+          <table>
+            <thead>
+              <tr>
+                <th>Funcionalidad</th>
+                <th>Ver</th>
+                <th>Editar</th>
+                <th>Agregar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Administrar Usuarios</td>
+                <td><input type="checkbox" id="verUsuarios" value="verUsuarios"></td>
+                <td><input type="checkbox" id="editarUsuarios" value="editarUsuarios"></td>
+                <td><input type="checkbox" id="agregarUsuarios" value="agregarUsuarios"></td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <br>
+        <fieldset>
+          <legend>Permisos EMPRESA</legend>
+          <table>
+            <thead>
+              <tr>
+                <th>Funcionalidad</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+                <th>Agregar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gestionar EMPRESAS/sucursales</td>
+                <td><input type="checkbox" id="editarEmpresas" value="editarEmpresas"></td>
+                <td><input type="checkbox" id="eliminarEmpresas" value="eliminarEmpresas"></td>
+                <td><input type="checkbox" id="agregarEmpresas" value="agregarEmpresas"></td>
+              </tr>
+              <tr>
+                <td>Gestionar proveedores/productos</td>
+                <td><input type="checkbox" id="editarProveedores" value="editarProveedores"></td>
+                <td><input type="checkbox" id="eliminarProveedores" value="eliminarProveedores"></td>
+                <td><input type="checkbox" id="agregarProveedores" value="agregarProveedores"></td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <br>
+        <fieldset>
+          <legend>Permisos RECURSOS HUMANOS</legend>
+          <table>
+            <thead>
+              <tr>
+                <th>Funcionalidad</th>
+                <th>Ver</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+                <th>Agregar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gestionar Recursos Humanos</td>
+                <td><input type="checkbox" id="verRecursosHumanos" value="verRecursosHumanos"></td>
+                <td><input type="checkbox" id="editarRecursosHumanos" value="editarRecursosHumanos"></td>
+                <td><input type="checkbox" id="eliminarRecursosHumanos" value="eliminarRecursosHumanos"></td>
+                <td><input type="checkbox" id="agregarRecursosHumanos" value="agregarRecursosHumanos"></td>
+                <td><input type="checkbox" id="mostrarDetallesRecursosHumanos" value="mostrarDetallesRecursosHumanos"></td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <br><br>
+        <button type="submit">Guardar Usuario</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

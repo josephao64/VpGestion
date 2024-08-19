@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Recursos Humanos</title>
+  <link rel="stylesheet" href="stylesRegistroRecursosHumanos.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="../../FirebaseConfig.js"></script>
+  <script defer src="RegistroRecursosHumanos.js"></script>
+</head>
+<body>
+  <h1>Gestión de Recursos Humanos</h1>
+
+  <div class="action-buttons" style="margin-bottom: 20px;">
+    <button id="nuevoBtn" onclick="openModal('nuevoModal')" style="margin-right: 10px;">Nuevo</button>
+    <button id="editarBtn" onclick="openModal('editModal')" disabled style="margin-right: 10px;">Editar</button>
+    <button id="detallesBtn" onclick="openModal('detallesModal')" disabled style="margin-right: 10px;">Mostrar Detalles</button>
+    <button id="eliminarBtn" onclick="eliminarRecursoHumano()" disabled>Eliminar</button>
+  </div>
+
+  <table id="recursosHumanosTable" style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Dirección</th>
+        <th>Teléfono 1</th>
+        <th>Puesto</th>
+        <th>Sucursal</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Modal para nuevo registro -->
+  <div id="nuevoModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('nuevoModal')">&times;</span>
+      <h2>Nuevo Registro</h2>
+      <form id="nuevoForm">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" required>
+
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" required>
+
+        <label for="telefono1">Teléfono 1:</label>
+        <input type="tel" id="telefono1" required>
+
+        <label for="telefono2">Teléfono 2:</label>
+        <input type="tel" id="telefono2">
+
+        <label for="fechaInicio">Fecha de Inicio:</label>
+        <input type="date" id="fechaInicio" required>
+
+        <label for="fechaFinal">Fecha de Final:</label>
+        <input type="date" id="fechaFinal">
+
+        <label for="puesto">Puesto:</label>
+        <input type="text" id="puesto" required>
+
+        <label for="salario">Salario:</label>
+        <input type="number" id="salario" required>
+
+        <label for="inscritoIgss">Inscrito en IGSS:</label>
+        <select id="inscritoIgss" required>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+
+        <label for="sucursal">Sucursal:</label>
+        <select id="sucursal" required></select>
+
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para editar registro -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('editModal')">&times;</span>
+      <h2>Editar Registro</h2>
+      <form id="editForm">
+        <input type="hidden" id="editId">
+        <label for="editNombre">Nombre:</label>
+        <input type="text" id="editNombre" required>
+
+        <label for="editDireccion">Dirección:</label>
+        <input type="text" id="editDireccion" required>
+
+        <label for="editTelefono1">Teléfono 1:</label>
+        <input type="tel" id="editTelefono1" required>
+
+        <label for="editTelefono2">Teléfono 2:</label>
+        <input type="tel" id="editTelefono2">
+
+        <label for="editFechaInicio">Fecha de Inicio:</label>
+        <input type="date" id="editFechaInicio" required>
+
+        <label for="editFechaFinal">Fecha de Final:</label>
+        <input type="date" id="editFechaFinal">
+
+        <label for="editPuesto">Puesto:</label>
+        <input type="text" id="editPuesto" required>
+
+        <label for="editSalario">Salario:</label>
+        <input type="number" id="editSalario" required>
+
+        <label for="editInscritoIgss">Inscrito en IGSS:</label>
+        <select id="editInscritoIgss" required>
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+
+        <label for="editSucursal">Sucursal:</label>
+        <select id="editSucursal" required></select>
+
+        <button type="submit">Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar detalles del empleado -->
+  <div id="detallesModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('detallesModal')">&times;</span>
+      <h2>Detalles del Empleado</h2>
+      <div id="detallesContenido"></div>
+    </div>
+  </div>
+</body>
+</html>
