@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Facturas</title>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <link rel="stylesheet" href="stylesFacturas.css">
 </head>
 <body>
@@ -66,13 +64,19 @@
             <input type="text" id="facturaNumero" placeholder="Número único de la factura">
 
             <label for="empresaSelect">Empresa Asociada:</label>
-            <select id="empresaSelect"></select>
+            <select id="empresaSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
 
             <label for="sucursalSelect">Sucursal Asociada:</label>
-            <select id="sucursalSelect"></select>
+            <select id="sucursalSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
 
             <label for="proveedorSelect">Proveedor Asociado:</label>
-            <select id="proveedorSelect"></select>
+            <select id="proveedorSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
 
             <label for="facturaFechaEmision">Fecha de Emisión:</label>
             <input type="date" id="facturaFechaEmision">
@@ -124,13 +128,19 @@
             <input type="text" id="editFacturaNumero" placeholder="Número de Factura">
             
             <label for="editEmpresaSelect">Empresa Asociada:</label>
-            <select id="editEmpresaSelect"></select>
+            <select id="editEmpresaSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
             
             <label for="editSucursalSelect">Sucursal Asociada:</label>
-            <select id="editSucursalSelect"></select>
+            <select id="editSucursalSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
             
             <label for="editProveedorSelect">Proveedor Asociado:</label>
-            <select id="editProveedorSelect"></select>
+            <select id="editProveedorSelect">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
             
             <label for="editFacturaFechaEmision">Fecha de Emisión:</label>
             <input type="date" id="editFacturaFechaEmision">
@@ -171,11 +181,23 @@
         </div>
     </div>
 
-    <!-- Modal para ver detalles de la factura con formato -->
+    <!-- Modal para ver detalles de la factura -->
     <div id="viewFacturaModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('viewFacturaModal')">&times;</span>
-            <div id="facturaDetails" class="invoice-container"></div>
+            <h2>Detalles de la Factura</h2>
+            <p><strong>Número de Factura:</strong> <span id="facturaNumero"></span></p>
+            <p><strong>Empresa:</strong> <span id="empresaName"></span></p>
+            <p><strong>Sucursal:</strong> <span id="sucursalName"></span></p>
+            <p><strong>Proveedor:</strong> <span id="proveedorName"></span></p>
+            <p><strong>Fecha de Emisión:</strong> <span id="fechaEmision"></span></p>
+            <p><strong>Fecha de Vencimiento:</strong> <span id="fechaVencimiento"></span></p>
+            <p><strong>Monto Total:</strong> <span id="montoTotal"></span></p>
+            <p><strong>Estado de Pago:</strong> <span id="estadoPago"></span></p>
+            <p><strong>Monto Pendiente:</strong> <span id="montoPendiente"></span></p>
+            <p><strong>Notas Adicionales:</strong> <span id="notasAdicionales"></span></p>
+            <h3>Pagos Realizados</h3>
+            <ul id="pagosList"></ul>
         </div>
     </div>
 
@@ -184,14 +206,36 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('addPaymentModal')">&times;</span>
             <h2>Agregar Pago</h2>
+            
             <label for="paymentAmount">Monto del Pago:</label>
-            <input type="number" id="paymentAmount" placeholder="Monto a pagar" step="0.01" min="0">
+            <input type="number" id="paymentAmount" placeholder="Monto a pagar" step="0.01" min="0" oninput="validatePaymentAmount()">
+            
             <label for="paymentDate">Fecha del Pago:</label>
             <input type="date" id="paymentDate">
-            <button onclick="addPayment()">Agregar Pago</button>
+
+            <label for="paymentMethod">Método de Pago:</label>
+            <select id="paymentMethod">
+                <option value="Transferencia">Transferencia</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Efectivo">Efectivo</option>
+            </select>
+
+            <label for="paymentBoletaNumber">Número de Boleta:</label>
+            <input type="text" id="paymentBoletaNumber" placeholder="Número de la boleta (opcional)" />
+
+            <label for="paymentComprobante">Subir Comprobante:</label>
+            <input type="file" id="paymentComprobante" placeholder="Sube un comprobante (PDF/imagen)">
+
+            <p id="paymentError" style="color: red; display: none;">El monto excede el saldo pendiente de la factura.</p>
+
+            <button onclick="addPayment()" id="addPaymentButton" disabled>Agregar Pago</button>
         </div>
     </div>
 
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
     <script src="scriptFacturas.js"></script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-// Configuración de Firebase
 var firebaseConfig = {
     apiKey: "AIzaSyBNalkMiZuqQ-APbvRQC2MmF_hACQR0F3M",
     authDomain: "logisticdb-2e63c.firebaseapp.com",
@@ -10,8 +9,11 @@ var firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
+var storage = firebase.storage();
 
-// Funciones para abrir y cerrar modales
+let selectedFacturaId;
+let montoPendiente = 0;
+
 function openModal(modalId) {
     document.getElementById(modalId).style.display = 'block';
 }
@@ -26,7 +28,6 @@ function openAddFacturaModal() {
     openModal('addFacturaModal');
 }
 
-// Carga las opciones de empresas y sucursales en los selects
 async function loadEmpresasSelectOptions(empresaSelectId, sucursalSelectId) {
     try {
         var empresasSnapshot = await db.collection('empresas').get();
@@ -234,14 +235,15 @@ async function loadFacturas() {
             row.insertCell(3).textContent = proveedorName;
             row.insertCell(4).textContent = factura.fechaEmision;
             row.insertCell(5).textContent = factura.fechaVencimiento;
-            row.insertCell(6).textContent = `Q${factura.montoTotal}`;
+            row.insertCell(6).textContent = factura.montoTotal;
             row.insertCell(7).textContent = factura.estadoPago;
-            row.insertCell(8).textContent = `Q${montoPendiente}`;
+            row.insertCell(8).textContent = montoPendiente;
             row.insertCell(9).innerHTML = `
                 <button onclick="openEditFacturaModal('${doc.id}')">Editar</button>
                 <button onclick="deleteFactura('${doc.id}')">Eliminar</button>
                 <button onclick="openViewFacturaModal('${doc.id}')">Ver Detalles</button>
                 <button onclick="openAddPaymentModal('${doc.id}')">Agregar Pago</button>
+                <button onclick="openMostrarPagosModal('${doc.id}')">Mostrar Pagos</button>
             `;
         });
     } catch (error) {
@@ -316,67 +318,23 @@ function openEditFacturaModal(id) {
 
 function openViewFacturaModal(id) {
     selectedFacturaId = id;
-    db.collection('facturas').doc(id).get().then(async function(doc) {
+    db.collection('facturas').doc(id).get().then(function(doc) {
         if (doc.exists) {
             const factura = doc.data();
-            
-            const empresa = await db.collection('empresas').doc(factura.empresaId).get();
-            const sucursal = await db.collection('sucursales').doc(factura.sucursalId).get();
-            const proveedor = await db.collection('providers').doc(factura.proveedorId).get();
-
-            const empresaName = empresa.exists ? empresa.data().name : 'Empresa no encontrada';
-            const sucursalName = sucursal.exists ? sucursal.data().name : 'Sucursal no encontrada';
-            const proveedorName = proveedor.exists ? proveedor.data().name : 'Proveedor no encontrado';
-
             const detalles = `
-                <header class="invoice-header">
-                    <div class="company-details">
-                        <h2>Datos de la Empresa</h2>
-                        <div>Empresa: ${empresaName}</div>
-                        <div>Sucursal: ${sucursalName}</div>
-                    </div>
-                    <div class="invoice-details">
-                        <h2>Datos de la Factura</h2>
-                        <div>Proveedor: ${proveedorName}</div>
-                        <div>Fecha de Emisión: ${factura.fechaEmision}</div>
-                        <div>Fecha de Vencimiento: ${factura.fechaVencimiento}</div>
-                        <div>Estado de Pago: ${factura.estadoPago}</div>
-                    </div>
-                </header>
-
-                <div class="invoice-title">
-                    Factura
-                </div>
-
-                <table class="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>Descripción</th>
-                            <th>Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Monto Total</td>
-                            <td>Q${factura.montoTotal}</td>
-                        </tr>
-                        <tr>
-                            <td>Monto Pendiente</td>
-                            <td>Q${factura.montoTotal - (factura.pagosTotal || 0)}</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td>Total</td>
-                            <td>Q${factura.montoTotal}</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="notes">
-                    <h3>Notas Adicionales</h3>
-                    <p>${factura.notasAdicionales || 'No hay notas adicionales.'}</p>
-                </div>
+                <p><strong>Número de Factura:</strong> ${factura.numero}</p>
+                <p><strong>Empresa:</strong> ${factura.empresaId}</p>
+                <p><strong>Sucursal:</strong> ${factura.sucursalId}</p>
+                <p><strong>Proveedor:</strong> ${factura.proveedorId}</p>
+                <p><strong>Fecha de Emisión:</strong> ${factura.fechaEmision}</p>
+                <p><strong>Fecha de Vencimiento:</strong> ${factura.fechaVencimiento}</p>
+                <p><strong>Monto Total:</strong> ${factura.montoTotal}</p>
+                <p><strong>Estado de Pago:</strong> ${factura.estadoPago}</p>
+                <p><strong>Monto Pendiente:</strong> ${factura.montoTotal - factura.pagosTotal || factura.montoTotal}</p>
+                <p><strong>Notas Adicionales:</strong> ${factura.notasAdicionales}</p>
             `;
             document.getElementById('facturaDetails').innerHTML = detalles;
+            displayPagos(factura.pagos);
             openModal('viewFacturaModal');
         } else {
             alert('Factura no encontrada');
@@ -387,17 +345,102 @@ function openViewFacturaModal(id) {
     });
 }
 
+function openViewFacturaModal(id) {
+    selectedFacturaId = id;
+    db.collection('facturas').doc(id).get().then(async function(doc) {
+        if (doc.exists) {
+            const factura = doc.data();
+
+            // Obtener nombres de empresa, sucursal y proveedor
+            const empresaDoc = await db.collection('empresas').doc(factura.empresaId).get();
+            const empresaName = empresaDoc.exists ? empresaDoc.data().name : 'Empresa no encontrada';
+
+            const sucursalDoc = await db.collection('sucursales').doc(factura.sucursalId).get();
+            const sucursalName = sucursalDoc.exists ? sucursalDoc.data().name : 'Sucursal no encontrada';
+
+            const proveedorDoc = await db.collection('providers').doc(factura.proveedorId).get();
+            const proveedorName = proveedorDoc.exists ? proveedorDoc.data().name : 'Proveedor no encontrado';
+
+            // Asignar valores a los campos en el modal
+            document.getElementById('facturaNumero').textContent = factura.numero;
+            document.getElementById('empresaName').textContent = empresaName;
+            document.getElementById('sucursalName').textContent = sucursalName;
+            document.getElementById('proveedorName').textContent = proveedorName;
+            document.getElementById('fechaEmision').textContent = factura.fechaEmision;
+            document.getElementById('fechaVencimiento').textContent = factura.fechaVencimiento;
+            document.getElementById('montoTotal').textContent = factura.montoTotal;
+            document.getElementById('estadoPago').textContent = factura.estadoPago;
+            document.getElementById('montoPendiente').textContent = factura.montoTotal - (factura.pagosTotal || 0);
+            document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
+
+            displayPagos(factura.pagos);
+            openModal('viewFacturaModal');
+        } else {
+            alert('Factura no encontrada');
+        }
+    }).catch(function(error) {
+        console.error('Error al obtener los detalles de la factura:', error);
+        alert('Error al obtener los detalles de la factura: ' + error.message);
+    });
+}
+
+
+function displayPagos(pagos) {
+    const pagosList = document.getElementById('pagosList');
+    pagosList.innerHTML = '';
+    if (Array.isArray(pagos)) {
+        pagos.forEach(pago => {
+            const li = document.createElement('li');
+            li.textContent = `Monto: ${pago.monto}, Fecha: ${pago.fecha}, Método: ${pago.metodoPago}, Número de Boleta: ${pago.numeroBoleta || 'N/A'}`;
+            pagosList.appendChild(li);
+        });
+    } else {
+        pagosList.innerHTML = '<li>No se encontraron pagos.</li>';
+    }
+}
+
+
 function openAddPaymentModal(facturaId) {
     selectedFacturaId = facturaId;
-    openModal('addPaymentModal');
+    
+    // Cargar el monto pendiente de la factura seleccionada
+    db.collection('facturas').doc(facturaId).get().then((doc) => {
+        if (doc.exists) {
+            const factura = doc.data();
+            montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
+            openModal('addPaymentModal');
+        } else {
+            alert('Factura no encontrada');
+        }
+    }).catch((error) => {
+        console.error('Error al obtener la factura:', error);
+        alert('Error al obtener la factura: ' + error.message);
+    });
+}
+
+function validatePaymentAmount() {
+    const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
+    const paymentError = document.getElementById('paymentError');
+    const addPaymentButton = document.getElementById('addPaymentButton');
+
+    if (paymentAmount > montoPendiente) {
+        paymentError.style.display = 'block';
+        addPaymentButton.disabled = true;
+    } else {
+        paymentError.style.display = 'none';
+        addPaymentButton.disabled = false;
+    }
 }
 
 async function addPayment() {
     try {
         const paymentAmount = parseFloat(document.getElementById('paymentAmount').value);
         const paymentDate = document.getElementById('paymentDate').value;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const paymentBoletaNumber = document.getElementById('paymentBoletaNumber').value || null;
+        const paymentComprobante = document.getElementById('paymentComprobante').files[0]; // Obtener archivo
 
-        if (!paymentAmount || !paymentDate) throw new Error('Debe completar todos los campos de pago');
+        if (!paymentAmount || !paymentDate || !paymentMethod) throw new Error('Debe completar todos los campos obligatorios de pago');
 
         const facturaRef = db.collection('facturas').doc(selectedFacturaId);
 
@@ -407,10 +450,22 @@ async function addPayment() {
 
             const factura = doc.data();
             const pagosTotal = (factura.pagosTotal || 0) + paymentAmount;
-            const nuevosPagos = [...(factura.pagos || []), { monto: paymentAmount, fecha: paymentDate }];
-            const estadoPago = pagosTotal >= factura.montoTotal ? 'Pagado' : factura.estadoPago;
+            const nuevosPagos = [...(factura.pagos || []), {
+                monto: paymentAmount,
+                fecha: paymentDate,
+                metodoPago: paymentMethod,
+                numeroBoleta: paymentBoletaNumber,
+                comprobante: paymentComprobante ? paymentComprobante.name : null
+            }];
 
-            transaction.update(facturaRef, { pagosTotal, pagos: nuevosPagos, estadoPago });
+            if (pagosTotal > factura.montoTotal) throw new Error('El monto total de los pagos excede el monto de la factura');
+
+            transaction.update(facturaRef, { pagosTotal, pagos: nuevosPagos });
+
+            // Si hay un archivo de comprobante, súbelo (aquí necesitarás agregar tu lógica de subida)
+            if (paymentComprobante) {
+                await subirComprobante(selectedFacturaId, paymentComprobante); // Llamada a la función de subida
+            }
         });
 
         closeModal('addPaymentModal');
@@ -419,6 +474,19 @@ async function addPayment() {
     } catch (error) {
         console.error('Error al agregar pago:', error);
         alert('Error al agregar pago: ' + error.message);
+    }
+}
+
+// Función para subir el archivo de comprobante (debes ajustarla según la configuración de tu almacenamiento)
+async function subirComprobante(facturaId, archivo) {
+    try {
+        const storageRef = firebase.storage().ref();
+        const archivoRef = storageRef.child(`comprobantes/${facturaId}/${archivo.name}`);
+        await archivoRef.put(archivo);
+        console.log('Comprobante subido con éxito');
+    } catch (error) {
+        console.error('Error al subir comprobante:', error);
+        alert('Error al subir comprobante: ' + error.message);
     }
 }
 
