@@ -477,6 +477,27 @@ async function addPayment() {
     }
 }
 
+
+function openMostrarPagosModal(id) {
+    selectedFacturaId = id;
+    db.collection('facturas').doc(id).get().then(function(doc) {
+        if (doc.exists) {
+            const factura = doc.data();
+            displayPagos(factura.pagos);
+            openModal('viewFacturaModal');  // Asegúrate de que este modal esté preparado para mostrar los pagos
+        } else {
+            alert('Factura no encontrada');
+        }
+    }).catch(function(error) {
+        console.error('Error al obtener los pagos de la factura:', error);
+        alert('Error al obtener los pagos de la factura: ' + error.message);
+    });
+}
+
+
+
+
+
 // Función para subir el archivo de comprobante (debes ajustarla según la configuración de tu almacenamiento)
 async function subirComprobante(facturaId, archivo) {
     try {
