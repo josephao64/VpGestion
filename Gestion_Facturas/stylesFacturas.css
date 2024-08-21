@@ -61,12 +61,17 @@ table th, table td {
 }
 
 table th {
-    background-color: #007bff;
-    color: white;
+    background-color: #f4f4f4;
+    font-weight: bold;
+    color: #333;
 }
 
-table tr:nth-child(even) {
-    background-color: #f2f2f2;
+table td {
+    color: #000;
+}
+
+table .total-row td {
+    font-weight: bold;
 }
 
 .modal {
@@ -142,16 +147,37 @@ textarea {
     margin-bottom: 20px;
 }
 
-.company-details, .invoice-details {
+.company-details {
     width: 48%;
 }
 
-.company-details h2, .invoice-details h2 {
-    margin-top: 0;
+.company-details #sucursalName {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.company-details #empresaName {
+    font-size: 14px;
+    color: #555;
 }
 
 .invoice-details {
+    width: 48%;
     text-align: right;
+}
+
+.invoice-details #proveedorName {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.invoice-details p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
 }
 
 .invoice-title {
@@ -176,9 +202,10 @@ textarea {
 .invoice-table th {
     background-color: #f4f4f4;
     font-weight: bold;
+    color: #333;
 }
 
-.total-row {
+.total-row td {
     font-weight: bold;
 }
 
@@ -188,4 +215,35 @@ textarea {
 
 .notes h3 {
     margin-bottom: 10px;
+}
+
+/* Estilos para la lista de pagos realizados */
+.payments-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.payments-list li {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payments-list li:hover {
+    background-color: #e9e9e9;
+}
+
+.payment-amount {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.payment-date, .payment-method {
+    color: #555;
+    font-size: 14px;
 }

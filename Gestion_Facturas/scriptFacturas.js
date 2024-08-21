@@ -1,3 +1,4 @@
+// Configuración de Firebase
 var firebaseConfig = {
     apiKey: "AIzaSyBNalkMiZuqQ-APbvRQC2MmF_hACQR0F3M",
     authDomain: "logisticdb-2e63c.firebaseapp.com",
@@ -235,9 +236,9 @@ async function loadFacturas() {
             row.insertCell(3).textContent = proveedorName;
             row.insertCell(4).textContent = factura.fechaEmision;
             row.insertCell(5).textContent = factura.fechaVencimiento;
-            row.insertCell(6).textContent = factura.montoTotal;
+            row.insertCell(6).textContent = `Q${factura.montoTotal}`;
             row.insertCell(7).textContent = factura.estadoPago;
-            row.insertCell(8).textContent = montoPendiente;
+            row.insertCell(8).textContent = `Q${montoPendiente}`;
             row.insertCell(9).innerHTML = `
                 <button onclick="openEditFacturaModal('${doc.id}')">Editar</button>
                 <button onclick="deleteFactura('${doc.id}')">Eliminar</button>
@@ -318,35 +319,6 @@ function openEditFacturaModal(id) {
 
 function openViewFacturaModal(id) {
     selectedFacturaId = id;
-    db.collection('facturas').doc(id).get().then(function(doc) {
-        if (doc.exists) {
-            const factura = doc.data();
-            const detalles = `
-                <p><strong>Número de Factura:</strong> ${factura.numero}</p>
-                <p><strong>Empresa:</strong> ${factura.empresaId}</p>
-                <p><strong>Sucursal:</strong> ${factura.sucursalId}</p>
-                <p><strong>Proveedor:</strong> ${factura.proveedorId}</p>
-                <p><strong>Fecha de Emisión:</strong> ${factura.fechaEmision}</p>
-                <p><strong>Fecha de Vencimiento:</strong> ${factura.fechaVencimiento}</p>
-                <p><strong>Monto Total:</strong> ${factura.montoTotal}</p>
-                <p><strong>Estado de Pago:</strong> ${factura.estadoPago}</p>
-                <p><strong>Monto Pendiente:</strong> ${factura.montoTotal - factura.pagosTotal || factura.montoTotal}</p>
-                <p><strong>Notas Adicionales:</strong> ${factura.notasAdicionales}</p>
-            `;
-            document.getElementById('facturaDetails').innerHTML = detalles;
-            displayPagos(factura.pagos);
-            openModal('viewFacturaModal');
-        } else {
-            alert('Factura no encontrada');
-        }
-    }).catch(function(error) {
-        console.error('Error al obtener los detalles de la factura:', error);
-        alert('Error al obtener los detalles de la factura: ' + error.message);
-    });
-}
-
-function openViewFacturaModal(id) {
-    selectedFacturaId = id;
     db.collection('facturas').doc(id).get().then(async function(doc) {
         if (doc.exists) {
             const factura = doc.data();
@@ -368,9 +340,9 @@ function openViewFacturaModal(id) {
             document.getElementById('proveedorName').textContent = proveedorName;
             document.getElementById('fechaEmision').textContent = factura.fechaEmision;
             document.getElementById('fechaVencimiento').textContent = factura.fechaVencimiento;
-            document.getElementById('montoTotal').textContent = factura.montoTotal;
+            document.getElementById('montoTotal').textContent = `Q${factura.montoTotal}`;
             document.getElementById('estadoPago').textContent = factura.estadoPago;
-            document.getElementById('montoPendiente').textContent = factura.montoTotal - (factura.pagosTotal || 0);
+            document.getElementById('montoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
             document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
 
             displayPagos(factura.pagos);
@@ -384,21 +356,19 @@ function openViewFacturaModal(id) {
     });
 }
 
-
 function displayPagos(pagos) {
     const pagosList = document.getElementById('pagosList');
     pagosList.innerHTML = '';
     if (Array.isArray(pagos)) {
         pagos.forEach(pago => {
             const li = document.createElement('li');
-            li.textContent = `Monto: ${pago.monto}, Fecha: ${pago.fecha}, Método: ${pago.metodoPago}, Número de Boleta: ${pago.numeroBoleta || 'N/A'}`;
+            li.textContent = `Monto: Q${pago.monto}, Fecha: ${pago.fecha}, Método: ${pago.metodoPago}, Número de Boleta: ${pago.numeroBoleta || 'N/A'}`;
             pagosList.appendChild(li);
         });
     } else {
         pagosList.innerHTML = '<li>No se encontraron pagos.</li>';
     }
 }
-
 
 function openAddPaymentModal(facturaId) {
     selectedFacturaId = facturaId;
@@ -462,7 +432,7 @@ async function addPayment() {
 
             transaction.update(facturaRef, { pagosTotal, pagos: nuevosPagos });
 
-            // Si hay un archivo de comprobante, súbelo (aquí necesitarás agregar tu lógica de subida)
+            // Si hay un archivo de comprobante, súbelo
             if (paymentComprobante) {
                 await subirComprobante(selectedFacturaId, paymentComprobante); // Llamada a la función de subida
             }
@@ -476,7 +446,6 @@ async function addPayment() {
         alert('Error al agregar pago: ' + error.message);
     }
 }
-
 
 function openMostrarPagosModal(id) {
     selectedFacturaId = id;
@@ -494,11 +463,7 @@ function openMostrarPagosModal(id) {
     });
 }
 
-
-
-
-
-// Función para subir el archivo de comprobante (debes ajustarla según la configuración de tu almacenamiento)
+// Función para subir el archivo de comprobante
 async function subirComprobante(facturaId, archivo) {
     try {
         const storageRef = firebase.storage().ref();
@@ -508,6 +473,85 @@ async function subirComprobante(facturaId, archivo) {
     } catch (error) {
         console.error('Error al subir comprobante:', error);
         alert('Error al subir comprobante: ' + error.message);
+    }
+}
+
+// Función para exportar los detalles de la factura como PDF
+async function exportarFacturaPDF() {
+    const facturaId = selectedFacturaId;
+    const facturaRef = db.collection('facturas').doc(facturaId);
+
+    const facturaDoc = await facturaRef.get();
+    if (facturaDoc.exists) {
+        const factura = facturaDoc.data();
+
+        const empresaDoc = await db.collection('empresas').doc(factura.empresaId).get();
+        const sucursalDoc = await db.collection('sucursales').doc(factura.sucursalId).get();
+        const proveedorDoc = await db.collection('providers').doc(factura.proveedorId).get();
+
+        const element = document.getElementById('invoiceContent');
+        const buttons = element.querySelectorAll('button');
+        buttons.forEach(button => button.style.display = 'none');
+
+        const win = window.open('', '', 'width=800,height=600');
+        win.document.write(`
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; font-size: 12px; }
+                    .invoice-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                    .company-details, .invoice-details { width: 45%; }
+                    .invoice-title { text-align: center; font-size: 20px; margin-bottom: 20px; }
+                    .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    .invoice-table th, .invoice-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    .total-row { font-weight: bold; }
+                    .notes { margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                ${element.innerHTML}
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.print();
+
+        buttons.forEach(button => button.style.display = 'inline-block');
+
+        const fileName = `${factura.numero}_${proveedorDoc.data().name}_${sucursalDoc.data().name}_${factura.fechaEmision}.pdf`;
+        win.document.title = fileName;
+    } else {
+        alert('Factura no encontrada');
+    }
+}
+
+// Función para exportar los detalles de la factura como Imagen
+async function exportarFacturaImagen() {
+    const facturaId = selectedFacturaId;
+    const facturaRef = db.collection('facturas').doc(facturaId);
+
+    const facturaDoc = await facturaRef.get();
+    if (facturaDoc.exists) {
+        const factura = facturaDoc.data();
+        
+        const empresaDoc = await db.collection('empresas').doc(factura.empresaId).get();
+        const sucursalDoc = await db.collection('sucursales').doc(factura.sucursalId).get();
+        const proveedorDoc = await db.collection('providers').doc(factura.proveedorId).get();
+        
+        const element = document.getElementById('invoiceContent');
+        const buttons = element.querySelectorAll('button');
+
+        buttons.forEach(button => button.style.display = 'none');
+        
+        html2canvas(element).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `${factura.numero}_${proveedorDoc.data().name}_${sucursalDoc.data().name}_${factura.fechaEmision}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            buttons.forEach(button => button.style.display = 'inline-block');
+        });
+    } else {
+        alert('Factura no encontrada');
     }
 }
 

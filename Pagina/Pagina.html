@@ -50,6 +50,7 @@
         .company-details div {
             font-size: 14px;
             color: #555;
+            margin-bottom: 4px;
         }
 
         .invoice-info {
@@ -67,6 +68,14 @@
             font-size: 14px;
             color: #555;
             margin-bottom: 8px;
+        }
+
+        .provider-name {
+            font-size: 22px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: right;
         }
 
         .invoice-title {
@@ -98,12 +107,12 @@
             letter-spacing: 0.5px;
         }
 
-        .subtotal-row, .tax-row, .total-row {
+        .subtotal-row, .tax-row, .total-row, .discount-row, .net-row {
             font-weight: bold;
             background-color: #f9f9f9;
         }
 
-        .total-row {
+        .total-row, .net-row {
             font-size: 18px;
         }
 
@@ -157,20 +166,25 @@
                 <div class="company-logo">
                     <img src="logo.png" alt="Logo de la Empresa">
                 </div>
-                <h2>Datos de la Empresa</h2>
-                <div>Nombre: xz6qUROdW7U2U8T9F8Zm</div>
+                <h2>Nombre de la Empresa: xz6qUROdW7U2U8T9F8Zm</h2>
+                <div>Sucursal: qyo1pLBNRUq1HTnYRNEk</div>
                 <div>Dirección: Calle Falsa 123</div>
                 <div>Teléfono: +502 1234-5678</div>
                 <div>Email: empresa@example.com</div>
             </div>
             <div class="invoice-info">
                 <h3>Factura</h3>
-                <div>Factura #: 001234</div>
+                <div>Número de Factura: 001234</div>
                 <div>Fecha de Emisión: 2024-08-19</div>
                 <div>Fecha de Vencimiento: 2024-08-22</div>
+                <div>Método de Pago: Transferencia</div>
                 <div>Estado de Pago: Pendiente</div>
             </div>
         </header>
+
+        <div class="provider-name">
+            Proveedor: 8iXToGcFVDgNzBx0kY83
+        </div>
 
         <div class="invoice-title">
             Detalles de la Factura
@@ -199,23 +213,31 @@
                     <td>Q100.00</td>
                 </tr>
                 <tr class="subtotal-row">
-                    <td colspan="3">Subtotal</td>
+                    <td colspan="3">Monto Total</td>
                     <td>Q200.00</td>
+                </tr>
+                <tr class="discount-row">
+                    <td colspan="3">Descuentos Aplicables</td>
+                    <td>Q20.00</td>
+                </tr>
+                <tr class="net-row">
+                    <td colspan="3">Monto Neto</td>
+                    <td>Q180.00</td>
                 </tr>
                 <tr class="tax-row">
                     <td colspan="3">Impuestos (12%)</td>
-                    <td>Q24.00</td>
+                    <td>Q21.60</td>
                 </tr>
                 <tr class="total-row">
                     <td colspan="3">Total General</td>
-                    <td>Q224.00</td>
+                    <td>Q201.60</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="notes">
             <h3>Notas Adicionales</h3>
-            <p>No hay notas adicionales.</p>
+            <p>Estos son datos adicionales relacionados con la factura.</p>
         </div>
 
         <div class="footer">
