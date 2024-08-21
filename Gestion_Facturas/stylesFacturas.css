@@ -258,3 +258,8 @@ textarea {
     margin-left: auto;
     text-align: right;
 }
+
+/* Resaltar la fila seleccionada */
+tr.selected {
+    background-color: #cce5ff;
+}

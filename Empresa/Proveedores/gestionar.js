@@ -6,43 +6,113 @@ var firebaseConfig = {
     storageBucket: "logisticdb-2e63c.appspot.com",
     messagingSenderId: "917523682093",
     appId: "1:917523682093:web:6b03fcce4dd509ecbe79a4"
-  };
+};
   
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
   
-  function showProviders() {
+document.addEventListener("DOMContentLoaded", function() {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+        window.location.href = "../../Login/Login.html";
+        return;
+    }
+
+    db.collection("usuarios").doc(userId).get().then((doc) => {
+        if (doc.exists) {
+            const role = doc.data().role;
+            const permissions = doc.data().permissions || [];
+
+            if (role === "admin_general") {
+                habilitarTodosLosBotones();
+            } else {
+                aplicarPermisos(permissions);
+            }
+
+            estilizarBotones();
+        } else {
+            console.error("No se pudo encontrar el usuario.");
+            window.location.href = "../../Login/Login.html";
+        }
+    }).catch((error) => {
+        console.error("Error obteniendo el documento: ", error);
+        window.location.href = "../../Login/Login.html";
+    });
+});
+
+function habilitarTodosLosBotones() {
+    document.getElementById("providersBtn").disabled = false;
+    document.getElementById("productsBtn").disabled = false;
+    document.getElementById("addProviderBtn").disabled = false;
+    document.getElementById("saveAddProviderBtn").disabled = false;
+    document.getElementById("saveEditProviderBtn").disabled = false;
+    document.getElementById("addProductBtn").disabled = false;
+    document.getElementById("saveAddProductBtn").disabled = false;
+    document.getElementById("saveEditProductBtn").disabled = false;
+}
+
+function aplicarPermisos(permissions) {
+    if (permissions.includes("verProveedores")) {
+        document.getElementById("providersBtn").disabled = false;
+        document.getElementById("addProviderBtn").disabled = !permissions.includes("agregarProveedores");
+        document.getElementById("saveAddProviderBtn").disabled = !permissions.includes("agregarProveedores");
+        document.getElementById("saveEditProviderBtn").disabled = !permissions.includes("editarProveedores");
+    }
+    if (permissions.includes("verProductos")) {
+        document.getElementById("productsBtn").disabled = false;
+        document.getElementById("addProductBtn").disabled = !permissions.includes("agregarProductos");
+        document.getElementById("saveAddProductBtn").disabled = !permissions.includes("agregarProductos");
+        document.getElementById("saveEditProductBtn").disabled = !permissions.includes("editarProductos");
+    }
+}
+
+function estilizarBotones() {
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+        if (button.disabled) {
+            button.style.backgroundColor = "#ccc";
+            button.style.cursor = "not-allowed";
+        } else {
+            button.style.backgroundColor = "#007BFF";
+            button.style.cursor = "pointer";
+        }
+    });
+}
+
+function showProviders() {
     document.getElementById('providersContainer').style.display = 'block';
     document.getElementById('productsContainer').style.display = 'none';
     loadProviders();
-  }
-  
-  function showProducts() {
+}
+
+function showProducts() {
     document.getElementById('providersContainer').style.display = 'none';
     document.getElementById('productsContainer').style.display = 'block';
     loadProviderOptions(); // Cargar proveedores para filtro en productos
     loadProducts(); // Cargar productos
-  }
-  
-  function showAddProviderForm() {
+}
+
+function showAddProviderForm() {
     document.getElementById('addProviderModal').style.display = 'block';
-  }
-  
-  function showAddProductForm() {
+}
+
+function showAddProductForm() {
     document.getElementById('addProductModal').style.display = 'block';
     loadProviderOptions(); // Cargar proveedores en el dropdown
-  }
-  
-  function closeModal(modalId) {
+}
+
+function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
-  }
-  
-  async function addProvider() {
+}
+
+async function addProvider() {
     try {
         var providerName = document.getElementById('providerName').value;
         var providerAddress = document.getElementById('providerAddress').value;
         var providerPhone = document.getElementById('providerPhone').value;
         var providerEmail = document.getElementById('providerEmail').value;
+        var providerCreditDays = document.getElementById('providerCreditDays').value; // Días de crédito
         var providerPaymentTerms = document.getElementById('providerPaymentTerms').value;
         var sellerName = document.getElementById('sellerName').value;
         var sellerPhone = document.getElementById('sellerPhone').value;
@@ -53,14 +123,15 @@ var firebaseConfig = {
         var providerType = document.getElementById('providerType').value;
         var preferredPaymentMethod = document.getElementById('preferredPaymentMethod').value;
         var additionalNotes = document.getElementById('additionalNotes').value;
-  
+
         if (!providerName) throw new Error('El nombre del proveedor no puede estar vacío');
-  
+
         await db.collection('providers').add({
             name: providerName,
             address: providerAddress,
             phone: providerPhone,
             email: providerEmail,
+            creditDays: providerCreditDays, // Guardar los días de crédito
             paymentTerms: providerPaymentTerms,
             sellerName: sellerName,
             sellerPhone: sellerPhone,
@@ -72,22 +143,22 @@ var firebaseConfig = {
             preferredPaymentMethod: preferredPaymentMethod,
             additionalNotes: additionalNotes
         });
-  
+
         closeModal('addProviderModal');
         loadProviders();
     } catch (error) {
         console.error('Error al agregar proveedor:', error);
         alert('Error al agregar proveedor: ' + error.message);
     }
-  }
-  
-  async function loadProviders() {
+}
+
+async function loadProviders() {
     try {
         var providersSnapshot = await db.collection('providers').get();
         var providersTableBody = document.getElementById('providersTable').getElementsByTagName('tbody')[0];
-  
+
         providersTableBody.innerHTML = '';
-  
+
         providersSnapshot.forEach(function(doc) {
             var provider = doc.data();
             var row = providersTableBody.insertRow();
@@ -103,9 +174,9 @@ var firebaseConfig = {
         console.error('Error al cargar proveedores:', error);
         alert('Error al cargar proveedores: ' + error.message);
     }
-  }
-  
-  async function viewProviderDetails(id) {
+}
+
+async function viewProviderDetails(id) {
     try {
         var doc = await db.collection('providers').doc(id).get();
         if (doc.exists) {
@@ -115,6 +186,7 @@ var firebaseConfig = {
                 Dirección: ${provider.address}<br>
                 Teléfono: ${provider.phone}<br>
                 Correo Electrónico: ${provider.email}<br>
+                Días de Crédito: ${provider.creditDays}<br> <!-- Mostrar días de crédito -->
                 Términos de Pago: ${provider.paymentTerms}<br>
                 Nombre del Vendedor: ${provider.sellerName}<br>
                 Teléfono del Vendedor: ${provider.sellerPhone}<br>
@@ -135,9 +207,9 @@ var firebaseConfig = {
         console.error('Error al obtener detalles del proveedor:', error);
         alert('Error al obtener detalles del proveedor: ' + error.message);
     }
-  }
-  
-  async function showEditProviderForm(id) {
+}
+
+async function showEditProviderForm(id) {
     try {
         var doc = await db.collection('providers').doc(id).get();
         if (doc.exists) {
@@ -147,6 +219,7 @@ var firebaseConfig = {
             document.getElementById('editProviderAddress').value = provider.address;
             document.getElementById('editProviderPhone').value = provider.phone;
             document.getElementById('editProviderEmail').value = provider.email;
+            document.getElementById('editProviderCreditDays').value = provider.creditDays; // Prellenar días de crédito
             document.getElementById('editProviderPaymentTerms').value = provider.paymentTerms;
             document.getElementById('editSellerName').value = provider.sellerName;
             document.getElementById('editSellerPhone').value = provider.sellerPhone;
@@ -165,9 +238,9 @@ var firebaseConfig = {
         console.error('Error al cargar datos del proveedor:', error);
         alert('Error al cargar datos del proveedor: ' + error.message);
     }
-  }
-  
-  async function updateProvider() {
+}
+
+async function updateProvider() {
     try {
         var id = document.getElementById('editProviderId').value;
         var updatedProvider = {
@@ -175,6 +248,7 @@ var firebaseConfig = {
             address: document.getElementById('editProviderAddress').value,
             phone: document.getElementById('editProviderPhone').value,
             email: document.getElementById('editProviderEmail').value,
+            creditDays: document.getElementById('editProviderCreditDays').value, // Actualizar días de crédito
             paymentTerms: document.getElementById('editProviderPaymentTerms').value,
             sellerName: document.getElementById('editSellerName').value,
             sellerPhone: document.getElementById('editSellerPhone').value,
@@ -186,18 +260,18 @@ var firebaseConfig = {
             preferredPaymentMethod: document.getElementById('editPreferredPaymentMethod').value,
             additionalNotes: document.getElementById('editAdditionalNotes').value
         };
-  
+
         await db.collection('providers').doc(id).update(updatedProvider);
-  
+
         closeModal('editProviderModal');
         loadProviders();
     } catch (error) {
         console.error('Error al actualizar proveedor:', error);
         alert('Error al actualizar proveedor: ' + error.message);
     }
-  }
-  
-  async function deleteProvider(id) {
+}
+
+async function deleteProvider(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {
         try {
             await db.collection('providers').doc(id).delete();
@@ -207,15 +281,15 @@ var firebaseConfig = {
             alert('Error al eliminar proveedor: ' + error.message);
         }
     }
-  }
-  
-  async function loadProviderOptions() {
+}
+
+async function loadProviderOptions() {
     try {
         var providerSelect = document.getElementById('providerSelect');
         var providerFilterSelect = document.getElementById('productProviderFilter');
         providerSelect.innerHTML = ''; // Limpiar el dropdown antes de cargar los proveedores
         providerFilterSelect.innerHTML = '<option value="">Todos los Proveedores</option>'; // Limpiar y resetear el filtro de proveedor
-  
+
         var providersSnapshot = await db.collection('providers').get();
         providersSnapshot.forEach(function(doc) {
             var provider = doc.data();
@@ -229,52 +303,52 @@ var firebaseConfig = {
         console.error('Error al cargar proveedores en el dropdown:', error);
         alert('Error al cargar proveedores en el dropdown: ' + error.message);
     }
-  }
-  
-  async function addProduct() {
+}
+
+async function addProduct() {
     try {
         var productName = document.getElementById('productName').value;
         var productPresentation = document.getElementById('productPresentation').value;
         var providerSelect = document.getElementById('providerSelect');
         var providerId = providerSelect.value;
-  
+
         if (!productName) throw new Error('El nombre del producto no puede estar vacío');
         if (!productPresentation) throw new Error('La presentación del producto no puede estar vacía');
         if (!providerId) throw new Error('Debes seleccionar un proveedor');
-  
+
         await db.collection('products').add({
             name: productName,
             presentation: productPresentation,
             providerId: providerId
         });
-  
+
         closeModal('addProductModal');
         loadProducts(); // Cargar la lista de productos inmediatamente después de agregar uno nuevo
     } catch (error) {
         console.error('Error al agregar producto:', error);
         alert('Error al agregar producto: ' + error.message);
     }
-  }
-  
-  async function loadProducts() {
+}
+
+async function loadProducts() {
     try {
         var productsSnapshot = await db.collection('products').get();
         var productsTableBody = document.getElementById('productsTable').getElementsByTagName('tbody')[0];
-  
+
         productsTableBody.innerHTML = '';
-  
+
         for (let doc of productsSnapshot.docs) {
             let product = doc.data();
             let providerDoc = await db.collection('providers').doc(product.providerId).get();
             let providerName = providerDoc.exists ? providerDoc.data().name : 'Proveedor no encontrado';
-  
+
             let row = productsTableBody.insertRow();
             row.setAttribute('data-provider-id', product.providerId); // Añadir el ID del proveedor como atributo de la fila
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             let cell3 = row.insertCell(2);
             let cell4 = row.insertCell(3);
-  
+
             cell1.textContent = product.name;
             cell2.textContent = product.presentation;
             cell3.textContent = providerName;
@@ -287,16 +361,16 @@ var firebaseConfig = {
         console.error('Error al cargar productos:', error);
         alert('Error al cargar productos: ' + error.message);
     }
-  }
-  
-  async function viewProductDetails(id) {
+}
+
+async function viewProductDetails(id) {
     try {
         var doc = await db.collection('products').doc(id).get();
         if (doc.exists) {
             var product = doc.data();
             var providerDoc = await db.collection('providers').doc(product.providerId).get();
             var providerName = providerDoc.exists ? providerDoc.data().name : 'Proveedor no encontrado';
-  
+
             var details = `
                 Nombre: ${product.name}<br>
                 Presentación: ${product.presentation}<br>
@@ -311,9 +385,9 @@ var firebaseConfig = {
         console.error('Error al obtener detalles del producto:', error);
         alert('Error al obtener detalles del producto: ' + error.message);
     }
-  }
-  
-  async function showEditProductForm(id) {
+}
+
+async function showEditProductForm(id) {
     try {
         var doc = await db.collection('products').doc(id).get();
         if (doc.exists) {
@@ -329,27 +403,27 @@ var firebaseConfig = {
         console.error('Error al cargar datos del producto:', error);
         alert('Error al cargar datos del producto: ' + error.message);
     }
-  }
-  
-  async function updateProduct() {
+}
+
+async function updateProduct() {
     try {
         var id = document.getElementById('editProductId').value;
         var updatedProduct = {
             name: document.getElementById('editProductName').value,
             presentation: document.getElementById('editProductPresentation').value
         };
-  
+
         await db.collection('products').doc(id).update(updatedProduct);
-  
+
         closeModal('editProductModal');
         loadProducts();
     } catch (error) {
         console.error('Error al actualizar producto:', error);
         alert('Error al actualizar producto: ' + error.message);
     }
-  }
-  
-  async function deleteProduct(id) {
+}
+
+async function deleteProduct(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
         try {
             await db.collection('products').doc(id).delete();
@@ -359,15 +433,15 @@ var firebaseConfig = {
             alert('Error al eliminar producto: ' + error.message);
         }
     }
-  }
-  
-  function filterProviders() {
+}
+
+function filterProviders() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById('providerSearchInput');
     filter = input.value.toUpperCase();
     table = document.getElementById('providersTable');
     tr = table.getElementsByTagName('tr');
-  
+
     for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
         td = tr[i].getElementsByTagName('td')[0];
         if (td) {
@@ -379,15 +453,15 @@ var firebaseConfig = {
             }
         }       
     }
-  }
-  
-  function filterProductsByName() {
+}
+
+function filterProductsByName() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById('productSearchInput');
     filter = input.value.toUpperCase();
     table = document.getElementById('productsTable');
     tr = table.getElementsByTagName('tr');
-  
+
     for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
         td = tr[i].getElementsByTagName('td')[0];
         if (td) {
@@ -399,15 +473,15 @@ var firebaseConfig = {
             }
         }       
     }
-  }
-  
-  function filterProductsByProvider() {
+}
+
+function filterProductsByProvider() {
     var select, filter, table, tr, i, txtValue;
     select = document.getElementById('productProviderFilter');
     filter = select.value;
     table = document.getElementById('productsTable');
     tr = table.getElementsByTagName('tr');
-  
+
     for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
         txtValue = tr[i].getAttribute('data-provider-id');
         if (filter === '' || txtValue === filter) {
@@ -416,5 +490,4 @@ var firebaseConfig = {
             tr[i].style.display = 'none';
         }
     }
-  }
-  
+}

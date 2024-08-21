@@ -328,8 +328,6 @@ function displayPagos(pagos) {
                 <span class="payment-date">Fecha: ${pago.fecha}</span>
                 <span class="payment-method">Método: ${pago.metodoPago}</span>
                 <span class="payment-amount">Monto: Q${pago.monto}</span>
-                <span class="payment-boleta">Boleta: ${pago.numeroBoleta || 'N/A'}</span>
-                <button class="comprobante-button" onclick="descargarComprobante('${pago.comprobante}')">Ver Comprobante</button>
             `;
             pagosList.appendChild(li);
         });
@@ -338,25 +336,4 @@ function displayPagos(pagos) {
     }
 }
 
-function descargarComprobante(nombreArchivo) {
-    const facturaId = selectedFacturaId;
-    const storageRef = firebase.storage().ref();
-    const archivoRef = storageRef.child(`comprobantes/${facturaId}/${nombreArchivo}`);
-
-    archivoRef.getDownloadURL()
-        .then(url => {
-            const link = document.createElement('a');
-            link.href = url;
-            link.target = '_blank';
-            link.download = nombreArchivo;
-            link.click();
-        })
-        .catch(error => {
-            console.error('Error al descargar comprobante:', error);
-            alert('Error al descargar comprobante: ' + error.message);
-        });
-}
-
-window.onload = function() {
-    loadFacturas();
-};
+window.onload = loadFacturas;

@@ -68,6 +68,7 @@
       <input type="text" id="providerAddress" placeholder="Dirección">
       <input type="text" id="providerPhone" placeholder="Teléfono">
       <input type="email" id="providerEmail" placeholder="Correo Electrónico">
+      <input type="number" id="providerCreditDays" placeholder="Días de Crédito"> <!-- Nuevo campo para días de crédito -->
       <input type="text" id="providerPaymentTerms" placeholder="Términos de Pago">
       <input type="text" id="sellerName" placeholder="Nombre del Vendedor">
       <input type="text" id="sellerPhone" placeholder="Teléfono del Vendedor">
@@ -92,6 +93,7 @@
       <input type="text" id="editProviderAddress" placeholder="Dirección">
       <input type="text" id="editProviderPhone" placeholder="Teléfono">
       <input type="email" id="editProviderEmail" placeholder="Correo Electrónico">
+      <input type="number" id="editProviderCreditDays" placeholder="Días de Crédito"> <!-- Nuevo campo para días de crédito -->
       <input type="text" id="editProviderPaymentTerms" placeholder="Términos de Pago">
       <input type="text" id="editSellerName" placeholder="Nombre del Vendedor">
       <input type="text" id="editSellerPhone" placeholder="Teléfono del Vendedor">
@@ -148,75 +150,6 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const userId = localStorage.getItem("userId");
-
-      if (!userId) {
-        window.location.href = "../../Login/Login.html";
-        return;
-      }
-
-      db.collection("usuarios").doc(userId).get().then((doc) => {
-        if (doc.exists) {
-          const role = doc.data().role;
-          const permissions = doc.data().permissions || [];
-
-          if (role === "admin_general") {
-            habilitarTodosLosBotones();
-          } else {
-            aplicarPermisos(permissions);
-          }
-
-          estilizarBotones();
-        } else {
-          console.error("No se pudo encontrar el usuario.");
-          window.location.href = "../../Login/Login.html";
-        }
-      }).catch((error) => {
-        console.error("Error obteniendo el documento: ", error);
-        window.location.href = "../../Login/Login.html";
-      });
-    });
-
-    function habilitarTodosLosBotones() {
-      document.getElementById("providersBtn").disabled = false;
-      document.getElementById("productsBtn").disabled = false;
-      document.getElementById("addProviderBtn").disabled = false;
-      document.getElementById("saveAddProviderBtn").disabled = false;
-      document.getElementById("saveEditProviderBtn").disabled = false;
-      document.getElementById("addProductBtn").disabled = false;
-      document.getElementById("saveAddProductBtn").disabled = false;
-      document.getElementById("saveEditProductBtn").disabled = false;
-    }
-
-    function aplicarPermisos(permissions) {
-      if (permissions.includes("verProveedores")) {
-        document.getElementById("providersBtn").disabled = false;
-        document.getElementById("addProviderBtn").disabled = !permissions.includes("agregarProveedores");
-        document.getElementById("saveAddProviderBtn").disabled = !permissions.includes("agregarProveedores");
-        document.getElementById("saveEditProviderBtn").disabled = !permissions.includes("editarProveedores");
-      }
-      if (permissions.includes("verProductos")) {
-        document.getElementById("productsBtn").disabled = false;
-        document.getElementById("addProductBtn").disabled = !permissions.includes("agregarProductos");
-        document.getElementById("saveAddProductBtn").disabled = !permissions.includes("agregarProductos");
-        document.getElementById("saveEditProductBtn").disabled = !permissions.includes("editarProductos");
-      }
-    }
-
-    function estilizarBotones() {
-      const buttons = document.querySelectorAll("button");
-      buttons.forEach(button => {
-        if (button.disabled) {
-          button.style.backgroundColor = "#ccc";
-          button.style.cursor = "not-allowed";
-        } else {
-          button.style.backgroundColor = "#007BFF";
-          button.style.cursor = "pointer";
-        }
-      });
-    }
-  </script>
+  <script src="gestionar.js"></script>
 </body>
 </html>

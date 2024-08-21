@@ -24,20 +24,25 @@ document.addEventListener("DOMContentLoaded", function() {
             const role = doc.data().role;
             const permissions = doc.data().permissions || [];
 
-            // Habilitar todos los botones si es Administrador General
+            console.log('Rol del usuario:', role);
+            console.log('Permisos del usuario:', permissions);
+
             if (role === "admin_general") {
                 habilitarTodosLosBotones();
             } else {
-                // Deshabilitar botones según los permisos para otros roles
                 aplicarPermisos(permissions);
             }
 
-            // Estilizar botones según su estado
             estilizarBotones();
-            
-            // Llamar funciones para cargar datos
             loadEmpresas();
             loadSucursales();
+
+            // Asignar eventos a los botones
+            document.getElementById('addEmpresaBtn').addEventListener('click', () => openModal('addEmpresaModal'));
+            document.getElementById('addSucursalBtn').addEventListener('click', () => {
+                loadEmpresasSelectOptions();  // Cargar opciones de empresas antes de abrir el modal
+                openModal('addSucursalModal');
+            });
         } else {
             console.error("No se pudo encontrar el usuario.");
             window.location.href = "../../Login/Login.html";
@@ -49,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function habilitarTodosLosBotones() {
+    console.log('Habilitando todos los botones para el administrador general');
     document.getElementById("addEmpresaBtn").disabled = false;
     document.getElementById("saveEditEmpresaBtn").disabled = false;
     document.getElementById("addSucursalBtn").disabled = false;
@@ -56,6 +62,7 @@ function habilitarTodosLosBotones() {
 }
 
 function aplicarPermisos(permissions) {
+    console.log('Aplicando permisos específicos:', permissions);
     if (!permissions.includes("agregarEmpresas")) {
         document.getElementById("addEmpresaBtn").disabled = true;
     }
@@ -108,6 +115,7 @@ function closeModal(modalId) {
 }
 
 async function addEmpresa() {
+    console.log('Función addEmpresa llamada');
     try {
         var empresaName = document.getElementById('empresaName').value;
         var empresaAddress = document.getElementById('empresaAddress').value;
@@ -116,6 +124,16 @@ async function addEmpresa() {
         var empresaCreationDate = document.getElementById('empresaCreationDate').value;
         var empresaDescription = document.getElementById('empresaDescription').value;
         var empresaStatus = document.getElementById('empresaStatus').value;
+
+        console.log('Datos de la empresa:', {
+            empresaName,
+            empresaAddress,
+            empresaPhone,
+            empresaEmail,
+            empresaCreationDate,
+            empresaDescription,
+            empresaStatus
+        });
 
         if (!empresaName) throw new Error('El nombre de la empresa no puede estar vacío');
 
@@ -375,11 +393,6 @@ async function deleteSucursal(id) {
             alert('Error al eliminar sucursal: ' + error.message);
         }
     }
-}
-
-function openAddSucursalModal() {
-    loadEmpresasSelectOptions();
-    openModal('addSucursalModal');
 }
 
 async function loadEmpresasSelectOptions() {
