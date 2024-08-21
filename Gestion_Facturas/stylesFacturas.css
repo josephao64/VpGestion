@@ -241,9 +241,20 @@ textarea {
 .payment-amount {
     font-weight: bold;
     color: #007bff;
+    margin-left: auto;
 }
 
 .payment-date, .payment-method {
     color: #555;
     font-size: 14px;
+}
+
+/* Ajustes adicionales */
+.payments-list .payment-date {
+    margin-right: auto;
+}
+
+.payments-list .payment-amount {
+    margin-left: auto;
+    text-align: right;
 }
