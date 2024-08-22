@@ -1,5 +1,4 @@
-// main.js
-
+// Exportar Factura como PDF
 async function exportarFacturaPDF() {
     const facturaId = selectedFacturaId;
     const facturaRef = db.collection('facturas').doc(facturaId);
@@ -18,7 +17,7 @@ async function exportarFacturaPDF() {
 
         const element = document.getElementById('invoiceContent');
         const buttons = element.querySelectorAll('button');
-        buttons.forEach(button => button.style.display = 'none');
+        buttons.forEach(button => button.style.display = 'none');  // Ocultar botones antes de imprimir
 
         const win = window.open('', '', 'width=800,height=600');
         win.document.write(`
@@ -43,7 +42,7 @@ async function exportarFacturaPDF() {
         win.document.close();
         win.print();
 
-        buttons.forEach(button => button.style.display = 'inline-block');
+        buttons.forEach(button => button.style.display = 'inline-block');  // Volver a mostrar los botones después de imprimir
 
         const fileName = `${factura.numero}_${proveedorName}_${sucursalName}_${factura.fechaEmision}.pdf`;
         win.document.title = fileName;
@@ -52,6 +51,7 @@ async function exportarFacturaPDF() {
     }
 }
 
+// Exportar Factura como Imagen
 async function exportarFacturaImagen() {
     const facturaId = selectedFacturaId;
     const facturaRef = db.collection('facturas').doc(facturaId);
@@ -71,20 +71,21 @@ async function exportarFacturaImagen() {
         const element = document.getElementById('invoiceContent');
         const buttons = element.querySelectorAll('button');
 
-        buttons.forEach(button => button.style.display = 'none');
+        buttons.forEach(button => button.style.display = 'none');  // Ocultar botones antes de capturar la imagen
         
         html2canvas(element).then(canvas => {
             const link = document.createElement('a');
             link.download = `${factura.numero}_${proveedorName}_${sucursalName}_${factura.fechaEmision}.png`;
             link.href = canvas.toDataURL();
             link.click();
-            buttons.forEach(button => button.style.display = 'inline-block');
+            buttons.forEach(button => button.style.display = 'inline-block');  // Volver a mostrar los botones después de capturar
         });
     } else {
         alert('Factura no encontrada');
     }
 }
 
+// Mostrar pagos realizados en la factura
 function displayPagos(pagos) {
     const pagosList = document.getElementById('pagosList');
     pagosList.innerHTML = '';
@@ -121,6 +122,7 @@ function displayPagos(pagos) {
     }
 }
 
+// Descargar comprobante de pago
 function descargarComprobante(nombreArchivo) {
     const facturaId = selectedFacturaId;
     const storageRef = firebase.storage().ref();
@@ -140,6 +142,7 @@ function descargarComprobante(nombreArchivo) {
         });
 }
 
+// Cargar facturas al iniciar la página
 window.onload = function() {
     loadFacturas();
 };

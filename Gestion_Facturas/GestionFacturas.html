@@ -82,7 +82,7 @@
             <h2>Agregar Factura</h2>
 
             <label for="facturaNumero">Número de Factura:</label>
-            <input type="text" id="facturaNumero" placeholder="Número único de la factura" readonly>
+            <input type="text" id="facturaNumero" placeholder="Número único de la factura">
 
             <label for="empresaSelect">Empresa Asociada:</label>
             <select id="empresaSelect"></select>
@@ -91,13 +91,15 @@
             <select id="sucursalSelect"></select>
 
             <label for="proveedorSelect">Proveedor Asociado:</label>
-            <select id="proveedorSelect"></select>
+            <select id="proveedorSelect" onchange="loadCreditDays()"></select>
 
             <label for="facturaFechaEmision">Fecha de Emisión:</label>
-            <input type="date" id="facturaFechaEmision">
+            <input type="date" id="facturaFechaEmision" onchange="calculateDueDate()">
 
             <label for="facturaFechaVencimiento">Fecha de Vencimiento:</label>
-            <input type="date" id="facturaFechaVencimiento">
+            <input type="date" id="facturaFechaVencimiento" readonly>
+
+            <p id="creditDaysInfo" style="font-weight: bold;"></p>
 
             <label for="facturaMontoTotal">Monto Total:</label>
             <input type="number" id="facturaMontoTotal" placeholder="Monto total de la factura">
@@ -152,10 +154,10 @@
             <select id="editProveedorSelect"></select>
             
             <label for="editFacturaFechaEmision">Fecha de Emisión:</label>
-            <input type="date" id="editFacturaFechaEmision">
+            <input type="date" id="editFacturaFechaEmision" onchange="calculateDueDate('edit')">
             
             <label for="editFacturaFechaVencimiento">Fecha de Vencimiento:</label>
-            <input type="date" id="editFacturaFechaVencimiento">
+            <input type="date" id="editFacturaFechaVencimiento" readonly>
             
             <label for="editFacturaMontoTotal">Monto Total:</label>
             <input type="number" id="editFacturaMontoTotal" placeholder="Monto Total">
@@ -232,17 +234,7 @@
 
             <div class="notes">
                 <h3>Pagos Realizados</h3>
-                <ul id="pagosList" class="payments-list">
-                    <!-- Ejemplo de pago realizado -->
-                    <li>
-                        <span class="payment-date">Fecha: 2024-08-19</span>
-                        <span class="payment-method">Método: Transferencia</span>
-                        <span class="payment-amount">Monto: Q100</span>
-                        <span class="payment-boleta">Boleta: 12345</span>
-                        <button class="comprobante-button" onclick="descargarComprobante('comprobante.pdf')">Ver Comprobante</button>
-                    </li>
-                    <!-- Más elementos de pago -->
-                </ul>
+                <ul id="pagosList" class="payments-list"></ul>
             </div>
 
             <!-- Botones para exportar, que no se incluirán en la captura -->
