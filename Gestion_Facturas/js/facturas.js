@@ -124,18 +124,7 @@ document.getElementById('facturaFechaEmision').addEventListener('change', async 
 });
 
 function validateFechaVencimiento(fechaEmision, fechaVencimiento, creditDays) {
-    const fechaEmisionDate = new Date(fechaEmision);
-    const fechaVencimientoDate = new Date(fechaVencimiento);
-    const diasCalculados = Math.floor((fechaVencimientoDate - fechaEmisionDate) / (1000 * 60 * 60 * 24));
-    
-    const warningElement = document.getElementById('vencimientoWarning');
-    
-    if (diasCalculados !== creditDays) {
-        warningElement.style.display = 'block';
-        warningElement.textContent = `Advertencia: La fecha de vencimiento calculada (${fechaVencimiento}) no coincide con los ${creditDays} días de crédito. Verifica la fecha.`;
-    } else {
-        warningElement.style.display = 'none';
-    }
+    // Eliminando la advertencia de validación de fecha de vencimiento
 }
 
 async function loadProveedoresSelectOptions(proveedorSelectId) {
@@ -175,23 +164,79 @@ async function loadProveedoresSelectOptions(proveedorSelectId) {
 
 async function addFactura() {
     try {
-        // Obtener los valores de los campos
-        const facturaNumero = document.getElementById('facturaNumero').value;
+        // Obtener los valores de los campos del formulario
+        const facturaNumero = document.getElementById('facturaNumero').value.trim();
         const empresaId = document.getElementById('empresaSelect').value;
         const sucursalId = document.getElementById('sucursalSelect').value;
         const proveedorId = document.getElementById('proveedorSelect').value;
         const fechaEmision = document.getElementById('facturaFechaEmision').value;
         const fechaVencimiento = document.getElementById('facturaFechaVencimiento').value;
-        const montoTotal = document.getElementById('facturaMontoTotal').value;
+        const montoTotal = parseFloat(document.getElementById('facturaMontoTotal').value);
+        const estadoPago = document.getElementById('facturaEstadoPago').value;
+        const facturaArchivo = document.getElementById('facturaArchivo').files[0];
+        const descuentos = parseFloat(document.getElementById('facturaDescuentos').value) || 0;
+        const montoNeto = parseFloat(document.getElementById('facturaMontoNeto').value) || montoTotal - descuentos;
+        const metodoPago = document.getElementById('facturaMetodoPago').value;
+        const notasAdicionales = document.getElementById('facturaNotas').value.trim();
 
-        // Validar fechas
-        if (new Date(fechaVencimiento) <= new Date(fechaEmision)) {
-            alert('La fecha de vencimiento debe ser posterior a la fecha de emisión.');
+        // Validar campos obligatorios
+        if (!facturaNumero || !empresaId || !sucursalId || !proveedorId || !fechaEmision || !fechaVencimiento || isNaN(montoTotal)) {
+            alert('Por favor, completa todos los campos obligatorios.');
             return;
         }
 
-        // Lógica existente para agregar la factura...
-        // ...
+        // Cargar archivo (si existe) al almacenamiento de Firebase
+        let archivoURL = '';
+        if (facturaArchivo) {
+            const storageRef = firebase.storage().ref();
+            const archivoRef = storageRef.child(`facturas/${facturaArchivo.name}`);
+            await archivoRef.put(facturaArchivo);
+            archivoURL = await archivoRef.getDownloadURL();
+        }
+
+        // Crear objeto de factura
+        const nuevaFactura = {
+            numero: facturaNumero,
+            empresaId: empresaId,
+            sucursalId: sucursalId,
+            proveedorId: proveedorId,
+            fechaEmision: fechaEmision,
+            fechaVencimiento: fechaVencimiento,
+            montoTotal: montoTotal,
+            estadoPago: estadoPago,
+            archivoURL: archivoURL,
+            descuentos: descuentos,
+            montoNeto: montoNeto,
+            metodoPago: metodoPago,
+            notasAdicionales: notasAdicionales,
+            pagosTotal: 0, // Inicialmente no hay pagos
+        };
+
+        // Guardar la factura en Firestore
+        await db.collection('facturas').add(nuevaFactura);
+
+        // Cerrar el modal
+        closeModal('addFacturaModal');
+
+        // Recargar la lista de facturas
+        loadFacturas();
+
+        // Limpiar los campos del formulario
+        document.getElementById('facturaNumero').value = '';
+        document.getElementById('empresaSelect').value = '';
+        document.getElementById('sucursalSelect').value = '';
+        document.getElementById('proveedorSelect').value = '';
+        document.getElementById('facturaFechaEmision').value = '';
+        document.getElementById('facturaFechaVencimiento').value = '';
+        document.getElementById('facturaMontoTotal').value = '';
+        document.getElementById('facturaEstadoPago').value = 'Pendiente';
+        document.getElementById('facturaArchivo').value = '';
+        document.getElementById('facturaDescuentos').value = '';
+        document.getElementById('facturaMontoNeto').value = '';
+        document.getElementById('facturaMetodoPago').value = 'Transferencia';
+        document.getElementById('facturaNotas').value = '';
+
+        alert('Factura agregada exitosamente.');
 
     } catch (error) {
         console.error('Error al agregar factura:', error);
@@ -219,10 +264,10 @@ function openEditFacturaModal() {
                 document.getElementById('editFacturaFechaVencimiento').value = factura.fechaVencimiento;
                 document.getElementById('editFacturaMontoTotal').value = factura.montoTotal;
                 document.getElementById('editFacturaEstadoPago').value = factura.estadoPago;
-                document.getElementById('editFacturaDescuentos').value = factura.descuentos;
-                document.getElementById('editFacturaMontoNeto').value = factura.montoNeto;
+                document.getElementById('editFacturaDescuentos').value = factura.descuentos || 0;
+                document.getElementById('editFacturaMontoNeto').value = factura.montoNeto || 0;
                 document.getElementById('editFacturaMetodoPago').value = factura.metodoPago;
-                document.getElementById('editFacturaNotas').value = factura.notasAdicionales;
+                document.getElementById('editFacturaNotas').value = factura.notasAdicionales || '';
                 openModal('editFacturaModal');
             } else {
                 alert('Factura no encontrada');
@@ -445,6 +490,16 @@ function displayPagos(pagos) {
     } else {
         pagosList.innerHTML = '<li>No se encontraron pagos realizados.</li>';
     }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'none';
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'block';
 }
 
 window.onload = loadFacturas;
