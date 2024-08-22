@@ -106,6 +106,10 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
+function isInteger(value) {
+    return Number.isInteger(parseFloat(value)) && Number(value) >= 0;
+}
+
 async function addProvider() {
     try {
         var providerName = document.getElementById('providerName').value;
@@ -123,6 +127,11 @@ async function addProvider() {
         var providerType = document.getElementById('providerType').value;
         var preferredPaymentMethod = document.getElementById('preferredPaymentMethod').value;
         var additionalNotes = document.getElementById('additionalNotes').value;
+
+        // Validación de que los días de crédito sean un entero positivo
+        if (!isInteger(providerCreditDays)) {
+            throw new Error('Los días de crédito deben ser un número entero no negativo');
+        }
 
         if (!providerName) throw new Error('El nombre del proveedor no puede estar vacío');
 
@@ -196,8 +205,7 @@ async function viewProviderDetails(id) {
                 Teléfono de la Persona de Créditos: ${provider.creditPersonPhone}<br>
                 Tipo de Proveedor: ${provider.type}<br>
                 Método de Pago Preferido: ${provider.preferredPaymentMethod}<br>
-                Notas Adicionales: ${provider.additionalNotes}<br>
-            `;
+                Notas Adicionales: ${provider.additionalNotes}<br>`;
             document.getElementById('providerDetails').innerHTML = details;
             document.getElementById('providerDetailsModal').style.display = 'block';
         } else {
@@ -260,6 +268,11 @@ async function updateProvider() {
             preferredPaymentMethod: document.getElementById('editPreferredPaymentMethod').value,
             additionalNotes: document.getElementById('editAdditionalNotes').value
         };
+
+        // Validación de que los días de crédito sean un entero positivo
+        if (!isInteger(updatedProvider.creditDays)) {
+            throw new Error('Los días de crédito deben ser un número entero no negativo');
+        }
 
         await db.collection('providers').doc(id).update(updatedProvider);
 
@@ -374,8 +387,7 @@ async function viewProductDetails(id) {
             var details = `
                 Nombre: ${product.name}<br>
                 Presentación: ${product.presentation}<br>
-                Proveedor: ${providerName}<br>
-            `;
+                Proveedor: ${providerName}<br>`;
             document.getElementById('productDetails').innerHTML = details;
             document.getElementById('productDetailsModal').style.display = 'block';
         } else {

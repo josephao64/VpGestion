@@ -82,7 +82,7 @@
             <h2>Agregar Factura</h2>
 
             <label for="facturaNumero">Número de Factura:</label>
-            <input type="text" id="facturaNumero" placeholder="Número único de la factura">
+            <input type="text" id="facturaNumero" placeholder="Número único de la factura" readonly>
 
             <label for="empresaSelect">Empresa Asociada:</label>
             <select id="empresaSelect"></select>
@@ -91,15 +91,18 @@
             <select id="sucursalSelect"></select>
 
             <label for="proveedorSelect">Proveedor Asociado:</label>
-            <select id="proveedorSelect" onchange="loadCreditDays()"></select>
+            <select id="proveedorSelect" onchange="setCreditDaysForProveedor(this.value);"></select>
+
+            <label for="creditDays">Días de Crédito:</label>
+            <input type="text" id="creditDays" placeholder="Días de crédito del proveedor" readonly>
 
             <label for="facturaFechaEmision">Fecha de Emisión:</label>
-            <input type="date" id="facturaFechaEmision" onchange="calculateDueDate()">
+            <input type="date" id="facturaFechaEmision" onchange="calculateFechaVencimiento()">
 
             <label for="facturaFechaVencimiento">Fecha de Vencimiento:</label>
             <input type="date" id="facturaFechaVencimiento" readonly>
 
-            <p id="creditDaysInfo" style="font-weight: bold;"></p>
+            <p id="vencimientoWarning" style="color: red; display: none;">La fecha de vencimiento no parece correcta.</p>
 
             <label for="facturaMontoTotal">Monto Total:</label>
             <input type="number" id="facturaMontoTotal" placeholder="Monto total de la factura">
@@ -154,10 +157,10 @@
             <select id="editProveedorSelect"></select>
             
             <label for="editFacturaFechaEmision">Fecha de Emisión:</label>
-            <input type="date" id="editFacturaFechaEmision" onchange="calculateDueDate('edit')">
+            <input type="date" id="editFacturaFechaEmision">
             
             <label for="editFacturaFechaVencimiento">Fecha de Vencimiento:</label>
-            <input type="date" id="editFacturaFechaVencimiento" readonly>
+            <input type="date" id="editFacturaFechaVencimiento">
             
             <label for="editFacturaMontoTotal">Monto Total:</label>
             <input type="number" id="editFacturaMontoTotal" placeholder="Monto Total">

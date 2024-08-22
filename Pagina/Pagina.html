@@ -3,267 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factura Completa</title>
+    <title>Calculadora de Fecha de Vencimiento</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        .invoice-container {
-            max-width: 800px;
-            margin: 0 auto;
+        .container {
             background-color: #fff;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
         }
 
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #4CAF50;
-        }
-
-        .company-details {
-            width: 60%;
-        }
-
-        .company-logo img {
-            width: 120px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-
-        .company-details h2 {
-            margin: 0;
-            font-size: 22px;
-            color: #333;
-        }
-
-        .company-details div {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 4px;
-        }
-
-        .invoice-info {
-            text-align: right;
-            width: 35%;
-        }
-
-        .invoice-info h3 {
-            margin: 0;
-            font-size: 20px;
-            color: #333;
-        }
-
-        .invoice-info div {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 8px;
-        }
-
-        .provider-name {
-            font-size: 22px;
-            color: #333;
+        label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: bold;
-            margin-bottom: 20px;
-            text-align: right;
         }
 
-        .invoice-title {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 26px;
-            color: #333;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .invoice-table {
+        input, button {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        .invoice-table th, .invoice-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .invoice-table th {
-            background-color: #f4f4f4;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .subtotal-row, .tax-row, .total-row, .discount-row, .net-row {
-            font-weight: bold;
-            background-color: #f9f9f9;
-        }
-
-        .total-row, .net-row {
-            font-size: 18px;
-        }
-
-        .notes {
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .notes h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .notes p {
-            margin: 0;
-            color: #666;
-        }
-
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
+            padding: 8px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
         }
 
         button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #218838;
+        }
+
+        .result {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .warning {
+            color: orange;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
-    <div class="invoice-container" id="invoice">
-        <header class="invoice-header">
-            <div class="company-details">
-                <div class="company-logo">
-                    <img src="logo.png" alt="Logo de la Empresa">
-                </div>
-                <h2>Nombre de la Empresa: xz6qUROdW7U2U8T9F8Zm</h2>
-                <div>Sucursal: qyo1pLBNRUq1HTnYRNEk</div>
-                <div>Dirección: Calle Falsa 123</div>
-                <div>Teléfono: +502 1234-5678</div>
-                <div>Email: empresa@example.com</div>
-            </div>
-            <div class="invoice-info">
-                <h3>Factura</h3>
-                <div>Número de Factura: 001234</div>
-                <div>Fecha de Emisión: 2024-08-19</div>
-                <div>Fecha de Vencimiento: 2024-08-22</div>
-                <div>Método de Pago: Transferencia</div>
-                <div>Estado de Pago: Pendiente</div>
-            </div>
-        </header>
+    <div class="container">
+        <h2>Calculadora de Fecha de Vencimiento</h2>
+        <label for="proveedor">Proveedor:</label>
+        <input type="text" id="proveedor" placeholder="Nombre del Proveedor">
 
-        <div class="provider-name">
-            Proveedor: 8iXToGcFVDgNzBx0kY83
-        </div>
+        <label for="diasCredito">Días de Crédito:</label>
+        <input type="number" id="diasCredito" placeholder="Días de Crédito">
 
-        <div class="invoice-title">
-            Detalles de la Factura
-        </div>
+        <label for="fechaEmision">Fecha de Emisión:</label>
+        <input type="date" id="fechaEmision">
 
-        <table class="invoice-table">
-            <thead>
-                <tr>
-                    <th>Descripción</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Producto/Servicio 1</td>
-                    <td>1</td>
-                    <td>Q100.00</td>
-                    <td>Q100.00</td>
-                </tr>
-                <tr>
-                    <td>Producto/Servicio 2</td>
-                    <td>2</td>
-                    <td>Q50.00</td>
-                    <td>Q100.00</td>
-                </tr>
-                <tr class="subtotal-row">
-                    <td colspan="3">Monto Total</td>
-                    <td>Q200.00</td>
-                </tr>
-                <tr class="discount-row">
-                    <td colspan="3">Descuentos Aplicables</td>
-                    <td>Q20.00</td>
-                </tr>
-                <tr class="net-row">
-                    <td colspan="3">Monto Neto</td>
-                    <td>Q180.00</td>
-                </tr>
-                <tr class="tax-row">
-                    <td colspan="3">Impuestos (12%)</td>
-                    <td>Q21.60</td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="3">Total General</td>
-                    <td>Q201.60</td>
-                </tr>
-            </tbody>
-        </table>
+        <button onclick="calcularVencimiento()">Calcular Fecha de Vencimiento</button>
 
-        <div class="notes">
-            <h3>Notas Adicionales</h3>
-            <p>Estos son datos adicionales relacionados con la factura.</p>
-        </div>
-
-        <div class="footer">
-            <p>Gracias por su negocio. Esta factura es válida hasta la fecha de vencimiento.</p>
-        </div>
+        <div id="resultado" class="result"></div>
     </div>
 
-    <button onclick="generatePDF()">Descargar Factura en PDF</button>
-
     <script>
-        async function generatePDF() {
-            const { jsPDF } = window.jspdf;
+        function calcularVencimiento() {
+            const proveedor = document.getElementById("proveedor").value;
+            const diasCredito = parseInt(document.getElementById("diasCredito").value);
+            const fechaEmision = new Date(document.getElementById("fechaEmision").value);
 
-            // Convertir el contenedor de la factura a un canvas usando html2canvas
-            const invoice = document.getElementById('invoice');
-            const canvas = await html2canvas(invoice);
-            const imgData = canvas.toDataURL('image/png');
+            // Validaciones
+            if (!proveedor) {
+                mostrarMensaje("error", "Por favor ingrese el nombre del proveedor.");
+                return;
+            }
 
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            if (isNaN(diasCredito) || diasCredito <= 0) {
+                mostrarMensaje("error", "Por favor ingrese un número válido de días de crédito.");
+                return;
+            }
 
-            // Añadir la imagen al PDF
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('factura.pdf');
+            if (isNaN(fechaEmision.getTime())) {
+                mostrarMensaje("error", "Por favor ingrese una fecha de emisión válida.");
+                return;
+            }
+
+            // Calcular la fecha de vencimiento
+            let fechaVencimiento = new Date(fechaEmision);
+            fechaVencimiento.setDate(fechaVencimiento.getDate() + diasCredito);
+
+            // Mostrar resultado
+            mostrarMensaje("result", `Proveedor: ${proveedor}<br>Fecha de Vencimiento: ${fechaVencimiento.toLocaleDateString()}`);
+        }
+
+        function mostrarMensaje(tipo, mensaje) {
+            const resultadoDiv = document.getElementById("resultado");
+            resultadoDiv.innerHTML = mensaje;
+            resultadoDiv.className = tipo;
         }
     </script>
 </body>
