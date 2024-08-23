@@ -124,7 +124,7 @@ document.getElementById('facturaFechaEmision').addEventListener('change', async 
 });
 
 function validateFechaVencimiento(fechaEmision, fechaVencimiento, creditDays) {
-    // Eliminando la advertencia de validación de fecha de vencimiento
+    // Lógica para validar la fecha de vencimiento
 }
 
 async function loadProveedoresSelectOptions(proveedorSelectId) {

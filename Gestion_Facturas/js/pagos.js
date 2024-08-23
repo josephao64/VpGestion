@@ -1,24 +1,25 @@
 // pagos.js
 
-let selectedFacturaId;
-let montoPendiente = 0;
+let montoPendiente = 0; // Eliminada la declaración de 'selectedFacturaId' para evitar conflicto
 
-function openAddPaymentModal(facturaId) {
-    selectedFacturaId = facturaId;
-    
-    // Cargar el monto pendiente de la factura seleccionada
-    db.collection('facturas').doc(facturaId).get().then((doc) => {
-        if (doc.exists) {
-            const factura = doc.data();
-            montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
-            openModal('addPaymentModal');
-        } else {
-            alert('Factura no encontrada');
-        }
-    }).catch((error) => {
-        console.error('Error al obtener la factura:', error);
-        alert('Error al obtener la factura: ' + error.message);
-    });
+function openAddPaymentModal() {
+    if (selectedFacturaId) {
+        // Cargar el monto pendiente de la factura seleccionada
+        db.collection('facturas').doc(selectedFacturaId).get().then((doc) => {
+            if (doc.exists) {
+                const factura = doc.data();
+                montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
+                openModal('addPaymentModal');
+            } else {
+                alert('Factura no encontrada');
+            }
+        }).catch((error) => {
+            console.error('Error al obtener la factura:', error);
+            alert('Error al obtener la factura: ' + error.message);
+        });
+    } else {
+        alert('No se ha seleccionado ninguna factura.');
+    }
 }
 
 function validatePaymentAmount() {
