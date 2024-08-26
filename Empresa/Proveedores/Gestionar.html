@@ -56,6 +56,8 @@
           <th>Nombre</th>
           <th>Presentación</th>
           <th>Proveedor</th>
+          <th>Precio</th> <!-- Nueva columna para el precio -->
+          <th>Descripción</th> <!-- Nueva columna para la descripción -->
           <th>Acciones</th>
         </tr>
       </thead>
@@ -129,6 +131,10 @@
       <input type="text" id="productName" placeholder="Nombre del Producto">
       <input type="text" id="productPresentation" placeholder="Presentación del Producto">
       <select id="providerSelect"></select>
+      <!-- Nuevo campo para el precio -->
+      <input type="number" id="productPrice" placeholder="Precio" min="0" step="0.01">
+      <!-- Nuevo campo para la descripción -->
+      <textarea id="productDescription" placeholder="Descripción del Producto"></textarea>
       <button id="saveAddProductBtn" onclick="addProduct()"><i class="fas fa-save"></i> Agregar Producto</button>
     </div>
   </div>
@@ -141,6 +147,10 @@
       <input type="hidden" id="editProductId">
       <input type="text" id="editProductName" placeholder="Nombre del Producto">
       <input type="text" id="editProductPresentation" placeholder="Presentación del Producto">
+      <!-- Nuevo campo para el precio -->
+      <input type="number" id="editProductPrice" placeholder="Precio" min="0" step="0.01">
+      <!-- Nuevo campo para la descripción -->
+      <textarea id="editProductDescription" placeholder="Descripción del Producto"></textarea>
       <button id="saveEditProductBtn" onclick="updateProduct()"><i class="fas fa-save"></i> Guardar Cambios</button>
     </div>
   </div>

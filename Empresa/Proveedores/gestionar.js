@@ -7,10 +7,10 @@ var firebaseConfig = {
     messagingSenderId: "917523682093",
     appId: "1:917523682093:web:6b03fcce4dd509ecbe79a4"
 };
-  
+
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
-  
+
 document.addEventListener("DOMContentLoaded", function() {
     const userId = localStorage.getItem("userId");
 
@@ -324,15 +324,20 @@ async function addProduct() {
         var productPresentation = document.getElementById('productPresentation').value;
         var providerSelect = document.getElementById('providerSelect');
         var providerId = providerSelect.value;
+        var productPrice = document.getElementById('productPrice').value; // Nuevo
+        var productDescription = document.getElementById('productDescription').value; // Nuevo
 
         if (!productName) throw new Error('El nombre del producto no puede estar vacío');
         if (!productPresentation) throw new Error('La presentación del producto no puede estar vacía');
         if (!providerId) throw new Error('Debes seleccionar un proveedor');
+        if (!productPrice) throw new Error('El precio del producto no puede estar vacío');
 
         await db.collection('products').add({
             name: productName,
             presentation: productPresentation,
-            providerId: providerId
+            providerId: providerId,
+            price: parseFloat(productPrice), // Nuevo
+            description: productDescription // Nuevo
         });
 
         closeModal('addProductModal');
@@ -356,16 +361,20 @@ async function loadProducts() {
             let providerName = providerDoc.exists ? providerDoc.data().name : 'Proveedor no encontrado';
 
             let row = productsTableBody.insertRow();
-            row.setAttribute('data-provider-id', product.providerId); // Añadir el ID del proveedor como atributo de la fila
+            row.setAttribute('data-provider-id', product.providerId);
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             let cell3 = row.insertCell(2);
-            let cell4 = row.insertCell(3);
+            let cell4 = row.insertCell(3); // Nueva celda para el precio
+            let cell5 = row.insertCell(4); // Nueva celda para la descripción
+            let cell6 = row.insertCell(5);
 
             cell1.textContent = product.name;
             cell2.textContent = product.presentation;
             cell3.textContent = providerName;
-            cell4.innerHTML = `
+            cell4.textContent = product.price ? `Q${product.price.toFixed(2)}` : ''; // Mostrar el precio con el signo de quetzales
+            cell5.textContent = product.description || ''; // Mostrar la descripción
+            cell6.innerHTML = `
                 <button onclick="viewProductDetails('${doc.id}')">Ver Detalles</button>
                 <button onclick="showEditProductForm('${doc.id}')">Editar</button>
                 <button onclick="deleteProduct('${doc.id}')">Eliminar</button>`;
@@ -387,7 +396,9 @@ async function viewProductDetails(id) {
             var details = `
                 Nombre: ${product.name}<br>
                 Presentación: ${product.presentation}<br>
-                Proveedor: ${providerName}<br>`;
+                Proveedor: ${providerName}<br>
+                Precio: Q${product.price ? product.price.toFixed(2) : 'No disponible'}<br>
+                Descripción: ${product.description || 'No disponible'}<br>`;
             document.getElementById('productDetails').innerHTML = details;
             document.getElementById('productDetailsModal').style.display = 'block';
         } else {
@@ -407,6 +418,8 @@ async function showEditProductForm(id) {
             document.getElementById('editProductId').value = id;
             document.getElementById('editProductName').value = product.name;
             document.getElementById('editProductPresentation').value = product.presentation;
+            document.getElementById('editProductPrice').value = product.price; // Nuevo
+            document.getElementById('editProductDescription').value = product.description; // Nuevo
             document.getElementById('editProductModal').style.display = 'block';
         } else {
             alert('Producto no encontrado.');
@@ -422,7 +435,9 @@ async function updateProduct() {
         var id = document.getElementById('editProductId').value;
         var updatedProduct = {
             name: document.getElementById('editProductName').value,
-            presentation: document.getElementById('editProductPresentation').value
+            presentation: document.getElementById('editProductPresentation').value,
+            price: parseFloat(document.getElementById('editProductPrice').value), // Nuevo
+            description: document.getElementById('editProductDescription').value // Nuevo
         };
 
         await db.collection('products').doc(id).update(updatedProduct);

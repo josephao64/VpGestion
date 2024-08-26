@@ -32,17 +32,17 @@ function disableActionButtons() {
 
 async function loadFacturas() {
     try {
-        var facturasSnapshot = await db.collection('facturas').get();
-        var facturasTableBody = document.getElementById('facturasTable').getElementsByTagName('tbody')[0];
+        const facturasSnapshot = await db.collection('facturas').get();
+        const facturasTableBody = document.getElementById('facturasTable').getElementsByTagName('tbody')[0];
         facturasTableBody.innerHTML = '';
 
-        var empresasSnapshot = await db.collection('empresas').get();
-        var sucursalesSnapshot = await db.collection('sucursales').get();
-        var proveedoresSnapshot = await db.collection('providers').get();
+        const empresasSnapshot = await db.collection('empresas').get();
+        const sucursalesSnapshot = await db.collection('sucursales').get();
+        const proveedoresSnapshot = await db.collection('providers').get();
 
-        var empresasMap = new Map();
-        var sucursalesMap = new Map();
-        var proveedoresMap = new Map();
+        const empresasMap = new Map();
+        const sucursalesMap = new Map();
+        const proveedoresMap = new Map();
 
         empresasSnapshot.forEach(function(doc) {
             empresasMap.set(doc.id, doc.data().name);
@@ -65,7 +65,9 @@ async function loadFacturas() {
             let montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
 
             let row = facturasTableBody.insertRow();
+            row.setAttribute('data-id', doc.id);
             row.onclick = () => selectFactura(doc.id, row);
+            row.ondblclick = () => openViewFacturaModal(); // Abrir detalles al hacer doble clic
 
             row.insertCell(0).textContent = factura.numero;
             row.insertCell(1).textContent = empresaName;
@@ -86,85 +88,66 @@ async function loadFacturas() {
     }
 }
 
-async function loadProveedorCreditDays(proveedorId) {
-    try {
-        const proveedorDoc = await db.collection('providers').doc(proveedorId).get();
-        if (proveedorDoc.exists) {
-            const proveedor = proveedorDoc.data();
-            const creditDays = proveedor.creditDays || 0; // Obtener los días de crédito o usar 0 si no está definido
-            document.getElementById('creditDays').value = creditDays; // Mostrar días de crédito en la interfaz
-            return creditDays;
-        } else {
-            throw new Error('Proveedor no encontrado');
-        }
-    } catch (error) {
-        console.error('Error al cargar días de crédito del proveedor:', error);
-        alert('Error al cargar días de crédito del proveedor: ' + error.message);
-        return 0;
-    }
-}
+async function openViewFacturaModal() {
+    if (selectedFacturaId) {
+        try {
+            const doc = await db.collection('facturas').doc(selectedFacturaId).get();
+            if (doc.exists) {
+                const factura = doc.data();
 
-function calculateVencimiento(fechaEmision, creditDays) {
-    const fecha = new Date(fechaEmision);
-    fecha.setDate(fecha.getDate() + parseInt(creditDays, 10));
-    return fecha.toISOString().split('T')[0]; // Retorna la fecha en formato 'YYYY-MM-DD'
-}
+                const empresaDoc = await db.collection('empresas').doc(factura.empresaId).get();
+                const empresaName = empresaDoc.exists ? empresaDoc.data().name : 'Empresa no encontrada';
 
-document.getElementById('facturaFechaEmision').addEventListener('change', async function() {
-    const proveedorId = document.getElementById('proveedorSelect').value;
-    if (proveedorId) {
-        const creditDays = await loadProveedorCreditDays(proveedorId);
-        const fechaEmision = document.getElementById('facturaFechaEmision').value;
-        const fechaVencimiento = calculateVencimiento(fechaEmision, creditDays);
-        document.getElementById('facturaFechaVencimiento').value = fechaVencimiento;
-        validateFechaVencimiento(fechaEmision, fechaVencimiento, creditDays);
-    } else {
-        alert('Por favor, selecciona primero un proveedor.');
-    }
-});
+                const sucursalDoc = await db.collection('sucursales').doc(factura.sucursalId).get();
+                const sucursalName = sucursalDoc.exists ? sucursalDoc.data().name : 'Sucursal no encontrada';
 
-function validateFechaVencimiento(fechaEmision, fechaVencimiento, creditDays) {
-    // Lógica para validar la fecha de vencimiento
-}
+                const proveedorDoc = await db.collection('providers').doc(factura.proveedorId).get();
+                const proveedorName = proveedorDoc.exists ? proveedorDoc.data().name : 'Proveedor no encontrado';
 
-async function loadProveedoresSelectOptions(proveedorSelectId) {
-    try {
-        const proveedoresSnapshot = await db.collection('providers').get();
-        const proveedorSelect = document.getElementById(proveedorSelectId);
-        proveedorSelect.innerHTML = '<option value="">Selecciona un Proveedor</option>';
-
-        proveedoresSnapshot.forEach(function(doc) {
-            const proveedor = doc.data();
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = proveedor.name;
-            proveedorSelect.appendChild(option);
-        });
-
-        proveedorSelect.addEventListener('change', async function() {
-            const proveedorId = proveedorSelect.value;
-            if (proveedorId) {
-                const creditDays = await loadProveedorCreditDays(proveedorId);
-                const fechaEmision = document.getElementById('facturaFechaEmision').value;
-                if (fechaEmision) {
-                    const fechaVencimiento = calculateVencimiento(fechaEmision, creditDays);
-                    document.getElementById('facturaFechaVencimiento').value = fechaVencimiento;
-                    validateFechaVencimiento(fechaEmision, fechaVencimiento, creditDays);
-                } else {
-                    alert('Por favor, selecciona primero una fecha de emisión.');
+                const cuentaProveedorSnapshot = await db.collection('cuentasProveedores').where('proveedorId', '==', factura.proveedorId).get();
+                let cuentaProveedor = 'No disponible';
+                let tipoCuentaProveedor = 'No disponible';
+                let bancoProveedor = 'No disponible';
+                if (!cuentaProveedorSnapshot.empty) {
+                    const cuentaDoc = cuentaProveedorSnapshot.docs[0].data();
+                    cuentaProveedor = cuentaDoc.numeroCuenta;
+                    tipoCuentaProveedor = cuentaDoc.tipoCuenta;
+                    bancoProveedor = cuentaDoc.banco;
                 }
-            }
-        });
 
-    } catch (error) {
-        console.error('Error al cargar opciones de proveedores:', error);
-        alert('Error al cargar opciones de proveedores: ' + error.message);
+                document.getElementById('facturaNumero').textContent = factura.numero;
+                document.getElementById('empresaName').textContent = empresaName;
+                document.getElementById('sucursalName').textContent = sucursalName;
+                document.getElementById('proveedorName').textContent = proveedorName;
+                document.getElementById('fechaEmision').textContent = factura.fechaEmision;
+                document.getElementById('fechaVencimiento').textContent = factura.fechaVencimiento;
+                document.getElementById('montoTotal').textContent = `Q${factura.montoTotal}`;
+                document.getElementById('estadoPago').textContent = factura.estadoPago;
+                document.getElementById('montoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
+                document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
+
+                // Mostrar los detalles en el cuadro de detalles adicionales
+                document.getElementById('cuadroEmpresaName').textContent = empresaName;
+                document.getElementById('cuadroProveedorName').textContent = proveedorName;
+                document.getElementById('cuadroSucursalName').textContent = sucursalName;
+                document.getElementById('cuadroMontoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
+                document.getElementById('cuadroCuentaProveedor').textContent = cuentaProveedor;
+                document.getElementById('cuadroTipoCuentaProveedor').textContent = tipoCuentaProveedor;
+                document.getElementById('cuadroCuentaProveedorBanco').textContent = bancoProveedor;
+
+                openModal('viewFacturaModal');
+            } else {
+                alert('Factura no encontrada');
+            }
+        } catch (error) {
+            console.error('Error al obtener los detalles de la factura:', error);
+            alert('Error al obtener los detalles de la factura: ' + error.message);
+        }
     }
 }
 
 async function addFactura() {
     try {
-        // Obtener los valores de los campos del formulario
         const facturaNumero = document.getElementById('facturaNumero').value.trim();
         const empresaId = document.getElementById('empresaSelect').value;
         const sucursalId = document.getElementById('sucursalSelect').value;
@@ -179,13 +162,11 @@ async function addFactura() {
         const metodoPago = document.getElementById('facturaMetodoPago').value;
         const notasAdicionales = document.getElementById('facturaNotas').value.trim();
 
-        // Validar campos obligatorios
         if (!facturaNumero || !empresaId || !sucursalId || !proveedorId || !fechaEmision || !fechaVencimiento || isNaN(montoTotal)) {
             alert('Por favor, completa todos los campos obligatorios.');
             return;
         }
 
-        // Cargar archivo (si existe) al almacenamiento de Firebase
         let archivoURL = '';
         if (facturaArchivo) {
             const storageRef = firebase.storage().ref();
@@ -194,7 +175,6 @@ async function addFactura() {
             archivoURL = await archivoRef.getDownloadURL();
         }
 
-        // Crear objeto de factura
         const nuevaFactura = {
             numero: facturaNumero,
             empresaId: empresaId,
@@ -209,19 +189,14 @@ async function addFactura() {
             montoNeto: montoNeto,
             metodoPago: metodoPago,
             notasAdicionales: notasAdicionales,
-            pagosTotal: 0, // Inicialmente no hay pagos
+            pagosTotal: 0,
         };
 
-        // Guardar la factura en Firestore
         await db.collection('facturas').add(nuevaFactura);
-
-        // Cerrar el modal
         closeModal('addFacturaModal');
-
-        // Recargar la lista de facturas
         loadFacturas();
 
-        // Limpiar los campos del formulario
+        // Limpiar campos después de agregar la factura
         document.getElementById('facturaNumero').value = '';
         document.getElementById('empresaSelect').value = '';
         document.getElementById('sucursalSelect').value = '';
@@ -279,60 +254,51 @@ function openEditFacturaModal() {
     }
 }
 
-function openViewFacturaModal() {
-    if (selectedFacturaId) {
-        db.collection('facturas').doc(selectedFacturaId).get().then(async function(doc) {
-            if (doc.exists) {
-                const factura = doc.data();
+async function updateFactura() {
+    try {
+        const facturaId = document.getElementById('editFacturaId').value;
+        const facturaNumero = document.getElementById('editFacturaNumero').value.trim();
+        const empresaId = document.getElementById('editEmpresaSelect').value;
+        const sucursalId = document.getElementById('editSucursalSelect').value;
+        const proveedorId = document.getElementById('editProveedorSelect').value;
+        const fechaEmision = document.getElementById('editFacturaFechaEmision').value;
+        const fechaVencimiento = document.getElementById('editFacturaFechaVencimiento').value;
+        const montoTotal = parseFloat(document.getElementById('editFacturaMontoTotal').value);
+        const estadoPago = document.getElementById('editFacturaEstadoPago').value;
+        const descuentos = parseFloat(document.getElementById('editFacturaDescuentos').value) || 0;
+        const montoNeto = parseFloat(document.getElementById('editFacturaMontoNeto').value) || montoTotal - descuentos;
+        const metodoPago = document.getElementById('editFacturaMetodoPago').value;
+        const notasAdicionales = document.getElementById('editFacturaNotas').value.trim();
 
-                const empresaDoc = await db.collection('empresas').doc(factura.empresaId).get();
-                const empresaName = empresaDoc.exists ? empresaDoc.data().name : 'Empresa no encontrada';
+        if (!facturaNumero || !empresaId || !sucursalId || !proveedorId || !fechaEmision || !fechaVencimiento || isNaN(montoTotal)) {
+            alert('Por favor, completa todos los campos obligatorios.');
+            return;
+        }
 
-                const sucursalDoc = await db.collection('sucursales').doc(factura.sucursalId).get();
-                const sucursalName = sucursalDoc.exists ? sucursalDoc.data().name : 'Sucursal no encontrada';
+        const facturaActualizada = {
+            numero: facturaNumero,
+            empresaId: empresaId,
+            sucursalId: sucursalId,
+            proveedorId: proveedorId,
+            fechaEmision: fechaEmision,
+            fechaVencimiento: fechaVencimiento,
+            montoTotal: montoTotal,
+            estadoPago: estadoPago,
+            descuentos: descuentos,
+            montoNeto: montoNeto,
+            metodoPago: metodoPago,
+            notasAdicionales: notasAdicionales
+        };
 
-                const proveedorDoc = await db.collection('providers').doc(factura.proveedorId).get();
-                const proveedorName = proveedorDoc.exists ? proveedorDoc.data().name : 'Proveedor no encontrado';
+        await db.collection('facturas').doc(facturaId).update(facturaActualizada);
+        closeModal('editFacturaModal');
+        loadFacturas();
 
-                document.getElementById('facturaNumero').textContent = factura.numero;
-                document.getElementById('empresaName').textContent = empresaName;
-                document.getElementById('sucursalName').textContent = sucursalName;
-                document.getElementById('proveedorName').textContent = proveedorName;
-                document.getElementById('fechaEmision').textContent = factura.fechaEmision;
-                document.getElementById('fechaVencimiento').textContent = factura.fechaVencimiento;
-                document.getElementById('montoTotal').textContent = `Q${factura.montoTotal}`;
-                document.getElementById('estadoPago').textContent = factura.estadoPago;
-                document.getElementById('montoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
-                document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
+        alert('Factura actualizada exitosamente.');
 
-                // Mostrar los pagos realizados
-                displayPagos(factura.pagos);
-
-                openModal('viewFacturaModal');
-            } else {
-                alert('Factura no encontrada');
-            }
-        }).catch(function(error) {
-            console.error('Error al obtener los detalles de la factura:', error);
-            alert('Error al obtener los detalles de la factura: ' + error.message);
-        });
-    }
-}
-
-function openAddPaymentModal() {
-    if (selectedFacturaId) {
-        db.collection('facturas').doc(selectedFacturaId).get().then((doc) => {
-            if (doc.exists) {
-                const factura = doc.data();
-                montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
-                openModal('addPaymentModal');
-            } else {
-                alert('Factura no encontrada');
-            }
-        }).catch((error) => {
-            console.error('Error al obtener la factura:', error);
-            alert('Error al obtener la factura: ' + error.message);
-        });
+    } catch (error) {
+        console.error('Error al actualizar factura:', error);
+        alert('Error al actualizar factura: ' + error.message);
     }
 }
 
@@ -355,23 +321,23 @@ function deleteFactura() {
 }
 
 function filterFacturas() {
-    var numero = document.getElementById('searchNumero').value.toUpperCase();
-    var proveedor = document.getElementById('searchProveedor').value.toUpperCase();
-    var empresa = document.getElementById('searchEmpresa').value.toUpperCase();
-    var sucursal = document.getElementById('searchSucursal').value.toUpperCase();
-    var table = document.getElementById('facturasTable');
-    var tr = table.getElementsByTagName('tr');
+    const numero = document.getElementById('searchNumero').value.toUpperCase();
+    const proveedor = document.getElementById('searchProveedor').value.toUpperCase();
+    const empresa = document.getElementById('searchEmpresa').value.toUpperCase();
+    const sucursal = document.getElementById('searchSucursal').value.toUpperCase();
+    const table = document.getElementById('facturasTable');
+    const tr = table.getElementsByTagName('tr');
 
-    for (var i = 1; i < tr.length; i++) {
-        var tdNumero = tr[i].getElementsByTagName('td')[0];
-        var tdEmpresa = tr[i].getElementsByTagName('td')[1];
-        var tdSucursal = tr[i].getElementsByTagName('td')[2];
-        var tdProveedor = tr[i].getElementsByTagName('td')[3];
+    for (let i = 1; i < tr.length; i++) {
+        const tdNumero = tr[i].getElementsByTagName('td')[0];
+        const tdEmpresa = tr[i].getElementsByTagName('td')[1];
+        const tdSucursal = tr[i].getElementsByTagName('td')[2];
+        const tdProveedor = tr[i].getElementsByTagName('td')[3];
         if (tdNumero && tdEmpresa && tdSucursal && tdProveedor) {
-            var txtNumero = tdNumero.textContent || tdNumero.innerText;
-            var txtEmpresa = tdEmpresa.textContent || tdEmpresa.innerText;
-            var txtSucursal = tdSucursal.textContent || tdSucursal.innerText;
-            var txtProveedor = tdProveedor.textContent || tdProveedor.innerText;
+            const txtNumero = tdNumero.textContent || tdNumero.innerText;
+            const txtEmpresa = tdEmpresa.textContent || tdEmpresa.innerText;
+            const txtSucursal = tdSucursal.textContent || tdSucursal.innerText;
+            const txtProveedor = tdProveedor.textContent || tdProveedor.innerText;
 
             if (txtNumero.toUpperCase().indexOf(numero) > -1 && 
                 txtEmpresa.toUpperCase().indexOf(empresa) > -1 &&
@@ -386,21 +352,21 @@ function filterFacturas() {
 }
 
 function sortFacturasByDate() {
-    var order = document.getElementById('dateOrder').value;
-    var table = document.getElementById('facturasTable');
-    var rows = Array.from(table.rows).slice(1);
+    const order = document.getElementById('dateOrder').value;
+    const table = document.getElementById('facturasTable');
+    const rows = Array.from(table.rows).slice(1);
 
     rows.sort(function (a, b) {
-        var dateA = new Date(a.cells[4].innerText);
-        var dateB = new Date(b.cells[4].innerText);
+        const dateA = new Date(a.cells[4].innerText); // Fecha de emisión
+        const dateB = new Date(b.cells[4].innerText);
 
         if (order === 'oldest') {
             return dateA - dateB;
         } else if (order === 'newest') {
             return dateB - dateA;
         } else if (order === 'closestToDue') {
-            var dueDateA = new Date(a.cells[5].innerText);
-            var dueDateB = new Date(b.cells[5].innerText);
+            const dueDateA = new Date(a.cells[5].innerText); // Fecha de vencimiento
+            const dueDateB = new Date(b.cells[5].innerText);
             return dueDateA - dueDateB;
         }
     });
@@ -412,15 +378,15 @@ function sortFacturasByDate() {
 
 async function loadEmpresasSelectOptions(empresaSelectId, sucursalSelectId) {
     try {
-        var empresasSnapshot = await db.collection('empresas').get();
-        var empresaSelect = document.getElementById(empresaSelectId);
-        var sucursalSelect = document.getElementById(sucursalSelectId);
+        const empresasSnapshot = await db.collection('empresas').get();
+        const empresaSelect = document.getElementById(empresaSelectId);
+        const sucursalSelect = document.getElementById(sucursalSelectId);
         empresaSelect.innerHTML = '<option value="">Selecciona una Empresa</option>';
         sucursalSelect.innerHTML = '<option value="">Selecciona una Sucursal</option>';
 
         empresasSnapshot.forEach(function(doc) {
-            var empresa = doc.data();
-            var option = document.createElement('option');
+            const empresa = doc.data();
+            const option = document.createElement('option');
             option.value = doc.id;
             option.textContent = empresa.name;
             empresaSelect.appendChild(option);
@@ -438,13 +404,13 @@ async function loadEmpresasSelectOptions(empresaSelectId, sucursalSelectId) {
 
 async function loadSucursalesSelectOptions(sucursalSelectId, empresaId) {
     try {
-        var sucursalesSnapshot = await db.collection('sucursales').where('empresaId', '==', empresaId).get();
-        var sucursalSelect = document.getElementById(sucursalSelectId);
+        const sucursalesSnapshot = await db.collection('sucursales').where('empresaId', '==', empresaId).get();
+        const sucursalSelect = document.getElementById(sucursalSelectId);
         sucursalSelect.innerHTML = '<option value="">Selecciona una Sucursal</option>';
 
         sucursalesSnapshot.forEach(function(doc) {
-            var sucursal = doc.data();
-            var option = document.createElement('option');
+            const sucursal = doc.data();
+            const option = document.createElement('option');
             option.value = doc.id;
             option.textContent = sucursal.name;
             sucursalSelect.appendChild(option);
@@ -457,13 +423,13 @@ async function loadSucursalesSelectOptions(sucursalSelectId, empresaId) {
 
 async function loadProveedoresSelectOptions(proveedorSelectId) {
     try {
-        var proveedoresSnapshot = await db.collection('providers').get();
-        var proveedorSelect = document.getElementById(proveedorSelectId);
+        const proveedoresSnapshot = await db.collection('providers').get();
+        const proveedorSelect = document.getElementById(proveedorSelectId);
         proveedorSelect.innerHTML = '<option value="">Selecciona un Proveedor</option>';
 
         proveedoresSnapshot.forEach(function(doc) {
-            var proveedor = doc.data();
-            var option = document.createElement('option');
+            const proveedor = doc.data();
+            const option = document.createElement('option');
             option.value = doc.id;
             option.textContent = proveedor.name;
             proveedorSelect.appendChild(option);
@@ -476,7 +442,7 @@ async function loadProveedoresSelectOptions(proveedorSelectId) {
 
 function displayPagos(pagos) {
     const pagosList = document.getElementById('pagosList');
-    pagosList.innerHTML = ''; // Limpiar la lista de pagos
+    pagosList.innerHTML = '';
     if (pagos && pagos.length > 0) {
         pagos.forEach(pago => {
             const li = document.createElement('li');
@@ -500,6 +466,34 @@ function closeModal(modalId) {
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'block';
+}
+
+function exportarDetallesPagoImagen() {
+    const detallesPagoContainer = document.getElementById('detallesPagoContainer');
+    html2canvas(detallesPagoContainer).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'detalles_pago.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+function exportarFacturaPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.text('Factura', 20, 20);
+    doc.save('factura.pdf');
+}
+
+function exportarFacturaImagen() {
+    const invoiceContent = document.getElementById('invoiceContent');
+    html2canvas(invoiceContent).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'factura.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
 }
 
 window.onload = loadFacturas;

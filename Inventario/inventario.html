@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Inventario</title>
+
+  <!-- Incluye Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Incluye las bibliotecas de Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  
+  <!-- Incluye las bibliotecas de jsPDF y html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <link rel="stylesheet" href="stylesgestionar.css">
+  <script defer src="inventario.js"></script>
+</head>
+<body>
+  <div class="top-right">
+    <button onclick="location.href='../Main.HTML'"><i class="fas fa-arrow-left"></i> Regresar</button>
+  </div>
+  
+  <h1><i class="fas fa-warehouse"></i> Gestión de Inventario</h1>
+
+  <div class="buttons">
+    <button id="addInventoryBtn" onclick="showAddInventoryForm()"><i class="fas fa-plus-circle"></i> Agregar Producto al Inventario</button>
+    <button id="generateReportBtn" onclick="showReportTab()"><i class="fas fa-chart-line"></i> Generar Reporte</button>
+    <!-- Botones de acciones -->
+    <button id="adjustInventoryBtn" onclick="adjustSelectedInventory()" disabled><i class="fas fa-edit"></i> Reajustar Inventario</button>
+    <button id="removeInventoryBtn" onclick="removeSelectedInventory()" disabled><i class="fas fa-trash"></i> Eliminar Producto</button>
+    <button id="increaseInventoryBtn" onclick="increaseSelectedInventory()" disabled><i class="fas fa-plus"></i> Ingreso Producto</button>
+    <button id="exportTableBtn" onclick="exportTableToPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+    <button id="exportTableImgBtn" onclick="exportTableToImage()"><i class="fas fa-file-image"></i> Exportar Imagen</button>
+  </div>
+
+  <!-- Contenedor de Inventario -->
+  <div id="inventoryContainer" class="container">
+    <h2><i class="fas fa-box"></i> Inventario de Productos</h2>
+    <input type="text" id="inventorySearchInput" onkeyup="filterInventory()" placeholder="Buscar por nombre de producto...">
+    <table id="inventoryTable">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Presentación</th>
+          <th>Proveedor</th>
+          <th>Precio</th>
+          <th>Stock Inicial</th>
+          <th>Stock Actual</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Contenedor de Reportes -->
+  <div id="reportContainer" class="container" style="display: none;">
+    <h2><i class="fas fa-chart-line"></i> Reporte de Inventario</h2>
+    <select id="reportProductSelect">
+      <option value="">Seleccione un producto</option>
+    </select>
+    <select id="reportBranchSelect">
+      <option value="">Todas las Sucursales</option>
+    </select>
+    <button id="generateReportBtn" onclick="generateReport()"><i class="fas fa-chart-bar"></i> Generar</button>
+
+    <h3>Detalles del Reporte</h3>
+    <table id="reportTable">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Sucursal</th>
+          <th>Stock Inicial</th>
+          <th>Nuevos Ingresos</th>
+          <th>Salidas</th>
+          <th>Stock Actual</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Modal para agregar producto al inventario -->
+  <div id="addInventoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('addInventoryModal')">&times;</span>
+      <h2><i class="fas fa-plus-circle"></i> Agregar Producto al Inventario</h2>
+      <select id="productSelect"></select>
+      <input type="number" id="initialStock" placeholder="Stock Inicial" min="0">
+      <input type="number" id="currentStock" placeholder="Stock Actual" min="0">
+      <button id="saveAddInventoryBtn" onclick="addInventory()"><i class="fas fa-save"></i> Agregar al Inventario</button>
+    </div>
+  </div>
+
+  <!-- Modal para reajustar inventario -->
+  <div id="adjustInventoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('adjustInventoryModal')">&times;</span>
+      <h2><i class="fas fa-edit"></i> Reajustar Inventario</h2>
+      <input type="hidden" id="adjustInventoryId">
+      <input type="number" id="adjustCurrentStock" placeholder="Stock Actual" min="0">
+      <button id="saveAdjustInventoryBtn" onclick="adjustInventory()"><i class="fas fa-save"></i> Reajustar Inventario</button>
+    </div>
+  </div>
+
+  <!-- Modal para ingreso de producto -->
+  <div id="increaseInventoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('increaseInventoryModal')">&times;</span>
+      <h2><i class="fas fa-plus-circle"></i> Ingreso de Producto</h2>
+      <input type="hidden" id="increaseInventoryId">
+      <input type="number" id="increaseStockQuantity" placeholder="Cantidad a Ingresar" min="1">
+      <button id="saveIncreaseInventoryBtn" onclick="increaseInventory()"><i class="fas fa-save"></i> Ingresar al Inventario</button>
+    </div>
+  </div>
+
+  <script src="inventario.js"></script>
+</body>
+</html>

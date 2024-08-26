@@ -6,9 +6,6 @@
     <title>Gestión de Facturas</title>
     <link rel="stylesheet" href="stylesFacturas.css">
 
-    <!-- Incluye Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <!-- Incluye las bibliotecas de Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
@@ -24,19 +21,19 @@
     <script src="js/firebaseConfig.js"></script>
 </head>
 <body>
-    <h1><i class="fas fa-file-invoice"></i> Gestión de Facturas</h1>
+    <h1>Gestión de Facturas</h1>
 
     <!-- Botón para agregar una nueva factura -->
     <div class="top-right">
-        <button onclick="openAddFacturaModal()"><i class="fas fa-plus-circle"></i> Agregar Factura</button>
+        <button onclick="openAddFacturaModal()">Agregar Factura</button>
     </div>
 
     <!-- Menú de acciones -->
     <div id="actionMenu" class="top-right">
-        <button id="editButton" onclick="openEditFacturaModal()" disabled><i class="fas fa-edit"></i> Editar Factura</button>
-        <button id="deleteButton" onclick="deleteFactura()" disabled><i class="fas fa-trash-alt"></i> Eliminar Factura</button>
-        <button id="viewButton" onclick="openViewFacturaModal()" disabled><i class="fas fa-eye"></i> Ver Detalles</button>
-        <button id="paymentButton" onclick="openAddPaymentModal()" disabled><i class="fas fa-money-check-alt"></i> Agregar Pago</button>
+        <button id="editButton" onclick="openEditFacturaModal()" disabled>Editar Factura</button>
+        <button id="deleteButton" onclick="deleteFactura()" disabled>Eliminar Factura</button>
+        <button id="viewButton" onclick="openViewFacturaModal()" disabled>Ver Detalles</button>
+        <button id="paymentButton" onclick="openAddPaymentModal()" disabled>Agregar Pago</button>
     </div>
 
     <!-- Filtros de Búsqueda -->
@@ -49,7 +46,7 @@
 
     <!-- Filtro para ordenar por fecha -->
     <div class="date-filter">
-        <label for="dateOrder"><i class="fas fa-calendar-alt"></i> Ordenar por Fecha:</label>
+        <label for="dateOrder">Ordenar por Fecha:</label>
         <select id="dateOrder" onchange="sortFacturasByDate()">
             <option value="oldest">Fecha Más Antigua</option>
             <option value="newest">Fecha Más Reciente</option>
@@ -59,7 +56,7 @@
 
     <!-- Contenedor para la lista de facturas -->
     <div id="facturasContainer" class="container">
-        <h2><i class="fas fa-list"></i> Lista de Facturas</h2>
+        <h2>Lista de Facturas</h2>
         <table id="facturasTable">
             <thead>
                 <tr>
@@ -82,61 +79,61 @@
     <div id="addFacturaModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addFacturaModal')">&times;</span>
-            <h2><i class="fas fa-plus"></i> Agregar Factura</h2>
+            <h2>Agregar Factura</h2>
 
-            <label for="facturaNumero"><i class="fas fa-hashtag"></i> Número de Factura:</label>
+            <label for="facturaNumero">Número de Factura:</label>
             <input type="text" id="facturaNumero" placeholder="Número único de la factura">
 
-            <label for="empresaSelect"><i class="fas fa-building"></i> Empresa Asociada:</label>
+            <label for="empresaSelect">Empresa Asociada:</label>
             <select id="empresaSelect"></select>
 
-            <label for="sucursalSelect"><i class="fas fa-map-marker-alt"></i> Sucursal Asociada:</label>
+            <label for="sucursalSelect">Sucursal Asociada:</label>
             <select id="sucursalSelect"></select>
 
-            <label for="proveedorSelect"><i class="fas fa-truck"></i> Proveedor Asociado:</label>
+            <label for="proveedorSelect">Proveedor Asociado:</label>
             <select id="proveedorSelect"></select>
 
-            <label for="creditDays"><i class="fas fa-calendar"></i> Días de Crédito:</label>
+            <label for="creditDays">Días de Crédito:</label>
             <input type="text" id="creditDays" placeholder="Días de crédito del proveedor" readonly>
 
-            <label for="facturaFechaEmision"><i class="fas fa-calendar-day"></i> Fecha de Emisión:</label>
+            <label for="facturaFechaEmision">Fecha de Emisión:</label>
             <input type="date" id="facturaFechaEmision">
 
-            <label for="facturaFechaVencimiento"><i class="fas fa-calendar-check"></i> Fecha de Vencimiento:</label>
+            <label for="facturaFechaVencimiento">Fecha de Vencimiento:</label>
             <input type="date" id="facturaFechaVencimiento" readonly>
 
             <p id="vencimientoWarning" style="color: red; display: none;">La fecha de vencimiento no parece correcta.</p>
 
-            <label for="facturaMontoTotal"><i class="fas fa-money-bill-wave"></i> Monto Total:</label>
+            <label for="facturaMontoTotal">Monto Total:</label>
             <input type="number" id="facturaMontoTotal" placeholder="Monto total de la factura">
 
-            <label for="facturaEstadoPago"><i class="fas fa-credit-card"></i> Estado de Pago:</label>
+            <label for="facturaEstadoPago">Estado de Pago:</label>
             <select id="facturaEstadoPago">
                 <option value="Pendiente">Pendiente</option>
                 <option value="Pagado">Pagado</option>
                 <option value="Vencido">Vencido</option>
             </select>
 
-            <label for="facturaArchivo"><i class="fas fa-file-upload"></i> Archivo de Factura:</label>
+            <label for="facturaArchivo">Archivo de Factura:</label>
             <input type="file" id="facturaArchivo" placeholder="Sube el archivo de la factura (PDF/imagen)">
 
-            <label for="facturaDescuentos"><i class="fas fa-percent"></i> Descuentos Aplicables:</label>
+            <label for="facturaDescuentos">Descuentos Aplicables:</label>
             <input type="number" id="facturaDescuentos" placeholder="Descuentos aplicados a la factura">
 
-            <label for="facturaMontoNeto"><i class="fas fa-calculator"></i> Monto Neto:</label>
+            <label for="facturaMontoNeto">Monto Neto:</label>
             <input type="number" id="facturaMontoNeto" placeholder="Monto neto después de descuentos">
 
-            <label for="facturaMetodoPago"><i class="fas fa-money-check"></i> Método de Pago:</label>
+            <label for="facturaMetodoPago">Método de Pago:</label>
             <select id="facturaMetodoPago">
                 <option value="Transferencia">Transferencia</option>
                 <option value="Cheque">Cheque</option>
                 <option value="Efectivo">Efectivo</option>
             </select>
 
-            <label for="facturaNotas"><i class="fas fa-sticky-note"></i> Notas Adicionales:</label>
+            <label for="facturaNotas">Notas Adicionales:</label>
             <textarea id="facturaNotas" placeholder="Notas adicionales sobre la factura"></textarea>
 
-            <button onclick="addFactura()"><i class="fas fa-plus"></i> Agregar Factura</button>
+            <button onclick="addFactura()">Agregar Factura</button>
         </div>
     </div>
 
@@ -144,60 +141,60 @@
     <div id="editFacturaModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('editFacturaModal')">&times;</span>
-            <h2><i class="fas fa-edit"></i> Editar Factura</h2>
+            <h2>Editar Factura</h2>
             
-            <label for="editFacturaNumero"><i class="fas fa-hashtag"></i> Número de Factura:</label>
+            <label for="editFacturaNumero">Número de Factura:</label>
             <input type="hidden" id="editFacturaId">
             <input type="text" id="editFacturaNumero" placeholder="Número de Factura">
             
-            <label for="editEmpresaSelect"><i class="fas fa-building"></i> Empresa Asociada:</label>
+            <label for="editEmpresaSelect">Empresa Asociada:</label>
             <select id="editEmpresaSelect"></select>
             
-            <label for="editSucursalSelect"><i class="fas fa-map-marker-alt"></i> Sucursal Asociada:</label>
+            <label for="editSucursalSelect">Sucursal Asociada:</label>
             <select id="editSucursalSelect"></select>
             
-            <label for="editProveedorSelect"><i class="fas fa-truck"></i> Proveedor Asociado:</label>
+            <label for="editProveedorSelect">Proveedor Asociado:</label>
             <select id="editProveedorSelect"></select>
 
-            <label for="editCreditDays"><i class="fas fa-calendar"></i> Días de Crédito:</label>
+            <label for="editCreditDays">Días de Crédito:</label>
             <input type="text" id="editCreditDays" placeholder="Días de crédito del proveedor" readonly>
 
-            <label for="editFacturaFechaEmision"><i class="fas fa-calendar-day"></i> Fecha de Emisión:</label>
+            <label for="editFacturaFechaEmision">Fecha de Emisión:</label>
             <input type="date" id="editFacturaFechaEmision">
             
-            <label for="editFacturaFechaVencimiento"><i class="fas fa-calendar-check"></i> Fecha de Vencimiento:</label>
+            <label for="editFacturaFechaVencimiento">Fecha de Vencimiento:</label>
             <input type="date" id="editFacturaFechaVencimiento" readonly>
             
-            <label for="editFacturaMontoTotal"><i class="fas fa-money-bill-wave"></i> Monto Total:</label>
+            <label for="editFacturaMontoTotal">Monto Total:</label>
             <input type="number" id="editFacturaMontoTotal" placeholder="Monto Total">
             
-            <label for="editFacturaEstadoPago"><i class="fas fa-credit-card"></i> Estado de Pago:</label>
+            <label for="editFacturaEstadoPago">Estado de Pago:</label>
             <select id="editFacturaEstadoPago">
                 <option value="Pendiente">Pendiente</option>
                 <option value="Pagado">Pagado</option>
                 <option value="Vencido">Vencido</option>
             </select>
             
-            <label for="editFacturaArchivo"><i class="fas fa-file-upload"></i> Archivo de Factura:</label>
+            <label for="editFacturaArchivo">Archivo de Factura:</label>
             <input type="file" id="editFacturaArchivo">
             
-            <label for="editFacturaDescuentos"><i class="fas fa-percent"></i> Descuentos Aplicables:</label>
+            <label for="editFacturaDescuentos">Descuentos Aplicables:</label>
             <input type="number" id="editFacturaDescuentos" placeholder="Descuentos Aplicables">
             
-            <label for="editFacturaMontoNeto"><i class="fas fa-calculator"></i> Monto Neto:</label>
+            <label for="editFacturaMontoNeto">Monto Neto:</label>
             <input type="number" id="editFacturaMontoNeto" placeholder="Monto Neto">
             
-            <label for="editFacturaMetodoPago"><i class="fas fa-money-check"></i> Método de Pago:</label>
+            <label for="editFacturaMetodoPago">Método de Pago:</label>
             <select id="editFacturaMetodoPago">
                 <option value="Transferencia">Transferencia</option>
                 <option value="Cheque">Cheque</option>
                 <option value="Efectivo">Efectivo</option>
             </select>
             
-            <label for="editFacturaNotas"><i class="fas fa-sticky-note"></i> Notas Adicionales:</label>
+            <label for="editFacturaNotas">Notas Adicionales:</label>
             <textarea id="editFacturaNotas" placeholder="Notas Adicionales"></textarea>
             
-            <button onclick="updateFactura()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            <button onclick="updateFactura()">Guardar Cambios</button>
         </div>
     </div>
 
@@ -205,6 +202,7 @@
     <div id="viewFacturaModal" class="modal">
         <div class="modal-content invoice-container" id="invoiceContent">
             <span class="close" onclick="closeModal('viewFacturaModal')">&times;</span>
+            
             <div class="invoice-header">
                 <div class="company-details">
                     <p id="sucursalName"></p>
@@ -219,7 +217,7 @@
                 </div>
             </div>
 
-            <h2 class="invoice-title"><i class="fas fa-file-invoice"></i> Factura</h2>
+            <h2 class="invoice-title">Factura</h2>
 
             <table class="invoice-table">
                 <tr>
@@ -237,29 +235,27 @@
             </table>
 
             <div class="notes">
-                <h3><i class="fas fa-sticky-note"></i> Notas Adicionales</h3>
+                <h3>Notas Adicionales</h3>
                 <p id="notasAdicionales" style="color: #000;"></p>
             </div>
 
-            <div class="notes">
-                <h3><i class="fas fa-money-check-alt"></i> Pagos Realizados</h3>
-                <ul id="pagosList" class="payments-list">
-                    <!-- Ejemplo de pago realizado -->
-                    <li>
-                        <span class="payment-date"><i class="fas fa-calendar-alt"></i> Fecha: 2024-08-19</span>
-                        <span class="payment-method"><i class="fas fa-money-check"></i> Método: Transferencia</span>
-                        <span class="payment-amount"><i class="fas fa-dollar-sign"></i> Monto: Q100</span>
-                        <span class="payment-boleta"><i class="fas fa-receipt"></i> Boleta: 12345</span>
-                        <button class="comprobante-button" onclick="descargarComprobante('comprobante.pdf')"><i class="fas fa-download"></i> Ver Comprobante</button>
-                    </li>
-                    <!-- Más elementos de pago -->
-                </ul>
+            <div class="detalles-adicionales" id="detallesPagoContainer" style="text-align: center; padding: 10px; border: 1px solid #000; margin-top: 20px;">
+                <h2 style="font-weight: bold;">CUENTA A DEPOSITAR</h2>
+                <p id="cuadroEmpresaName" style="font-size: 16px; font-weight: bold;">Empresa</p>
+                <p id="cuadroProveedorName" style="font-size: 16px; font-weight: bold;">Proveedor</p>
+                <p id="cuadroSucursalName" style="font-size: 14px;">Sucursal</p>
+                <p>BANCO: <span id="cuadroCuentaProveedorBanco"></span></p>
+                <p>TIPO CUENTA: <span id="cuadroTipoCuentaProveedor"></span></p>
+                <p>NUMERO CUENTA: <span id="cuadroCuentaProveedor"></span></p>
+                <h2 style="font-weight: bold;">MONTO PENDIENTE</h2>
+                <p style="font-size: 18px; font-weight: bold; color: red;" id="cuadroMontoPendiente"></p>
             </div>
 
             <!-- Botones para exportar, que no se incluirán en la captura -->
             <div style="text-align: center; margin-top: 20px;">
-                <button onclick="exportarFacturaPDF()"><i class="fas fa-file-pdf"></i> Exportar como PDF</button>
-                <button onclick="exportarFacturaImagen()"><i class="fas fa-image"></i> Exportar como Imagen</button>
+                <button onclick="exportarFacturaPDF()">Exportar como PDF</button>
+                <button onclick="exportarFacturaImagen()">Exportar como Imagen</button>
+                <button onclick="exportarDetallesPagoImagen()">Exportar Detalles de Pago como Imagen</button>
             </div>
         </div>
     </div>
@@ -268,37 +264,37 @@
     <div id="addPaymentModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addPaymentModal')">&times;</span>
-            <h2><i class="fas fa-money-check-alt"></i> Agregar Pago</h2>
+            <h2>Agregar Pago</h2>
             
-            <label for="paymentAmount"><i class="fas fa-dollar-sign"></i> Monto del Pago:</label>
+            <label for="paymentAmount">Monto del Pago:</label>
             <input type="number" id="paymentAmount" placeholder="Monto a pagar" step="0.01" min="0" oninput="validatePaymentAmount()">
             
-            <label for="paymentDate"><i class="fas fa-calendar-day"></i> Fecha del Pago:</label>
+            <label for="paymentDate">Fecha del Pago:</label>
             <input type="date" id="paymentDate">
 
-            <label for="paymentMethod"><i class="fas fa-money-check"></i> Método de Pago:</label>
+            <label for="paymentMethod">Método de Pago:</label>
             <select id="paymentMethod">
                 <option value="Transferencia">Transferencia</option>
                 <option value="Cheque">Cheque</option>
                 <option value="Efectivo">Efectivo</option>
             </select>
 
-            <label for="paymentBoletaNumber"><i class="fas fa-receipt"></i> Número de Boleta:</label>
+            <label for="paymentBoletaNumber">Número de Boleta:</label>
             <input type="text" id="paymentBoletaNumber" placeholder="Número de la boleta (opcional)" />
 
-            <label for="paymentComprobante"><i class="fas fa-file-upload"></i> Subir Comprobante:</label>
+            <label for="paymentComprobante">Subir Comprobante:</label>
             <input type="file" id="paymentComprobante" placeholder="Sube un comprobante (PDF/imagen)">
 
             <p id="paymentError" style="color: red; display: none;">El monto excede el saldo pendiente de la factura.</p>
 
-            <button onclick="addPayment()" id="addPaymentButton" disabled><i class="fas fa-money-check-alt"></i> Agregar Pago</button>
+            <button onclick="addPayment()" id="addPaymentButton" disabled>Agregar Pago</button>
         </div>
     </div>
 
     <!-- Incluye los scripts personalizados al final para asegurar que el DOM esté cargado -->
     <script src="js/facturas.js"></script>
-    <script src="js/modals.js"></script>
     <script src="js/pagos.js"></script>
+    <script src="js/modals.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("gestionUsuariosBtn").disabled = false;
                 document.getElementById("empresaBtn").disabled = false;
                 document.getElementById("gestionFacturasBtn").disabled = false;
+                document.getElementById("inventarioBtn").disabled = false;
+                document.getElementById("pedidosBtn").disabled = false;
             } else {
                 // Habilitar los botones según los permisos
                 if (permissions.includes("accessPagina")) {
@@ -29,6 +31,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 if (permissions.includes("accessGestionFacturas")) {
                     document.getElementById("gestionFacturasBtn").disabled = false;
+                }
+                if (permissions.includes("accessInventario")) {
+                    document.getElementById("inventarioBtn").disabled = false;
+                }
+                if (permissions.includes("accessPedidos")) {
+                    document.getElementById("pedidosBtn").disabled = false;
                 }
                 // Permitir acceso a la página de empresa a todos los usuarios
                 document.getElementById("empresaBtn").disabled = false;
@@ -67,6 +75,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (!this.disabled) {
                     window.location.href = "../Gestion_Facturas/GestionFacturas.html";
                 }
+            });
+
+            document.getElementById("inventarioBtn").addEventListener("click", function() {
+                window.location.href = "../Inventario/inventario.html";
+            });
+
+            document.getElementById("pedidosBtn").addEventListener("click", function() {
+                window.location.href = "../Pedidos/pedidos.html";
             });
 
             // Manejar el cierre de sesión
