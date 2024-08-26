@@ -5,19 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Empresa Main</title>
     <link rel="stylesheet" href="EmpresaMain.css">
+    
+    <!-- Agregar la librería de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Archivo de configuración de Firebase -->
     <script src="../../FirebaseConfig.js"></script>
+    
+    <!-- Archivo JavaScript principal para la gestión de la empresa -->
     <script src="EmpresaMain.js" defer></script>
 </head>
 <body>
     <h2>Panel de Administración de Empresa</h2>
     <div class="buttons">
-        <button id="gestionarEmpresasBtn" disabled>Gestionar Empresas/sucursales</button>
-        <button id="gestionarSucursalesBtn" disabled>Gestionar proveedores/productos</button>
-        <button id="recursosHumanosBtn" disabled>Registro de Recursos Humanos</button>
-        <button id="logoutBtn">Cerrar Sesión</button>
-        <button onclick="window.location.href='../../Main/Main.HTML'">Volver a Principal</button>
+        <!-- Botón para gestionar empresas y sucursales -->
+        <button id="gestionarEmpresasBtn" onclick="window.location.href='../Empresas/Empresas.html'">
+            <i class="fas fa-building"></i> Gestionar Empresas/sucursales
+        </button>
+
+        <!-- Botón para gestionar proveedores y productos -->
+        <button id="gestionarSucursalesBtn" onclick="window.location.href='../Proveedores/Gestionar.html'">
+            <i class="fas fa-boxes"></i> Gestionar proveedores/productos
+        </button>
+
+        <!-- Botón para registro de recursos humanos -->
+        <button id="recursosHumanosBtn" onclick="window.location.href='../Recursos_Humanos/RegistroRecursosHumanos.html'">
+            <i class="fas fa-users"></i> Registro de Recursos Humanos
+        </button>
+
+        <!-- Botón para ver recursos -->
+        <button onclick="window.location.href='../Recursos/Recursos.html'">
+            <i class="fas fa-tasks"></i> Ver Recursos
+        </button>
+
+        <!-- Botón para cerrar sesión -->
+        <button id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+
+        <!-- Botón para volver a la página principal -->
+        <button onclick="window.location.href='../../Main.HTML'">
+            <i class="fas fa-arrow-left"></i> Volver a Principal
+        </button>
     </div>
 </body>
 </html>

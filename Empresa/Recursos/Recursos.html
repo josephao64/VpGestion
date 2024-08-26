@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cuentas Bancarias</title>
+    <link rel="stylesheet" href="stylesrecursos.css">
+    
+    <!-- Agregar la librería de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Archivo JavaScript para la gestión de recursos -->
+    <script defer src="recursos.js"></script>
+    <script defer src="../../FirebaseConfig.js"></script>
+</head>
+<body>
+    <h1><i class="fas fa-university"></i> Gestión de Cuentas Bancarias</h1>
+    
+    <div class="buttons">
+        <button onclick="showCuentasEmpresas()"><i class="fas fa-building"></i> Cuentas Empresas</button>
+        <button onclick="showCuentasProveedores()"><i class="fas fa-user-tie"></i> Cuentas Proveedores</button>
+        <button onclick="window.location.href='../EmpresaMain/EmpresaMain.html'"><i class="fas fa-arrow-left"></i> Volver a Principal</button>
+    </div>
+
+    <!-- Contenedores de Cuentas Bancarias -->
+    <div id="cuentasEmpresasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-building"></i> Cuentas Bancarias de Empresas</h2>
+        <button id="addCuentaEmpresaBtn" onclick="openModal('addCuentaEmpresaModal')"><i class="fas fa-plus-circle"></i> Agregar Cuenta Empresa</button>
+        <button id="editCuentaEmpresaBtn" onclick="editCuentaEmpresa()" disabled><i class="fas fa-edit"></i> Editar Cuenta Empresa</button>
+        <button id="deleteCuentaEmpresaBtn" onclick="confirmDelete('empresa')" disabled><i class="fas fa-trash"></i> Eliminar Cuenta Empresa</button>
+        <table id="cuentasEmpresasTable">
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Banco</th>
+                    <th>Número de Cuenta</th>
+                    <th>Tipo de Cuenta</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="cuentasProveedoresContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-user-tie"></i> Cuentas Bancarias de Proveedores</h2>
+        <button id="addCuentaProveedorBtn" onclick="openModal('addCuentaProveedorModal')"><i class="fas fa-plus-circle"></i> Agregar Cuenta Proveedor</button>
+        <button id="editCuentaProveedorBtn" onclick="editCuentaProveedor()" disabled><i class="fas fa-edit"></i> Editar Cuenta Proveedor</button>
+        <button id="deleteCuentaProveedorBtn" onclick="confirmDelete('proveedor')" disabled><i class="fas fa-trash"></i> Eliminar Cuenta Proveedor</button>
+        <table id="cuentasProveedoresTable">
+            <thead>
+                <tr>
+                    <th>Proveedor</th>
+                    <th>Banco</th>
+                    <th>Número de Cuenta</th>
+                    <th>Tipo de Cuenta</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Modales para agregar y editar Cuenta Empresa -->
+    <div id="addCuentaEmpresaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addCuentaEmpresaModal')">&times;</span>
+            <h2><i class="fas fa-plus-circle"></i> Agregar Cuenta Empresa</h2>
+            <select id="empresaSelect"></select>
+            <select id="bancoEmpresa"></select>
+            <input type="text" id="numeroCuentaEmpresa" placeholder="Número de Cuenta">
+            <select id="tipoCuentaEmpresa">
+                <option value="monetaria">Monetaria</option>
+                <option value="ahorro">Ahorro</option>
+            </select>
+            <input type="text" id="descripcionCuentaEmpresa" placeholder="Descripción">
+            <button onclick="addCuentaEmpresa()"><i class="fas fa-save"></i> Agregar Cuenta</button>
+        </div>
+    </div>
+
+    <!-- Modal para editar Cuenta Empresa -->
+    <div id="editCuentaEmpresaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editCuentaEmpresaModal')">&times;</span>
+            <h2><i class="fas fa-edit"></i> Editar Cuenta Empresa</h2>
+            <select id="editEmpresaSelect"></select>
+            <select id="editBancoEmpresa"></select>
+            <input type="text" id="editNumeroCuentaEmpresa" placeholder="Número de Cuenta">
+            <select id="editTipoCuentaEmpresa">
+                <option value="monetaria">Monetaria</option>
+                <option value="ahorro">Ahorro</option>
+            </select>
+            <input type="text" id="editDescripcionCuentaEmpresa" placeholder="Descripción">
+            <button onclick="updateCuentaEmpresa()"><i class="fas fa-save"></i> Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Modales para agregar y editar Cuenta Proveedor -->
+    <div id="addCuentaProveedorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addCuentaProveedorModal')">&times;</span>
+            <h2><i class="fas fa-plus-circle"></i> Agregar Cuenta Proveedor</h2>
+            <select id="proveedorSelect"></select>
+            <select id="bancoProveedor"></select>
+            <input type="text" id="numeroCuentaProveedor" placeholder="Número de Cuenta">
+            <select id="tipoCuentaProveedor">
+                <option value="monetaria">Monetaria</option>
+                <option value="ahorro">Ahorro</option>
+            </select>
+            <input type="text" id="descripcionCuentaProveedor" placeholder="Descripción">
+            <button onclick="addCuentaProveedor()"><i class="fas fa-save"></i> Agregar Cuenta</button>
+        </div>
+    </div>
+
+    <!-- Modal para editar Cuenta Proveedor -->
+    <div id="editCuentaProveedorModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editCuentaProveedorModal')">&times;</span>
+            <h2><i class="fas fa-edit"></i> Editar Cuenta Proveedor</h2>
+            <select id="editProveedorSelect"></select>
+            <select id="editBancoProveedor"></select>
+            <input type="text" id="editNumeroCuentaProveedor" placeholder="Número de Cuenta">
+            <select id="editTipoCuentaProveedor">
+                <option value="monetaria">Monetaria</option>
+                <option value="ahorro">Ahorro</option>
+            </select>
+            <input type="text" id="editDescripcionCuentaProveedor" placeholder="Descripción">
+            <button onclick="updateCuentaProveedor()"><i class="fas fa-save"></i> Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Ventana emergente de confirmación -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('confirmDeleteModal')">&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar esta cuenta?</p>
+            <button id="confirmDeleteBtn"><i class="fas fa-trash"></i> Confirmar</button>
+            <button onclick="closeModal('confirmDeleteModal')"><i class="fas fa-times"></i> Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Ventana emergente de advertencia -->
+    <div id="warningModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('warningModal')">&times;</span>
+            <h2>Advertencia</h2>
+            <p>No se ha seleccionado ninguna cuenta. Por favor, seleccione una cuenta para continuar.</p>
+            <button onclick="closeModal('warningModal')"><i class="fas fa-check"></i> Aceptar</button>
+        </div>
+    </div>
+</body>
+</html>

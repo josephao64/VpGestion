@@ -3,116 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Fecha de Vencimiento</title>
+    <title>Subida y Visualización de Imágenes</title>
+    
+    <!-- Agregar la librería de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Firebase SDKs (Usa las versiones que no requieren módulos) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- Archivo de configuración de Firebase -->
+    <script defer src="FirebaseConfig.js"></script>
+
     <style>
+        /* Estilos CSS dentro del HTML para asegurar la aplicación */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background-color: #fff;
+            margin: 0;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+        .upload-container {
+            margin-bottom: 20px;
         }
 
-        input, button {
-            width: 100%;
+        input[type="file"], input[type="text"] {
+            margin-right: 10px;
             padding: 8px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            font-size: 16px;
         }
 
         button {
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
+            padding: 10px 15px;
+            font-size: 16px;
             cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
 
         button:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
 
-        .result {
-            font-size: 1.2em;
-            color: #333;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .error {
-            color: red;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
         }
 
-        .warning {
-            color: orange;
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Calculadora de Fecha de Vencimiento</h2>
-        <label for="proveedor">Proveedor:</label>
-        <input type="text" id="proveedor" placeholder="Nombre del Proveedor">
+    <h1>Subida y Visualización de Imágenes</h1>
+    
+    <div class="upload-container">
+        <input type="file" id="fileInput" accept="image/*">
+        <input type="text" id="fileNameInput" placeholder="Ingrese un nombre para la imagen">
+        <button onclick="uploadImage()">Guardar Imagen</button>
+    </div>
 
-        <label for="diasCredito">Días de Crédito:</label>
-        <input type="number" id="diasCredito" placeholder="Días de Crédito">
+    <h2>Lista de Imágenes</h2>
+    <table id="imagesTable">
+        <thead>
+            <tr>
+                <th>Nombre de la Imagen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-        <label for="fechaEmision">Fecha de Emisión:</label>
-        <input type="date" id="fechaEmision">
-
-        <button onclick="calcularVencimiento()">Calcular Fecha de Vencimiento</button>
-
-        <div id="resultado" class="result"></div>
+    <!-- Modal para ver la imagen -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="" alt="Imagen">
+        </div>
     </div>
 
     <script>
-        function calcularVencimiento() {
-            const proveedor = document.getElementById("proveedor").value;
-            const diasCredito = parseInt(document.getElementById("diasCredito").value);
-            const fechaEmision = new Date(document.getElementById("fechaEmision").value);
+        // Inicializar Firebase en el script principal
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXoz2O8NLW7YEVESiwLn8hn_thuv-hhZM",
+            authDomain: "dbinventariopedidos.firebaseapp.com",
+            projectId: "dbinventariopedidos",
+            storageBucket: "dbinventariopedidos.appspot.com",
+            messagingSenderId: "653151022156",
+            appId: "1:653151022156:web:9c4b691472a1bb096218e9"
+        };
 
-            // Validaciones
-            if (!proveedor) {
-                mostrarMensaje("error", "Por favor ingrese el nombre del proveedor.");
+        // Inicializa Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const db = firebase.firestore();
+
+        // Función para subir la imagen
+        async function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameInput = document.getElementById('fileNameInput');
+            const file = fileInput.files[0];
+            const fileName = fileNameInput.value;
+
+            if (!file || !fileName) {
+                alert('Por favor, selecciona una imagen y asigna un nombre.');
                 return;
             }
 
-            if (isNaN(diasCredito) || diasCredito <= 0) {
-                mostrarMensaje("error", "Por favor ingrese un número válido de días de crédito.");
-                return;
+            try {
+                const storageRef = storage.ref('images/' + fileName);
+                await storageRef.put(file);
+
+                // Guardar el nombre de la imagen en Firestore
+                await db.collection('images').add({
+                    name: fileName,
+                    path: 'images/' + fileName
+                });
+
+                alert('Imagen subida con éxito');
+                fileInput.value = '';
+                fileNameInput.value = '';
+                loadImages();  // Cargar imágenes después de la subida
+            } catch (error) {
+                console.error('Error al subir la imagen:', error);
+                alert('Error al subir la imagen: ' + error.message);
             }
-
-            if (isNaN(fechaEmision.getTime())) {
-                mostrarMensaje("error", "Por favor ingrese una fecha de emisión válida.");
-                return;
-            }
-
-            // Calcular la fecha de vencimiento
-            let fechaVencimiento = new Date(fechaEmision);
-            fechaVencimiento.setDate(fechaVencimiento.getDate() + diasCredito);
-
-            // Mostrar resultado
-            mostrarMensaje("result", `Proveedor: ${proveedor}<br>Fecha de Vencimiento: ${fechaVencimiento.toLocaleDateString()}`);
         }
 
-        function mostrarMensaje(tipo, mensaje) {
-            const resultadoDiv = document.getElementById("resultado");
-            resultadoDiv.innerHTML = mensaje;
-            resultadoDiv.className = tipo;
+        // Función para cargar las imágenes
+        async function loadImages() {
+            try {
+                const imagesSnapshot = await db.collection('images').get();
+                const imagesTableBody = document.getElementById('imagesTable').getElementsByTagName('tbody')[0];
+                imagesTableBody.innerHTML = '';
+
+                imagesSnapshot.forEach(async (doc) => {
+                    const imageData = doc.data();
+                    const row = imagesTableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+
+                    cell1.textContent = imageData.name;
+                    cell2.innerHTML = `
+                        <button onclick="viewImage('${imageData.path}')"><i class="fas fa-eye"></i> Ver</button>
+                        <button onclick="downloadImage('${imageData.path}')"><i class="fas fa-download"></i> Descargar</button>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error al cargar imágenes:', error);
+                alert('Error al cargar imágenes: ' + error.message);
+            }
         }
+
+        // Función para ver la imagen
+        async function viewImage(imagePath) {
+            try {
+                const storageRef = storage.ref(imagePath);
+                const imageURL = await storageRef.getDownloadURL();
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = imageURL;
+                openModal();
+            } catch (error) {
+                console.error('Error al obtener la URL de la imagen:', error);
+                alert('Error al obtener la URL de la imagen: ' + error.message);
+            }
+        }
+
+        // Función para descargar la imagen
+        async function downloadImage(imagePath) {
+            try {
+                const storageRef = storage.ref(imagePath);
+                const imageURL = await storageRef.getDownloadURL();
+                const a = document.createElement('a');
+                a.href = imageURL;
+                a.download = imagePath.split('/').pop();
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error al descargar la imagen:', error);
+                alert('Error al descargar la imagen: ' + error.message);
+            }
+        }
+
+        // Funciones para abrir y cerrar el modal
+        function openModal() {
+            document.getElementById('imageModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Cargar imágenes al cargar la página
+        document.addEventListener('DOMContentLoaded', loadImages);
     </script>
 </body>
 </html>

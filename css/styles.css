@@ -1,0 +1,161 @@
+/* Estilo global */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ajuste para centrar verticalmente */
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center; /* Centrar el contenido del contenedor */
+}
+
+/* Encabezado */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 2em;
+    color: #2c3e50;
+}
+
+/* Navegación y botones */
+.navigation {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espacio entre el icono y el texto */
+}
+
+.nav-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Iconos Font Awesome */
+.nav-btn i {
+    margin-right: 5px; /* Espacio entre el icono y el texto del botón */
+    font-size: 1.2em; /* Tamaño del icono */
+}
+
+/* Botón deshabilitado */
+.nav-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Estilos del contenedor del formulario de login */
+.login-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto; /* Centra el contenedor del formulario en la página */
+}
+
+/* Estilos del formulario de login */
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos de los grupos de entrada */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Estilos de los campos de entrada */
+input[type="text"],
+input[type="password"],
+select {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Estilos del botón de envío */
+button[type="submit"].btn {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"].btn:hover {
+    background-color: #2980b9;
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 15px;
+    display: none; /* Oculto por defecto */
+    text-align: center;
+}
+
+/* Iconos y alineación para elementos de formulario */
+.fas {
+    margin-right: 5px;
+}
+
+/* Ajuste de botones en general */
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .login-container {
+        width: 90%;
+        max-width: 300px;
+    }
+}

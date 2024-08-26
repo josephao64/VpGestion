@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página Principal</title>
+  <link rel="stylesheet" href="Main.css">
+  <!-- Agregamos la librería de Font Awesome para los iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="../FirebaseConfig.js"></script>
+  <script src="Main.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h2>Página Principal</h2>
+    </header>
+    <div class="navigation">
+      <button id="paginaBtn" class="nav-btn" disabled>
+        <i class="fas fa-home"></i> Página
+      </button>
+      <button id="gestionUsuariosBtn" class="nav-btn" disabled>
+        <i class="fas fa-user-cog"></i> Administrar Usuarios
+      </button>
+      <button id="empresaBtn" class="nav-btn">
+        <i class="fas fa-building"></i> Empresa
+      </button>
+      <button id="gestionFacturasBtn" class="nav-btn">
+        <i class="fas fa-file-invoice-dollar"></i> Gestionar Facturas
+      </button>
+      <button id="logoutBtn" class="nav-btn">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
+  </div>
+</body>
+</html>

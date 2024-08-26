@@ -5,19 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Recursos Humanos</title>
   <link rel="stylesheet" href="stylesRegistroRecursosHumanos.css">
+
+  <!-- Incluye Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Incluye las bibliotecas de Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="../../FirebaseConfig.js"></script>
   <script defer src="RegistroRecursosHumanos.js"></script>
 </head>
 <body>
-  <h1>Gestión de Recursos Humanos</h1>
+  <h1><i class="fas fa-users"></i> Gestión de Recursos Humanos</h1>
 
   <div class="action-buttons" style="margin-bottom: 20px;">
-    <button id="nuevoBtn" onclick="openModal('nuevoModal')" style="margin-right: 10px;">Nuevo</button>
-    <button id="editarBtn" onclick="openModal('editModal')" disabled style="margin-right: 10px;">Editar</button>
-    <button id="detallesBtn" onclick="openModal('detallesModal')" disabled style="margin-right: 10px;">Mostrar Detalles</button>
-    <button id="eliminarBtn" onclick="eliminarRecursoHumano()" disabled>Eliminar</button>
+    <button id="nuevoBtn" onclick="openModal('nuevoModal')" style="margin-right: 10px;"><i class="fas fa-plus-circle"></i> Nuevo</button>
+    <button id="editarBtn" onclick="openModal('editModal')" disabled style="margin-right: 10px;"><i class="fas fa-edit"></i> Editar</button>
+    <button id="detallesBtn" onclick="openModal('detallesModal')" disabled style="margin-right: 10px;"><i class="fas fa-info-circle"></i> Mostrar Detalles</button>
+    <button id="eliminarBtn" onclick="eliminarRecursoHumano()" disabled><i class="fas fa-trash-alt"></i> Eliminar</button>
   </div>
 
   <table id="recursosHumanosTable" style="width: 100%; border-collapse: collapse;">
@@ -37,42 +42,42 @@
   <div id="nuevoModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('nuevoModal')">&times;</span>
-      <h2>Nuevo Registro</h2>
+      <h2><i class="fas fa-plus-circle"></i> Nuevo Registro</h2>
       <form id="nuevoForm">
-        <label for="nombre">Nombre:</label>
+        <label for="nombre"><i class="fas fa-user"></i> Nombre:</label>
         <input type="text" id="nombre" required>
 
-        <label for="direccion">Dirección:</label>
+        <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección:</label>
         <input type="text" id="direccion" required>
 
-        <label for="telefono1">Teléfono 1:</label>
+        <label for="telefono1"><i class="fas fa-phone"></i> Teléfono 1:</label>
         <input type="tel" id="telefono1" required>
 
-        <label for="telefono2">Teléfono 2:</label>
+        <label for="telefono2"><i class="fas fa-phone"></i> Teléfono 2:</label>
         <input type="tel" id="telefono2">
 
-        <label for="fechaInicio">Fecha de Inicio:</label>
+        <label for="fechaInicio"><i class="fas fa-calendar-day"></i> Fecha de Inicio:</label>
         <input type="date" id="fechaInicio" required>
 
-        <label for="fechaFinal">Fecha de Final:</label>
+        <label for="fechaFinal"><i class="fas fa-calendar-alt"></i> Fecha de Final:</label>
         <input type="date" id="fechaFinal">
 
-        <label for="puesto">Puesto:</label>
+        <label for="puesto"><i class="fas fa-briefcase"></i> Puesto:</label>
         <input type="text" id="puesto" required>
 
-        <label for="salario">Salario:</label>
+        <label for="salario"><i class="fas fa-dollar-sign"></i> Salario:</label>
         <input type="number" id="salario" required>
 
-        <label for="inscritoIgss">Inscrito en IGSS:</label>
+        <label for="inscritoIgss"><i class="fas fa-user-shield"></i> Inscrito en IGSS:</label>
         <select id="inscritoIgss" required>
           <option value="si">Sí</option>
           <option value="no">No</option>
         </select>
 
-        <label for="sucursal">Sucursal:</label>
+        <label for="sucursal"><i class="fas fa-building"></i> Sucursal:</label>
         <select id="sucursal" required></select>
 
-        <button type="submit">Guardar</button>
+        <button type="submit"><i class="fas fa-save"></i> Guardar</button>
       </form>
     </div>
   </div>
@@ -81,43 +86,43 @@
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('editModal')">&times;</span>
-      <h2>Editar Registro</h2>
+      <h2><i class="fas fa-edit"></i> Editar Registro</h2>
       <form id="editForm">
         <input type="hidden" id="editId">
-        <label for="editNombre">Nombre:</label>
+        <label for="editNombre"><i class="fas fa-user"></i> Nombre:</label>
         <input type="text" id="editNombre" required>
 
-        <label for="editDireccion">Dirección:</label>
+        <label for="editDireccion"><i class="fas fa-map-marker-alt"></i> Dirección:</label>
         <input type="text" id="editDireccion" required>
 
-        <label for="editTelefono1">Teléfono 1:</label>
+        <label for="editTelefono1"><i class="fas fa-phone"></i> Teléfono 1:</label>
         <input type="tel" id="editTelefono1" required>
 
-        <label for="editTelefono2">Teléfono 2:</label>
+        <label for="editTelefono2"><i class="fas fa-phone"></i> Teléfono 2:</label>
         <input type="tel" id="editTelefono2">
 
-        <label for="editFechaInicio">Fecha de Inicio:</label>
+        <label for="editFechaInicio"><i class="fas fa-calendar-day"></i> Fecha de Inicio:</label>
         <input type="date" id="editFechaInicio" required>
 
-        <label for="editFechaFinal">Fecha de Final:</label>
+        <label for="editFechaFinal"><i class="fas fa-calendar-alt"></i> Fecha de Final:</label>
         <input type="date" id="editFechaFinal">
 
-        <label for="editPuesto">Puesto:</label>
+        <label for="editPuesto"><i class="fas fa-briefcase"></i> Puesto:</label>
         <input type="text" id="editPuesto" required>
 
-        <label for="editSalario">Salario:</label>
+        <label for="editSalario"><i class="fas fa-dollar-sign"></i> Salario:</label>
         <input type="number" id="editSalario" required>
 
-        <label for="editInscritoIgss">Inscrito en IGSS:</label>
+        <label for="editInscritoIgss"><i class="fas fa-user-shield"></i> Inscrito en IGSS:</label>
         <select id="editInscritoIgss" required>
           <option value="si">Sí</option>
           <option value="no">No</option>
         </select>
 
-        <label for="editSucursal">Sucursal:</label>
+        <label for="editSucursal"><i class="fas fa-building"></i> Sucursal:</label>
         <select id="editSucursal" required></select>
 
-        <button type="submit">Guardar Cambios</button>
+        <button type="submit"><i class="fas fa-save"></i> Guardar Cambios</button>
       </form>
     </div>
   </div>
@@ -126,7 +131,7 @@
   <div id="detallesModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('detallesModal')">&times;</span>
-      <h2>Detalles del Empleado</h2>
+      <h2><i class="fas fa-info-circle"></i> Detalles del Empleado</h2>
       <div id="detallesContenido"></div>
     </div>
   </div>

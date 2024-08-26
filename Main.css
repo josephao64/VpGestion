@@ -1,0 +1,66 @@
+/* Estilo global */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenedor principal */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center; /* Centrar el contenido del contenedor */
+}
+
+/* Encabezado */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 2em;
+    color: #2c3e50;
+}
+
+/* Navegación y botones */
+.navigation {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espacio entre el icono y el texto */
+}
+
+.nav-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Iconos Font Awesome */
+.nav-btn i {
+    margin-right: 5px; /* Espacio entre el icono y el texto del botón */
+    font-size: 1.2em; /* Tamaño del icono */
+}
+
+/* Botón deshabilitado */
+.nav-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+

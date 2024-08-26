@@ -5,24 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login con Selección de Usuario</title>
   <link rel="stylesheet" href="Login.css">
+  <!-- Agregar la librería de Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="../FirebaseConfig.js"></script>
   <script src="Login.js"></script>
 </head>
 <body>
-  <h2>Iniciar Sesión</h2>
-  <form id="loginForm">
-    <label for="userSelect">Seleccionar Usuario:</label>
-    <select id="userSelect" required>
-      <option value="" disabled>Seleccione un usuario</option>
-    </select>
-    <br><br>
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" required>
-    <br><br>
-    <button type="submit">Ingresar</button>
-    <p id="error-message" style="color:red;"></p> <!-- Mensaje de error -->
-  </form>
+  <div class="container">
+    <header>
+      <h2><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</h2>
+    </header>
+    
+    <form id="loginForm" class="login-form">
+      <div class="input-group">
+        <label for="userSelect"><i class="fas fa-user"></i> Seleccionar Usuario:</label>
+        <select id="userSelect" required>
+          <option value="" disabled selected>Seleccione un usuario</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="password"><i class="fas fa-lock"></i> Contraseña:</label>
+        <input type="password" id="password" required>
+      </div>
+
+      <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Ingresar</button>
+      <p id="error-message" class="error-message"></p> <!-- Mensaje de error -->
+    </form>
+  </div>
 </body>
 </html>

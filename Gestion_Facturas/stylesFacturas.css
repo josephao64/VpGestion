@@ -1,16 +1,19 @@
+/* Estilos generales */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif; /* Cambiado a 'Roboto' para consistencia */
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
 }
 
+/* Títulos */
 h1 {
     text-align: center;
     margin-top: 20px;
     color: #333;
 }
 
+/* Contenedor principal */
 .container {
     width: 90%;
     margin: 0 auto;
@@ -20,6 +23,7 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Filtros y botones de la barra superior */
 .filters, .date-filter, .top-right {
     display: flex;
     justify-content: space-around;
@@ -41,13 +45,19 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* Espacio entre icono y texto */
 }
 
 button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
+/* Estilos de tabla */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -74,6 +84,7 @@ table .total-row td {
     font-weight: bold;
 }
 
+/* Estilos de modales */
 .modal {
     display: none;
     position: fixed;

@@ -4,10 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión de Usuarios</title>
+  
+  <!-- Vincular al archivo CSS -->
   <link rel="stylesheet" href="GestionUsuarios.css">
+  
+  <!-- Agregar la librería de Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  
+  <!-- Archivo de configuración de Firebase -->
   <script src="../FirebaseConfig.js"></script>
+  
+  <!-- Archivo JavaScript para la gestión de usuarios -->
   <script src="GestionUsuarios.js" defer></script>
 </head>
 <body>
@@ -30,33 +41,34 @@
       </table>
     </div>
     <div class="action-buttons">
-      <button id="newBtn">Nuevo</button>
-      <button id="editBtn">Modificar</button>
-      <button id="saveBtn">Guardar</button>
-      <button id="deleteBtn">Eliminar</button>
-      <button id="logoutBtn">Salir</button>
+      <button id="newBtn"><i class="fas fa-user-plus"></i> Nuevo</button>
+      <button id="editBtn"><i class="fas fa-edit"></i> Modificar</button>
+      <button id="saveBtn"><i class="fas fa-save"></i> Guardar</button>
+      <button id="deleteBtn"><i class="fas fa-trash-alt"></i> Eliminar</button>
+      <button id="logoutBtn"><i class="fas fa-arrow-left"></i> Regresar</button> <!-- Cambiado de "Salir" a "Regresar" -->
     </div>
   </div>
 
+  <!-- Modal para crear/editar usuario -->
   <div id="userModal" class="modal">
     <div class="modal-content">
       <span class="close" id="closeModal">&times;</span>
-      <h2 id="modalTitle">Crear/Editar Usuario</h2>
+      <h2 id="modalTitle"><i class="fas fa-user-cog"></i> Crear/Editar Usuario</h2>
       <form id="userForm">
-        <label for="username">Nombre de Usuario:</label>
+        <label for="username"><i class="fas fa-user"></i> Nombre de Usuario:</label>
         <input type="text" id="username" required>
         <br><br>
-        <label for="password">Contraseña:</label>
+        <label for="password"><i class="fas fa-lock"></i> Contraseña:</label>
         <input type="password" id="password" required>
         <br><br>
-        <label for="role">Rol:</label>
+        <label for="role"><i class="fas fa-user-tag"></i> Rol:</label>
         <select id="role" required>
           <option value="admin">Administrador</option>
           <option value="digitador">Digitador</option>
         </select>
         <br><br>
         <fieldset>
-          <legend>Permisos Generales</legend>
+          <legend><i class="fas fa-user-shield"></i> Permisos Generales</legend>
           <table>
             <thead>
               <tr>
@@ -78,7 +90,7 @@
         </fieldset>
         <br>
         <fieldset>
-          <legend>Permisos EMPRESA</legend>
+          <legend><i class="fas fa-building"></i> Permisos EMPRESA</legend>
           <table>
             <thead>
               <tr>
@@ -106,7 +118,7 @@
         </fieldset>
         <br>
         <fieldset>
-          <legend>Permisos RECURSOS HUMANOS</legend>
+          <legend><i class="fas fa-users-cog"></i> Permisos RECURSOS HUMANOS</legend>
           <table>
             <thead>
               <tr>
@@ -130,7 +142,7 @@
           </table>
         </fieldset>
         <br><br>
-        <button type="submit">Guardar Usuario</button>
+        <button type="submit"><i class="fas fa-save"></i> Guardar Usuario</button>
       </form>
     </div>
   </div>

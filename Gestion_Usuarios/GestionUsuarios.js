@@ -192,9 +192,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById("deleteBtn").addEventListener("click", eliminarUsuario);
     document.getElementById("saveBtn").addEventListener("click", editarUsuario);
+    
+    // Cambiar la redirección del botón "Regresar" a Main.HTML sin cerrar sesión
     document.getElementById("logoutBtn").addEventListener("click", () => {
-        localStorage.clear();
-        window.location.href = "../Login/Login.html";
+        window.location.href = "../../Main.HTML"; // Redirigir a Main.HTML sin cerrar sesión
     });
 
     document.getElementById("closeModal").addEventListener("click", closeModal);
