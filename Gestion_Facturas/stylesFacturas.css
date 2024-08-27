@@ -1,43 +1,74 @@
 /* Estilos generales */
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Montserrat', sans-serif;
+    background: #f0f2f5;
     margin: 0;
     padding: 0;
+    color: #333;
 }
 
 /* Títulos */
 h1 {
     text-align: center;
     margin-top: 20px;
-    color: #333;
+    color: #212121;
+    font-size: 2.2em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+}
+
+/* Botón de Inicio */
+.inicio-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #212121;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.inicio-button:hover {
+    background-color: #333;
+    transform: translateY(-3px);
 }
 
 /* Contenedor principal */
 .container {
-    width: 90%;
-    margin: 0 auto;
+    width: 85%;
+    margin: 20px auto;
     background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Filtros y botones de la barra superior */
 .filters, .date-filter, .top-right {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     margin: 20px 0;
+    gap: 20px;
 }
 
 input, select, button, textarea {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 10px 15px;
+    border-radius: 50px;
+    border: 1px solid #ddd;
     font-size: 14px;
-    margin-bottom: 10px;
-    width: 100%;
-    box-sizing: border-box;
+    transition: all 0.3s;
+    flex-grow: 1;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
 }
 
 button {
@@ -45,11 +76,10 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px; /* Espacio entre icono y texto */
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: all 0.3s;
+    flex-shrink: 0;
 }
 
 button:hover {
@@ -61,27 +91,34 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 table th, table td {
-    padding: 15px;
+    padding: 20px;
     text-align: left;
-    border: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
 }
 
 table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-    color: #333;
+    background-color: #212121;
+    color: #fff;
+    font-weight: 600;
 }
 
 table td {
-    color: #000;
+    background-color: #fafafa;
+    color: #212121;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
 }
 
 table .total-row td {
     font-weight: bold;
+    background-color: #007bff;
+    color: #fff;
 }
 
 /* Estilos de modales */
@@ -94,23 +131,24 @@ table .total-row td {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .modal-content {
     background-color: white;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 60%;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    margin: 5% auto;
+    padding: 40px;
+    border-radius: 20px;
+    width: 50%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
 }
 
 .modal h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     color: #007bff;
+    font-size: 1.8em;
 }
 
 .modal-content label {
@@ -120,7 +158,7 @@ table .total-row td {
 }
 
 .close {
-    color: #aaa;
+    color: #999;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -135,11 +173,12 @@ table .total-row td {
 
 textarea {
     width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
     font-size: 14px;
     resize: vertical;
+    transition: all 0.3s;
 }
 
 /* Estilos para el formato de la factura */
@@ -147,39 +186,40 @@ textarea {
     max-width: 800px;
     margin: 0 auto;
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .invoice-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .company-details {
-    width: 48%;
+    width: 100%;
     text-align: left;
 }
 
 .company-details #sucursalName,
 .invoice-details #proveedorName {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    color: #007bff;
 }
 
 .company-details #empresaName,
 .invoice-details p {
-    font-size: 14px;
+    font-size: 16px;
     color: #555;
 }
 
 .invoice-title {
     text-align: center;
-    margin: 20px 0;
-    font-size: 28px;
+    margin: 30px 0;
+    font-size: 32px;
     color: #333;
 }
 
@@ -191,14 +231,14 @@ textarea {
 
 .invoice-table th, .invoice-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
 }
 
 .invoice-table th {
-    background-color: #f4f4f4;
+    background-color: #007bff;
+    color: #fff;
     font-weight: bold;
-    color: #333;
 }
 
 .total-row td {
@@ -206,11 +246,11 @@ textarea {
 }
 
 .notes {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .notes h3 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 /* Estilos para la lista de pagos realizados */
@@ -221,13 +261,14 @@ textarea {
 
 .payments-list li {
     background-color: #f9f9f9;
-    margin-bottom: 10px;
-    padding: 15px;
-    border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 10px;
     border: 1px solid #ddd;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
 }
 
 .payments-list li:hover {
@@ -248,39 +289,69 @@ textarea {
 /* Resaltar la fila seleccionada */
 tr.selected {
     background-color: #cce5ff;
+    font-weight: bold;
 }
 
 /* Estilos para el cuadro de detalles de pago */
 .payment-details-box {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #000;
+    margin-top: 30px;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #007bff;
     background-color: #fff;
     text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     font-size: 18px;
 }
 
 .payment-details-box strong {
     display: block;
-    margin-bottom: 10px;
-    font-size: 22px;
+    margin-bottom: 15px;
+    font-size: 24px;
     font-weight: bold;
 }
 
 .payment-details-box .bank-info {
-    margin: 15px 0;
+    margin: 20px 0;
     font-size: 16px;
     text-align: left;
 }
 
 .payment-details-box .bank-info p {
-    margin: 5px 0;
+    margin: 10px 0;
 }
 
 .payment-details-box .highlighted {
     font-weight: bold;
-    font-size: 24px;
-    margin-top: 20px;
+    font-size: 28px;
+    margin-top: 30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filters, .date-filter, .top-right {
+        flex-direction: column;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+
+    .container {
+        width: 95%;
+        padding: 20px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+    }
+
+    button {
+        width: auto;
+        margin: 0 5px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
 }
