@@ -434,11 +434,48 @@ async function loadProveedoresSelectOptions(proveedorSelectId) {
             option.textContent = proveedor.name;
             proveedorSelect.appendChild(option);
         });
+
+        // Agregar escucha para actualizar días de crédito y fecha de vencimiento
+        proveedorSelect.addEventListener('change', async function() {
+            const proveedorId = this.value;
+            if (proveedorId) {
+                try {
+                    const proveedorDoc = await db.collection('providers').doc(proveedorId).get();
+                    if (proveedorDoc.exists) {
+                        const creditDays = parseInt(proveedorDoc.data().creditDays) || 0;
+                        document.getElementById('creditDays').value = creditDays;
+
+                        // Actualizar la fecha de vencimiento si la fecha de emisión ya está seleccionada
+                        const fechaEmision = document.getElementById('facturaFechaEmision').value;
+                        if (fechaEmision) {
+                            actualizarFechaVencimiento(fechaEmision, creditDays);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al obtener los datos del proveedor:', error);
+                }
+            }
+        });
     } catch (error) {
         console.error('Error al cargar opciones de proveedores:', error);
         alert('Error al cargar opciones de proveedores: ' + error.message);
     }
 }
+
+function actualizarFechaVencimiento(fechaEmision, creditDays) {
+    if (fechaEmision) {
+        const fecha = new Date(fechaEmision);
+        fecha.setDate(fecha.getDate() + creditDays);
+        const fechaVencimiento = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        document.getElementById('facturaFechaVencimiento').value = fechaVencimiento;
+    }
+}
+
+document.getElementById('facturaFechaEmision').addEventListener('change', function() {
+    const fechaEmision = this.value;
+    const creditDays = parseInt(document.getElementById('creditDays').value) || 0;
+    actualizarFechaVencimiento(fechaEmision, creditDays);
+});
 
 function displayPagos(pagos) {
     const pagosList = document.getElementById('pagosList');

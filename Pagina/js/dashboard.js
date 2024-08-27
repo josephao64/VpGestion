@@ -49,7 +49,7 @@ function showAllFacturas() {
     document.getElementById('facturas').style.display = 'block';
     document.getElementById('pagos').style.display = 'none';
 
-    // Reutiliza la estructura de GestionFacturas.html
+    // Reutiliza la estructura de Gestion_Facturas/GestionFacturas.html
     fetch('Gestion_Facturas/GestionFacturas.html')
         .then(response => response.text())
         .then(html => {

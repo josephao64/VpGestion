@@ -7,7 +7,7 @@
     <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
     <!-- CSS -->
-    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="dashboard.css">
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
@@ -17,7 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <!-- Firebase Config -->
-    <script src="Gestion_Facturas/js/firebaseConfig.js"></script>
+    <script src="../js/firebaseConfig.js"></script>
 </head>
 <body>
     <!-- SIDEBAR -->
@@ -81,7 +81,7 @@
                 <span class="num">8</span>
             </a>
             <a href="#" class="profile">
-                <img src="img/people.png" alt="Profile Picture">
+                <img src="../img/people.png" alt="Profile Picture">
             </a>
         </nav>
         <!-- NAVBAR -->
@@ -103,7 +103,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="#" class="btn-download">
+                    <a href="#" class="btn-download" onclick="exportarDashboardPDF()">
                         <i class='bx bxs-cloud-download'></i>
                         <span class="text">Descargar PDF</span>
                     </a>
@@ -159,7 +159,7 @@
                         </span>
                     </li>
                     <!-- Nueva tarjeta para todas las facturas -->
-                    <li onclick="showAllFacturas()">
+                    <li onclick="showFacturas('todas')">
                         <i class='bx bxs-folder-open'></i>
                         <span class="text">
                             <h3 id="totalFacturas">0</h3>
@@ -168,15 +168,33 @@
                     </li>
                 </ul>
 
-                <!-- Charts -->
-                <div class="charts">
-                    <div class="chart-container">
-                        <canvas id="chartFacturas"></canvas>
+                <!-- Cuadro para la tabla de facturas -->
+                <div class="table-container" id="facturasContainer" style="display: none;">
+                    <div class="action-buttons">
+                        <button id="editButton" onclick="openEditFacturaModal()" disabled>Editar Factura</button>
+                        <button id="deleteButton" onclick="deleteFactura()" disabled>Eliminar Factura</button>
+                        <button id="viewButton" onclick="openViewFacturaModal()" disabled>Ver Detalles</button>
+                        <button id="paymentButton" onclick="openAddPaymentModal()" disabled>Agregar Pago</button>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="chartPagos"></canvas>
-                    </div>
+                    <h2>Lista de Facturas</h2>
+                    <table id="facturasTable">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Empresa</th>
+                                <th>Sucursal</th>
+                                <th>Proveedor</th>
+                                <th>Fecha de Emisión</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Monto Total</th>
+                                <th>Estado de Pago</th>
+                                <th>Monto Pendiente</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
+
             </div>
 
             <!-- FACTURAS SECTION -->
@@ -205,19 +223,48 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal('addFacturaModal')">&times;</span>
             <h2>Agregar Factura</h2>
-
             <!-- Formulario para agregar factura -->
-            <!-- ... (Misma estructura que antes) -->
-
+            <!-- Estructura del formulario para agregar factura -->
+            <!-- Los campos del formulario van aquí -->
             <button onclick="addFactura()">Agregar Factura</button>
         </div>
     </div>
 
+    <!-- Modal para editar factura -->
+    <div id="editFacturaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editFacturaModal')">&times;</span>
+            <h2>Editar Factura</h2>
+            <!-- Formulario para editar factura -->
+            <!-- Los campos del formulario para editar van aquí -->
+            <button onclick="updateFactura()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de la factura -->
+    <div id="viewFacturaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('viewFacturaModal')">&times;</span>
+            <!-- Detalles de la factura se mostrarán aquí -->
+        </div>
+    </div>
+
+    <!-- Modal para agregar pago -->
+    <div id="addPaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addPaymentModal')">&times;</span>
+            <h2>Agregar Pago</h2>
+            <!-- Formulario para agregar pago -->
+            <!-- Los campos del formulario para pagos van aquí -->
+            <button onclick="addPayment()">Agregar Pago</button>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="Gestion_Facturas/js/main.js"></script>
-    <script src="Gestion_Facturas/js/facturas.js"></script>
-    <script src="Gestion_Facturas/js/pagos.js"></script>
-    <script src="Gestion_Facturas/js/modals.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/facturas.js"></script>
+    <script src="../js/pagos.js"></script>
+    <script src="../js/modals.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
