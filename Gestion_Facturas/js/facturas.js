@@ -1,3 +1,5 @@
+// Funciones para gestionar facturas
+
 let selectedFacturaId = null;
 
 function selectFactura(id, row) {
@@ -44,10 +46,9 @@ async function loadFacturas() {
         const sucursalesMap = new Map();
         const proveedoresMap = new Map();
 
-        // Llenar los selects de filtros
-        const empresaFilter = document.getElementById('searchEmpresa');
-        const sucursalFilter = document.getElementById('searchSucursal');
-        const proveedorFilter = document.getElementById('searchProveedor');
+        const empresaFilter = document.getElementById('empresaFilter');
+        const sucursalFilter = document.getElementById('sucursalFilter');
+        const proveedorFilter = document.getElementById('proveedorFilter');
 
         empresasSnapshot.forEach(function(doc) {
             empresasMap.set(doc.id, doc.data().name);
@@ -81,7 +82,6 @@ async function loadFacturas() {
 
             let montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
 
-            // Actualizar estado de pago si el monto pendiente es 0
             if (montoPendiente === 0 && factura.estadoPago !== 'Pagado') {
                 factura.estadoPago = 'Pagado';
                 await db.collection('facturas').doc(doc.id).update({ estadoPago: 'Pagado' });
@@ -90,7 +90,7 @@ async function loadFacturas() {
             let row = facturasTableBody.insertRow();
             row.setAttribute('data-id', doc.id);
             row.onclick = () => selectFactura(doc.id, row);
-            row.ondblclick = () => openViewFacturaModal(); // Abrir detalles al hacer doble clic
+            row.ondblclick = () => openViewFacturaModal();
 
             row.insertCell(0).textContent = factura.numero;
             row.insertCell(1).textContent = empresaName;
@@ -103,7 +103,7 @@ async function loadFacturas() {
             row.insertCell(8).textContent = `Q${montoPendiente}`;
         });
 
-        disableActionButtons(); // Desactiva los botones hasta que se seleccione una factura
+        disableActionButtons();
 
     } catch (error) {
         console.error('Error al cargar facturas:', error);
@@ -149,7 +149,6 @@ async function openViewFacturaModal() {
                 document.getElementById('montoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
                 document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
 
-                // Mostrar los detalles en el cuadro de detalles adicionales
                 document.getElementById('cuadroEmpresaName').textContent = empresaName;
                 document.getElementById('cuadroProveedorName').textContent = proveedorName;
                 document.getElementById('cuadroSucursalName').textContent = sucursalName;
@@ -157,6 +156,9 @@ async function openViewFacturaModal() {
                 document.getElementById('cuadroCuentaProveedor').textContent = cuentaProveedor;
                 document.getElementById('cuadroTipoCuentaProveedor').textContent = tipoCuentaProveedor;
                 document.getElementById('cuadroCuentaProveedorBanco').textContent = bancoProveedor;
+
+                // Cargar y mostrar los pagos realizados
+                displayPagos(factura.pagos || []);
 
                 openModal('viewFacturaModal');
             } else {
@@ -213,13 +215,13 @@ async function addFactura() {
             metodoPago: metodoPago,
             notasAdicionales: notasAdicionales,
             pagosTotal: 0,
+            pagos: []  // Inicializar con un arreglo vacío para los pagos
         };
 
         await db.collection('facturas').add(nuevaFactura);
         closeModal('addFacturaModal');
         loadFacturas();
 
-        // Limpiar campos después de agregar la factura
         document.getElementById('facturaNumero').value = '';
         document.getElementById('empresaSelect').value = '';
         document.getElementById('sucursalSelect').value = '';
@@ -343,62 +345,6 @@ function deleteFactura() {
     }
 }
 
-function filterFacturas() {
-    const numero = document.getElementById('searchNumero').value.toUpperCase();
-    const empresa = document.getElementById('searchEmpresa').value;
-    const sucursal = document.getElementById('searchSucursal').value;
-    const proveedor = document.getElementById('searchProveedor').value;
-    const table = document.getElementById('facturasTable');
-    const tr = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < tr.length; i++) {
-        const tdNumero = tr[i].getElementsByTagName('td')[0];
-        const tdEmpresa = tr[i].getElementsByTagName('td')[1];
-        const tdSucursal = tr[i].getElementsByTagName('td')[2];
-        const tdProveedor = tr[i].getElementsByTagName('td')[3];
-        if (tdNumero && tdEmpresa && tdSucursal && tdProveedor) {
-            const txtNumero = tdNumero.textContent || tdNumero.innerText;
-            const txtEmpresa = tdEmpresa.textContent || tdEmpresa.innerText;
-            const txtSucursal = tdSucursal.textContent || tdSucursal.innerText;
-            const txtProveedor = tdProveedor.textContent || tdProveedor.innerText;
-
-            if (txtNumero.toUpperCase().indexOf(numero) > -1 && 
-                (empresa === '' || txtEmpresa === empresa) &&
-                (sucursal === '' || txtSucursal === sucursal) &&
-                (proveedor === '' || txtProveedor === proveedor)) {
-                tr[i].style.display = '';
-            } else {
-                tr[i].style.display = 'none';
-            }
-        }       
-    }
-}
-
-function sortFacturasByDate() {
-    const order = document.getElementById('dateOrder').value;
-    const table = document.getElementById('facturasTable');
-    const rows = Array.from(table.rows).slice(1);
-
-    rows.sort(function (a, b) {
-        const dateA = new Date(a.cells[4].innerText); // Fecha de emisión
-        const dateB = new Date(b.cells[4].innerText);
-
-        if (order === 'oldest') {
-            return dateA - dateB;
-        } else if (order === 'newest') {
-            return dateB - dateA;
-        } else if (order === 'closestToDue') {
-            const dueDateA = new Date(a.cells[5].innerText); // Fecha de vencimiento
-            const dueDateB = new Date(b.cells[5].innerText);
-            return dueDateA - dueDateB;
-        }
-    });
-
-    rows.forEach(function (row) {
-        table.appendChild(row);
-    });
-}
-
 async function loadEmpresasSelectOptions(empresaSelectId, sucursalSelectId) {
     try {
         const empresasSnapshot = await db.collection('empresas').get();
@@ -458,7 +404,6 @@ async function loadProveedoresSelectOptions(proveedorSelectId) {
             proveedorSelect.appendChild(option);
         });
 
-        // Agregar escucha para actualizar días de crédito y fecha de vencimiento
         proveedorSelect.addEventListener('change', async function() {
             const proveedorId = this.value;
             if (proveedorId) {
@@ -468,7 +413,6 @@ async function loadProveedoresSelectOptions(proveedorSelectId) {
                         const creditDays = parseInt(proveedorDoc.data().creditDays) || 0;
                         document.getElementById('creditDays').value = creditDays;
 
-                        // Actualizar la fecha de vencimiento si la fecha de emisión ya está seleccionada
                         const fechaEmision = document.getElementById('facturaFechaEmision').value;
                         if (fechaEmision) {
                             actualizarFechaVencimiento(fechaEmision, creditDays);
@@ -489,7 +433,7 @@ function actualizarFechaVencimiento(fechaEmision, creditDays) {
     if (fechaEmision) {
         const fecha = new Date(fechaEmision);
         fecha.setDate(fecha.getDate() + creditDays);
-        const fechaVencimiento = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        const fechaVencimiento = fecha.toISOString().split('T')[0];
         document.getElementById('facturaFechaVencimiento').value = fechaVencimiento;
     }
 }
@@ -510,6 +454,7 @@ function displayPagos(pagos) {
                 <span class="payment-date">Fecha: ${pago.fecha}</span>
                 <span class="payment-method">Método: ${pago.metodoPago}</span>
                 <span class="payment-amount">Monto: Q${pago.monto}</span>
+                <span class="payment-boleta">Boleta: ${pago.numeroBoleta || 'N/A'}</span>
             `;
             pagosList.appendChild(li);
         });
@@ -517,116 +462,3 @@ function displayPagos(pagos) {
         pagosList.innerHTML = '<li>No se encontraron pagos realizados.</li>';
     }
 }
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = 'none';
-}
-
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = 'block';
-}
-
-function exportarDetallesPagoImagen() {
-    const detallesPagoContainer = document.getElementById('detallesPagoContainer');
-    html2canvas(detallesPagoContainer).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'detalles_pago.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
-
-function exportarFacturaPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    doc.text('Factura', 20, 20);
-    doc.save('factura.pdf');
-}
-
-function exportarFacturaImagen() {
-    const invoiceContent = document.getElementById('invoiceContent');
-    html2canvas(invoiceContent).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'factura.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
-
-// Filtros Rápidos
-
-// Función para filtrar facturas que vencen hoy
-function filterFacturasHoy() {
-    const hoy = new Date().toISOString().split('T')[0];
-    filterFacturasByDate(hoy, hoy);
-}
-
-// Función para filtrar próximas facturas (vencen en los próximos 7 días)
-function filterProximasFacturas() {
-    const hoy = new Date();
-    const proximos7Dias = new Date();
-    proximos7Dias.setDate(hoy.getDate() + 7);
-    filterFacturasByDate(hoy.toISOString().split('T')[0], proximos7Dias.toISOString().split('T')[0]);
-}
-
-// Función para filtrar facturas vencidas (vencieron antes de hoy)
-function filterFacturasVencidas() {
-    const hoy = new Date().toISOString().split('T')[0];
-    filterFacturasByDate(null, hoy);
-}
-
-// Función para filtrar pagos pendientes
-function filterPagosPendientes() {
-    const table = document.getElementById('facturasTable');
-    const tr = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < tr.length; i++) {
-        const tdEstado = tr[i].getElementsByTagName('td')[7];
-        const montoPendiente = parseFloat(tr[i].getElementsByTagName('td')[8].textContent.replace('Q', ''));
-        if (tdEstado && montoPendiente > 0) {
-            tr[i].style.display = '';
-        } else {
-            tr[i].style.display = 'none';
-        }
-    }
-}
-
-// Función para filtrar facturas pagadas hoy
-function filterFacturasPagadasHoy() {
-    const hoy = new Date().toISOString().split('T')[0];
-    const table = document.getElementById('facturasTable');
-    const tr = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < tr.length; i++) {
-        const tdEstado = tr[i].getElementsByTagName('td')[7];
-        const tdFechaEmision = tr[i].getElementsByTagName('td')[4].textContent;
-        if (tdEstado && tdEstado.textContent === 'Pagado' && tdFechaEmision === hoy) {
-            tr[i].style.display = '';
-        } else {
-            tr[i].style.display = 'none';
-        }
-    }
-}
-
-// Función genérica para filtrar facturas por un rango de fechas
-function filterFacturasByDate(startDate, endDate) {
-    const table = document.getElementById('facturasTable');
-    const tr = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < tr.length; i++) {
-        const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5].textContent;
-        if (tdFechaVencimiento) {
-            const fechaVencimiento = new Date(tdFechaVencimiento).toISOString().split('T')[0];
-            if ((!startDate || fechaVencimiento >= startDate) && (!endDate || fechaVencimiento <= endDate)) {
-                tr[i].style.display = '';
-            } else {
-                tr[i].style.display = 'none';
-            }
-        }
-    }
-}
-
-window.onload = loadFacturas;

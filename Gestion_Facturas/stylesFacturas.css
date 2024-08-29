@@ -87,38 +87,93 @@ button:hover {
     transform: translateY(-2px);
 }
 
-/* Estilos de tabla */
+/* Estilos de tabla - Diseño minimalista */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 table th, table td {
-    padding: 20px;
+    padding: 15px 20px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
 }
 
 table th {
-    background-color: #212121;
-    color: #fff;
-    font-weight: 600;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 14px;
 }
 
 table td {
-    background-color: #fafafa;
-    color: #212121;
+    background-color: #ecf0f1;
+    color: #34495e;
+    font-weight: 400;
+    border-bottom: 1px solid #bdc3c7;
 }
 
-table tr:hover {
-    background-color: #f1f1f1;
+table tr:last-child td {
+    border-bottom: none;
+}
+
+table tr:hover td {
+    background-color: #dfe6e9;
 }
 
 table .total-row td {
     font-weight: bold;
-    background-color: #007bff;
+    background-color: #2980b9;
     color: #fff;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+table tr.selected td {
+    background-color: #2980b9;
+    color: #fff;
+}
+
+/* Ajustes responsivos para la tabla */
+@media (max-width: 768px) {
+    table th, table td {
+        display: block;
+        width: 100%;
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    table th::before, table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-left: 15px;
+        font-weight: bold;
+        text-align: left;
+        text-transform: uppercase;
+        color: #34495e;
+    }
+
+    table th, table td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid #bdc3c7;
+    }
+
+    table tr {
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    table tr:hover td {
+        background-color: #dfe6e9;
+    }
 }
 
 /* Estilos de modales */
@@ -327,7 +382,77 @@ tr.selected {
     margin-top: 30px;
 }
 
-/* Responsive adjustments */
+/* Estilos para las tarjetas (cards) de filtros rápidos */
+.card {
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title {
+    font-size: 24px;
+    margin: 0;
+}
+
+.count {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Colores específicos para cada tarjeta */
+.card-hoy {
+    background-color: #4CAF50; /* Verde */
+}
+
+.card-proximas {
+    background-color: #FF9800; /* Naranja */
+}
+
+.card-vencidas {
+    background-color: #F44336; /* Rojo */
+}
+
+.card-pagos {
+    background-color: #2196F3; /* Azul */
+}
+
+.card-pagadas-hoy {
+    background-color: #673AB7; /* Púrpura */
+}
+
+.card-pagadas {
+    background-color: #3F51B5; /* Azul Oscuro */
+}
+
+.card-todas {
+    background-color: #009688; /* Verde Azulado */
+}
+
+.card i, .card .count {
+    font-size: 3em;
+}
+
+.card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+/* Ajustes responsivos */
 @media (max-width: 768px) {
     .filters, .date-filter, .top-right {
         flex-direction: column;
@@ -354,4 +479,22 @@ tr.selected {
     h1 {
         font-size: 1.8em;
     }
+    
+    .card {
+        margin: 10px 0;
+        padding: 15px;
+    }
+}
+
+/* Ajustes adicionales para las tarjetas y layout */
+.quick-filters {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: #fff;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

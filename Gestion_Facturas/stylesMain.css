@@ -1,0 +1,90 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Evita que la página haga scroll */
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: #333;
+    color: #fff;
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: width 0.3s;
+    z-index: 1000; /* Mantener el menú por encima del contenido principal */
+}
+
+.sidebar.minimized {
+    width: 70px; /* Ancho minimizado */
+    overflow: hidden;
+}
+
+.sidebar.minimized .menu-text {
+    display: none; /* Oculta el texto cuando está minimizado */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.minimize-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 10px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+    width: 25px; /* Ajustar ancho para los íconos */
+    text-align: center;
+}
+
+.sidebar ul li a:hover {
+    background: #444;
+    text-decoration: none;
+}
+
+.main-content {
+    position: fixed;
+    top: 0;
+    left: 250px; /* Mismo ancho que la barra lateral */
+    width: calc(100% - 250px);
+    height: 100vh;
+    transition: left 0.3s, width 0.3s;
+}
+
+.main-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}

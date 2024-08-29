@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Gestión</title>
+    <link rel="stylesheet" href="stylesMain.css">
+    <!-- Incluye Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Scripts de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+
+    <!-- Configuración de Firebase -->
+    <script src="js/firebaseConfig.js"></script>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Menú</h2>
+            <button class="minimize-btn" onclick="toggleSidebar()">
+                <i class="fas fa-angle-left"></i>
+            </button>
+        </div>
+        <ul>
+            <li><a href="Dashboard.HTML" target="contentFrame"><i class="fas fa-home"></i> <span class="menu-text">Inicio</span></a></li>
+            <li><a href="INDEX.HTML" target="contentFrame"><i class="fas fa-file-invoice"></i> <span class="menu-text">Gestión de Facturas</span></a></li>
+            <li><a href="pagos.html" target="contentFrame"><i class="fas fa-money-bill-wave"></i> <span class="menu-text">Gestión de Pagos</span></a></li>
+            <li><a href="reportes.html" target="contentFrame"><i class="fas fa-chart-line"></i> <span class="menu-text">Reportes</span></a></li>
+            <li><a href="configuracion.html" target="contentFrame"><i class="fas fa-cog"></i> <span class="menu-text">Configuración</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content" id="mainContent">
+        <!-- Agrega un margen superior para ver las tarjetas -->
+        <iframe id="contentFrame" name="contentFrame" src="INDEX.HTML" frameborder="0"></iframe>
+    </div>
+
+    <!-- Scripts personalizados -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const minimizeBtn = document.querySelector('.minimize-btn i');
+            
+            if (sidebar.classList.contains('minimized')) {
+                sidebar.classList.remove('minimized');
+                mainContent.style.left = '250px'; /* Ajusta el tamaño del contenido principal */
+                minimizeBtn.classList.remove('fa-angle-right');
+                minimizeBtn.classList.add('fa-angle-left');
+            } else {
+                sidebar.classList.add('minimized');
+                mainContent.style.left = '70px'; /* Ancho minimizado */
+                minimizeBtn.classList.remove('fa-angle-left');
+                minimizeBtn.classList.add('fa-angle-right');
+            }
+        }
+    </script>
+</body>
+</html>

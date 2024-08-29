@@ -11,17 +11,70 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
 
-    <!-- Incluye html2canvas para exportar como imagen -->
+    <!-- Incluye html2canvas y jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
-
-    <!-- Incluye jsPDF para exportar como PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
 
     <!-- Configuración de Firebase -->
     <script src="js/firebaseConfig.js"></script>
+
+    <!-- Incluye la biblioteca de Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <h1>Gestión de Facturas</h1>
+
+    <!-- Filtros rápidos como tarjetas -->
+    <div class="quick-filters">
+        <div class="card card-hoy" onclick="filterFacturasHoy()">
+            <div class="card-content">
+                <i class="fas fa-calendar-day fa-3x"></i>
+                <h3 class="card-title">Facturas para Hoy</h3>
+                <p class="count" id="countHoy">0</p>
+            </div>
+        </div>
+        <div class="card card-proximas" onclick="filterProximasFacturas()">
+            <div class="card-content">
+                <i class="fas fa-calendar-alt fa-3x"></i>
+                <h3 class="card-title">Próximas Facturas</h3>
+                <p class="count" id="countProximas">0</p>
+            </div>
+        </div>
+        <div class="card card-vencidas" onclick="filterFacturasVencidas()">
+            <div class="card-content">
+                <i class="fas fa-exclamation-circle fa-3x"></i>
+                <h3 class="card-title">Facturas Vencidas</h3>
+                <p class="count" id="countVencidas">0</p>
+            </div>
+        </div>
+        <div class="card card-pagos" onclick="filterPagosPendientes()">
+            <div class="card-content">
+                <i class="fas fa-money-bill-wave fa-3x"></i>
+                <h3 class="card-title">Pagos Pendientes</h3>
+                <p class="count" id="countPagosPendientes">0</p>
+            </div>
+        </div>
+        <div class="card card-pagadas-hoy" onclick="filterFacturasPagadasHoy()">
+            <div class="card-content">
+                <i class="fas fa-check-circle fa-3x"></i>
+                <h3 class="card-title">Facturas Pagadas Hoy</h3>
+                <p class="count" id="countPagadasHoy">0</p>
+            </div>
+        </div>
+        <div class="card card-pagadas" onclick="filterFacturasPagadas()">
+            <div class="card-content">
+                <i class="fas fa-receipt fa-3x"></i>
+                <h3 class="card-title">Facturas Pagadas</h3>
+                <p class="count" id="countPagadas">0</p>
+            </div>
+        </div>
+        <div class="card card-todas" onclick="loadFacturas()">
+            <div class="card-content">
+                <i class="fas fa-list fa-3x"></i>
+                <h3 class="card-title">Ver Todas</h3>
+                <p class="count" id="countTotal">0</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Botón para agregar una nueva factura -->
     <div class="top-right">
@@ -54,16 +107,13 @@
         <select id="proveedorFilter" onchange="filterFacturas()">
             <option value="">Todos los Proveedores</option>
         </select>
-    </div>
 
-    <!-- Filtros rápidos -->
-    <div class="quick-filters">
-        <button onclick="filterFacturasHoy()">Facturas para Hoy</button>
-        <button onclick="filterProximasFacturas()">Próximas Facturas</button>
-        <button onclick="filterFacturasVencidas()">Facturas Vencidas</button>
-        <button onclick="filterPagosPendientes()">Pagos Pendientes</button>
-        <button onclick="filterFacturasPagadasHoy()">Facturas Pagadas Hoy</button>
-        <button onclick="loadFacturas()">Ver Todas</button>
+        <!-- Nuevos filtros de Fecha -->
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio" onchange="filterFacturas()">
+
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin" onchange="filterFacturas()">
     </div>
 
     <!-- Filtro para ordenar por fecha -->
@@ -261,6 +311,12 @@
                 <p id="notasAdicionales" style="color: #000;"></p>
             </div>
 
+            <!-- Añadido el contenedor para mostrar los pagos -->
+            <div id="pagosContainer">
+                <h3>Pagos Realizados</h3>
+                <ul id="pagosList"></ul>
+            </div>
+
             <div class="detalles-adicionales" id="detallesPagoContainer" style="text-align: center; padding: 10px; border: 1px solid #000; margin-top: 20px;">
                 <h2 style="font-weight: bold;">CUENTA A DEPOSITAR</h2>
                 <p id="cuadroEmpresaName" style="font-size: 16px; font-weight: bold;">Empresa</p>
@@ -313,204 +369,19 @@
         </div>
     </div>
 
-    <!-- Incluye los scripts personalizados al final para asegurar que el DOM esté cargado -->
+    <!-- Scripts -->
+    <script src="js/filtros.js"></script>
     <script src="js/facturas.js"></script>
     <script src="js/pagos.js"></script>
     <script src="js/modals.js"></script>
+    <script src="utils/helpers.js"></script>
+    <script src="utils/export.js"></script>
     <script src="js/main.js"></script>
-
     <script>
-        // Función para cargar todas las facturas y actualizar el estado de pago si es necesario
-        async function loadFacturas() {
-            try {
-                const facturasSnapshot = await db.collection('facturas').get();
-                const facturasTableBody = document.getElementById('facturasTable').getElementsByTagName('tbody')[0];
-                facturasTableBody.innerHTML = '';
-
-                const empresasSnapshot = await db.collection('empresas').get();
-                const sucursalesSnapshot = await db.collection('sucursales').get();
-                const proveedoresSnapshot = await db.collection('providers').get();
-
-                const empresasMap = new Map();
-                const sucursalesMap = new Map();
-                const proveedoresMap = new Map();
-
-                // Llenar los selects de filtros
-                const empresaFilter = document.getElementById('empresaFilter');
-                const sucursalFilter = document.getElementById('sucursalFilter');
-                const proveedorFilter = document.getElementById('proveedorFilter');
-
-                empresasSnapshot.forEach(function(doc) {
-                    empresasMap.set(doc.id, doc.data().name);
-                    const option = document.createElement('option');
-                    option.value = doc.data().name;
-                    option.text = doc.data().name;
-                    empresaFilter.appendChild(option);
-                });
-
-                sucursalesSnapshot.forEach(function(doc) {
-                    sucursalesMap.set(doc.id, doc.data().name);
-                    const option = document.createElement('option');
-                    option.value = doc.data().name;
-                    option.text = doc.data().name;
-                    sucursalFilter.appendChild(option);
-                });
-
-                proveedoresSnapshot.forEach(function(doc) {
-                    proveedoresMap.set(doc.id, doc.data().name);
-                    const option = document.createElement('option');
-                    option.value = doc.data().name;
-                    option.text = doc.data().name;
-                    proveedorFilter.appendChild(option);
-                });
-
-                facturasSnapshot.forEach(async function(doc) {
-                    let factura = doc.data();
-                    let empresaName = empresasMap.get(factura.empresaId) || 'Empresa no encontrada';
-                    let sucursalName = sucursalesMap.get(factura.sucursalId) || 'Sucursal no encontrada';
-                    let proveedorName = proveedoresMap.get(factura.proveedorId) || 'Proveedor no encontrado';
-
-                    let montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
-
-                    // Actualizar estado de pago si el monto pendiente es 0
-                    if (montoPendiente === 0 && factura.estadoPago !== 'Pagado') {
-                        factura.estadoPago = 'Pagado';
-                        await db.collection('facturas').doc(doc.id).update({ estadoPago: 'Pagado' });
-                    }
-
-                    let row = facturasTableBody.insertRow();
-                    row.setAttribute('data-id', doc.id);
-                    row.onclick = () => selectFactura(doc.id, row);
-                    row.ondblclick = () => openViewFacturaModal(); // Abrir detalles al hacer doble clic
-
-                    row.insertCell(0).textContent = factura.numero;
-                    row.insertCell(1).textContent = empresaName;
-                    row.insertCell(2).textContent = sucursalName;
-                    row.insertCell(3).textContent = proveedorName;
-                    row.insertCell(4).textContent = factura.fechaEmision;
-                    row.insertCell(5).textContent = factura.fechaVencimiento;
-                    row.insertCell(6).textContent = `Q${factura.montoTotal}`;
-                    row.insertCell(7).textContent = factura.estadoPago;
-                    row.insertCell(8).textContent = `Q${montoPendiente}`;
-                });
-
-                disableActionButtons(); // Desactiva los botones hasta que se seleccione una factura
-
-            } catch (error) {
-                console.error('Error al cargar facturas:', error);
-                alert('Error al cargar facturas: ' + error.message);
-            }
-        }
-
-        // Función para filtrar facturas en la tabla
-        function filterFacturas() {
-            const numero = document.getElementById('searchNumero').value.toUpperCase();
-            const empresa = document.getElementById('empresaFilter').value;
-            const sucursal = document.getElementById('sucursalFilter').value;
-            const proveedor = document.getElementById('proveedorFilter').value;
-
-            const table = document.getElementById('facturasTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                const tdNumero = tr[i].getElementsByTagName('td')[0];
-                const tdEmpresa = tr[i].getElementsByTagName('td')[1];
-                const tdSucursal = tr[i].getElementsByTagName('td')[2];
-                const tdProveedor = tr[i].getElementsByTagName('td')[3];
-
-                if (tdNumero && tdEmpresa && tdSucursal && tdProveedor) {
-                    const txtNumero = tdNumero.textContent || tdNumero.innerText;
-                    const txtEmpresa = tdEmpresa.textContent || tdEmpresa.innerText;
-                    const txtSucursal = tdSucursal.textContent || tdSucursal.innerText;
-                    const txtProveedor = tdProveedor.textContent || tdProveedor.innerText;
-
-                    if (
-                        txtNumero.toUpperCase().indexOf(numero) > -1 &&
-                        (empresa === '' || txtEmpresa === empresa) &&
-                        (sucursal === '' || txtSucursal === sucursal) &&
-                        (proveedor === '' || txtProveedor === proveedor)
-                    ) {
-                        tr[i].style.display = '';
-                    } else {
-                        tr[i].style.display = 'none';
-                    }
-                }       
-            }
-        }
-
-        // Función para filtrar facturas que vencen hoy
-        function filterFacturasHoy() {
-            const hoy = new Date().toISOString().split('T')[0];
-            filterFacturasByDate(hoy, hoy);
-        }
-
-        // Función para filtrar próximas facturas (vencen en los próximos 7 días)
-        function filterProximasFacturas() {
-            const hoy = new Date().toISOString().split('T')[0];
-            const proximos7Dias = new Date();
-            proximos7Dias.setDate(new Date().getDate() + 7);
-            filterFacturasByDate(hoy, proximos7Dias.toISOString().split('T')[0]);
-        }
-
-        // Función para filtrar facturas vencidas (vencieron antes de hoy)
-        function filterFacturasVencidas() {
-            const hoy = new Date().toISOString().split('T')[0];
-            filterFacturasByDate(null, hoy);
-        }
-
-        // Función para filtrar pagos pendientes
-        function filterPagosPendientes() {
-            const table = document.getElementById('facturasTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                const tdEstado = tr[i].getElementsByTagName('td')[7];
-                const montoPendiente = parseFloat(tr[i].getElementsByTagName('td')[8].textContent.replace('Q', ''));
-                if (tdEstado && montoPendiente > 0) {
-                    tr[i].style.display = '';
-                } else {
-                    tr[i].style.display = 'none';
-                }
-            }
-        }
-
-        // Función para filtrar facturas pagadas hoy
-        function filterFacturasPagadasHoy() {
-            const hoy = new Date().toISOString().split('T')[0];
-            const table = document.getElementById('facturasTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                const tdEstado = tr[i].getElementsByTagName('td')[7];
-                const tdFechaEmision = tr[i].getElementsByTagName('td')[4].textContent;
-                if (tdEstado && tdEstado.textContent === 'Pagado' && tdFechaEmision === hoy) {
-                    tr[i].style.display = '';
-                } else {
-                    tr[i].style.display = 'none';
-                }
-            }
-        }
-
-        // Función genérica para filtrar facturas por un rango de fechas
-        function filterFacturasByDate(startDate, endDate) {
-            const table = document.getElementById('facturasTable');
-            const tr = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < tr.length; i++) {
-                const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5].textContent;
-                if (tdFechaVencimiento) {
-                    const fechaVencimiento = new Date(tdFechaVencimiento).toISOString().split('T')[0];
-                    if ((!startDate || fechaVencimiento >= startDate) && (!endDate || fechaVencimiento <= endDate)) {
-                        tr[i].style.display = '';
-                    } else {
-                        tr[i].style.display = 'none';
-                    }
-                }
-            }
-        }
-
-        // Cargar las facturas al iniciar la página
-        window.onload = loadFacturas;
+        // Carga inicial para actualizar los contadores de las tarjetas
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCounters();
+        });
     </script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+// Funciones para gestionar modales
+
 function openModal(modalId) {
     document.getElementById(modalId).style.display = 'block';
 }
@@ -11,3 +13,5 @@ function openAddFacturaModal() {
     loadProveedoresSelectOptions('proveedorSelect');
     openModal('addFacturaModal');
 }
+
+// Otras funciones relacionadas con modales omitidas por brevedad
