@@ -1,5 +1,4 @@
 // Funciones para gestionar facturas
-
 let selectedFacturaId = null;
 
 function selectFactura(id, row) {
@@ -36,7 +35,7 @@ async function loadFacturas() {
     try {
         const facturasSnapshot = await db.collection('facturas').get();
         const facturasTableBody = document.getElementById('facturasTable').getElementsByTagName('tbody')[0];
-        facturasTableBody.innerHTML = '';
+        facturasTableBody.innerHTML = ''; // Limpiar la tabla antes de llenarla
 
         const empresasSnapshot = await db.collection('empresas').get();
         const sucursalesSnapshot = await db.collection('sucursales').get();
@@ -50,6 +49,7 @@ async function loadFacturas() {
         const sucursalFilter = document.getElementById('sucursalFilter');
         const proveedorFilter = document.getElementById('proveedorFilter');
 
+        // Poblar filtros de empresas, sucursales y proveedores
         empresasSnapshot.forEach(function(doc) {
             empresasMap.set(doc.id, doc.data().name);
             const option = document.createElement('option');
@@ -74,6 +74,7 @@ async function loadFacturas() {
             proveedorFilter.appendChild(option);
         });
 
+        // Cargar facturas en la tabla
         facturasSnapshot.forEach(async function(doc) {
             let factura = doc.data();
             let empresaName = empresasMap.get(factura.empresaId) || 'Empresa no encontrada';
@@ -82,6 +83,7 @@ async function loadFacturas() {
 
             let montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
 
+            // Marcar la factura como pagada si el monto pendiente es 0
             if (montoPendiente === 0 && factura.estadoPago !== 'Pagado') {
                 factura.estadoPago = 'Pagado';
                 await db.collection('facturas').doc(doc.id).update({ estadoPago: 'Pagado' });
@@ -104,6 +106,9 @@ async function loadFacturas() {
         });
 
         disableActionButtons();
+
+        // Actualizar los contadores después de cargar todas las facturas
+        updateCounters();
 
     } catch (error) {
         console.error('Error al cargar facturas:', error);
@@ -138,6 +143,7 @@ async function openViewFacturaModal() {
                     bancoProveedor = cuentaDoc.banco;
                 }
 
+                // Mostrar los detalles de la factura en el modal
                 document.getElementById('facturaNumero').textContent = factura.numero;
                 document.getElementById('empresaName').textContent = empresaName;
                 document.getElementById('sucursalName').textContent = sucursalName;
@@ -149,6 +155,7 @@ async function openViewFacturaModal() {
                 document.getElementById('montoPendiente').textContent = `Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
                 document.getElementById('notasAdicionales').textContent = factura.notasAdicionales;
 
+                // Detalles de pago
                 document.getElementById('cuadroEmpresaName').textContent = empresaName;
                 document.getElementById('cuadroProveedorName').textContent = proveedorName;
                 document.getElementById('cuadroSucursalName').textContent = sucursalName;
@@ -157,7 +164,6 @@ async function openViewFacturaModal() {
                 document.getElementById('cuadroTipoCuentaProveedor').textContent = tipoCuentaProveedor;
                 document.getElementById('cuadroCuentaProveedorBanco').textContent = bancoProveedor;
 
-                // Cargar y mostrar los pagos realizados
                 displayPagos(factura.pagos || []);
 
                 openModal('viewFacturaModal');
@@ -222,6 +228,7 @@ async function addFactura() {
         closeModal('addFacturaModal');
         loadFacturas();
 
+        // Limpiar los campos del formulario
         document.getElementById('facturaNumero').value = '';
         document.getElementById('empresaSelect').value = '';
         document.getElementById('sucursalSelect').value = '';
@@ -462,3 +469,8 @@ function displayPagos(pagos) {
         pagosList.innerHTML = '<li>No se encontraron pagos realizados.</li>';
     }
 }
+
+// Llamada a `loadFacturas()` al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadFacturas();
+});
