@@ -14,4 +14,4 @@ function openAddFacturaModal() {
     openModal('addFacturaModal');
 }
 
-// Otras funciones relacionadas con modales omitidas por brevedad
+// Otras funciones relacionadas con modales omitidas por brevedadjC051183

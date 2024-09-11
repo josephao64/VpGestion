@@ -1,36 +1,135 @@
-// Función para aplicar los filtros
-function applyFilters() {
-    const inputEstado = document.getElementById('filtroEstado').value.toLowerCase();
-    const inputFecha = document.getElementById('filtroFecha').value;
-    const inputMontoMin = parseFloat(document.getElementById('filtroMontoMin').value) || 0;
-    const inputMontoMax = parseFloat(document.getElementById('filtroMontoMax').value) || Number.MAX_VALUE;
+// Funciones para filtrar facturas
 
+function filterFacturas() {
+    const numero = document.getElementById('searchNumero').value.toUpperCase();
+    const empresa = document.getElementById('empresaFilter').value;
+    const sucursal = document.getElementById('sucursalFilter').value;
+    const proveedor = document.getElementById('proveedorFilter').value;
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+    const table = document.getElementById('facturasTable');
+    const tr = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdNumero = tr[i].getElementsByTagName('td')[0];
+        const tdEmpresa = tr[i].getElementsByTagName('td')[1];
+        const tdSucursal = tr[i].getElementsByTagName('td')[2];
+        const tdProveedor = tr[i].getElementsByTagName('td')[3];
+        const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5];
+        const fechaVencimiento = tdFechaVencimiento ? new Date(tdFechaVencimiento.textContent).toISOString().split('T')[0] : '';
+
+        if (tdNumero && tdEmpresa && tdSucursal && tdProveedor) {
+            const txtNumero = tdNumero.textContent || tdNumero.innerText;
+            const txtEmpresa = tdEmpresa.textContent || tdEmpresa.innerText;
+            const txtSucursal = tdSucursal.textContent || tdSucursal.innerText;
+            const txtProveedor = tdProveedor.textContent || tdProveedor.innerText;
+
+            if (txtNumero.toUpperCase().indexOf(numero) > -1 && 
+                (empresa === '' || txtEmpresa === empresa) &&
+                (sucursal === '' || txtSucursal === sucursal) &&
+                (proveedor === '' || txtProveedor === proveedor) &&
+                (!fechaInicio || fechaVencimiento >= fechaInicio) &&
+                (!fechaFin || fechaVencimiento <= fechaFin)) {
+                tr[i].style.display = '';
+            } else {
+                tr[i].style.display = 'none';
+            }
+        }       
+    }
+    updateCounters();
+}
+
+function filterFacturasHoy() {
+    const hoy = new Date().toISOString().split('T')[0];
+    filterFacturasByDate(hoy, hoy);
+    updateCounters(); // Asegúrate de que los contadores se actualicen después de filtrar
+}
+
+function filterProximasFacturas() {
+    const hoy = new Date().toISOString().split('T')[0];
+    const proximos7Dias = new Date();
+    proximos7Dias.setDate(new Date().getDate() + 7);
+    filterFacturasByDate(hoy, proximos7Dias.toISOString().split('T')[0], true);
+    updateCounters(); // Asegúrate de que los contadores se actualicen después de filtrar
+}
+
+function filterFacturasVencidas() {
+    const hoy = new Date().toISOString().split('T')[0];
+    filterFacturasByDate(null, hoy, true);
+    updateCounters(); // Asegúrate de que los contadores se actualicen después de filtrar
+}
+
+function filterPagosPendientes() {
     const table = document.getElementById('facturasTable');
     const tr = table.getElementsByTagName('tr');
 
     for (let i = 1; i < tr.length; i++) {
         const tdEstado = tr[i].getElementsByTagName('td')[7];
-        const tdFecha = tr[i].getElementsByTagName('td')[5];
-        const tdMonto = tr[i].getElementsByTagName('td')[8];
+        const montoPendiente = parseFloat(tr[i].getElementsByTagName('td')[8].textContent.replace('Q', ''));
+        if (tdEstado && montoPendiente > 0 && tdEstado.textContent !== 'Pagado') {
+            tr[i].style.display = '';
+        } else {
+            tr[i].style.display = 'none';
+        }
+    }
+    updateCounters();
+}
 
-        if (tdEstado && tdFecha && tdMonto) {
-            const estado = tdEstado.textContent.toLowerCase();
-            const fecha = tdFecha.textContent;
-            const monto = parseFloat(tdMonto.textContent.replace('Q', '')) || 0;
+function filterFacturasPagadasHoy() {
+    const hoy = new Date().toISOString().split('T')[0];
+    const table = document.getElementById('facturasTable');
+    const tr = table.getElementsByTagName('tr');
+    let count = 0;
 
-            if (
-                (estado.indexOf(inputEstado) > -1 || inputEstado === '') &&
-                (fecha === inputFecha || inputFecha === '') &&
-                monto >= inputMontoMin && monto <= inputMontoMax
-            ) {
+    for (let i = 1; i < tr.length; i++) {
+        const tdEstado = tr[i].getElementsByTagName('td')[7];
+        const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5].textContent;
+        if (tdEstado && tdEstado.textContent === 'Pagado' && tdFechaVencimiento === hoy) {
+            tr[i].style.display = '';
+            count++;
+        } else {
+            tr[i].style.display = 'none';
+        }
+    }
+    document.getElementById('countPagadasHoy').textContent = count;
+}
+
+// Función para filtrar facturas pagadas
+function filterFacturasPagadas() {
+    const table = document.getElementById('facturasTable');
+    const tr = table.getElementsByTagName('tr');
+    let count = 0;
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdEstado = tr[i].getElementsByTagName('td')[7];
+        if (tdEstado && tdEstado.textContent === 'Pagado') {
+            tr[i].style.display = '';
+            count++;
+        } else {
+            tr[i].style.display = 'none';
+        }
+    }
+    document.getElementById('countPagadas').textContent = count;
+}
+
+function filterFacturasByDate(startDate, endDate, excludePagadas = false) {
+    const table = document.getElementById('facturasTable');
+    const tr = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < tr.length; i++) {
+        const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5].textContent;
+        const tdEstado = tr[i].getElementsByTagName('td')[7];
+        if (tdFechaVencimiento) {
+            const fechaVencimiento = new Date(tdFechaVencimiento).toISOString().split('T')[0];
+            if ((!startDate || fechaVencimiento >= startDate) && 
+                (!endDate || fechaVencimiento <= endDate) &&
+                (!excludePagadas || tdEstado.textContent !== 'Pagado')) {
                 tr[i].style.display = '';
             } else {
                 tr[i].style.display = 'none';
             }
         }
     }
-
-    updateCounters(); // Actualizar los contadores después de aplicar los filtros
 }
 
 // Función para actualizar los contadores de las facturas
@@ -51,35 +150,21 @@ function updateCounters() {
     const proximos7DiasISO = proximos7Dias.toISOString().split('T')[0];
 
     for (let i = 1; i < tr.length; i++) {
-        if (tr[i].style.display === 'none') continue; // Omitir las filas que están ocultas
-
         const tdEstado = tr[i].getElementsByTagName('td')[7];
         const tdFechaVencimiento = tr[i].getElementsByTagName('td')[5].textContent;
         const montoPendiente = parseFloat(tr[i].getElementsByTagName('td')[8].textContent.replace('Q', ''));
 
-        // Contar las facturas para hoy
         if (tdFechaVencimiento === hoy && tdEstado.textContent !== 'Pagado') countHoy++;
-
-        // Contar las próximas facturas dentro de los próximos 7 días
         if (tdFechaVencimiento >= hoy && tdFechaVencimiento <= proximos7DiasISO && tdEstado.textContent !== 'Pagado') countProximas++;
-
-        // Contar las facturas vencidas
         if (tdFechaVencimiento < hoy && tdEstado.textContent !== 'Pagado') countVencidas++;
-
-        // Contar las facturas con pagos pendientes
         if (montoPendiente > 0 && tdEstado.textContent !== 'Pagado') countPagosPendientes++;
-
-        // Contar facturas pagadas y pagadas hoy
         if (tdEstado && tdEstado.textContent === 'Pagado') {
             countPagadas++;
             if (tdFechaVencimiento === hoy) countPagadasHoy++;
         }
-
-        // Contar el total de facturas visibles
         countTotal++;
     }
 
-    // Actualizar los contadores en la interfaz
     document.getElementById('countHoy').textContent = countHoy;
     document.getElementById('countProximas').textContent = countProximas;
     document.getElementById('countVencidas').textContent = countVencidas;
@@ -87,17 +172,9 @@ function updateCounters() {
     document.getElementById('countPagadasHoy').textContent = countPagadasHoy;
     document.getElementById('countPagadas').textContent = countPagadas;
     document.getElementById('countTotal').textContent = countTotal;
-
-    // Verificación: comprobar si el número total visible coincide con el contador total
-    let filasVisibles = 0;
-    for (let i = 1; i < tr.length; i++) {
-        if (tr[i].style.display !== 'none') filasVisibles++;
-    }
-
-    if (filasVisibles !== countTotal) {
-        console.warn('Discrepancia: el número de filas visibles no coincide con el contador total.');
-        console.warn(`Filas visibles: ${filasVisibles}, Contador total: ${countTotal}`);
-    } else {
-        console.log('Todo correcto: el número de filas visibles coincide con el contador total.');
-    }
 }
+
+// Ejecuta esta función cuando la página se carga
+document.addEventListener('DOMContentLoaded', function() {
+    updateCounters();
+});
