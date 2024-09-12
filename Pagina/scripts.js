@@ -247,7 +247,7 @@ function generarReporte() {
                     <td>${factura.boletas[i].fecha}</td>
                     <td>Q${factura.boletas[i].monto.toFixed(2)}</td>
                     <td>${factura.boletas[i].banco}</td>
-                `;A
+                `;
                 reporteContenido.appendChild(filaBoleta);
             }
         } else {
