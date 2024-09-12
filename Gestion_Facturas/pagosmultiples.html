@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Múltiple de Facturas</title>
+    <link rel="stylesheet" href="stylesFacturas.css">
+
+    <!-- Incluye las bibliotecas de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+
+    <!-- Incluye html2canvas y jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+
+    <!-- Configuración de Firebase -->
+    <script src="js/firebaseConfig.js"></script>
+
+    <!-- Incluye la biblioteca de Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <!-- Modal para pago múltiple -->
+    <div id="multiplePaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('multiplePaymentModal')">&times;</span>
+            <h2>Pago Múltiple de Facturas</h2>
+
+            <label for="empresaSelectMultiple">Selecciona una Empresa:</label>
+            <select id="empresaSelectMultiple" onchange="loadFacturasForMultiplePayment()">
+                <!-- Opciones de empresas cargadas dinámicamente -->
+            </select>
+
+            <h3>Selecciona las Facturas a Pagar:</h3>
+            <div id="facturasMultipleContainer">
+                <!-- Lista de facturas filtradas por empresa -->
+            </div>
+
+            <h3>Información del Pago:</h3>
+            <label for="paymentAmountMultiple">Monto del Pago:</label>
+            <input type="number" id="paymentAmountMultiple" placeholder="Monto a pagar" step="0.01" min="0">
+            
+            <label for="paymentDateMultiple">Fecha del Pago:</label>
+            <input type="date" id="paymentDateMultiple">
+
+            <label for="paymentMethodMultiple">Método de Pago:</label>
+            <select id="paymentMethodMultiple">
+                <option value="Transferencia">Transferencia</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Efectivo">Efectivo</option>
+            </select>
+
+            <label for="paymentBoletaNumberMultiple">Número de Boleta:</label>
+            <input type="text" id="paymentBoletaNumberMultiple" placeholder="Número de la boleta (opcional)" />
+
+            <button onclick="applyMultiplePayments()">Aplicar Pago</button>
+        </div>
+    </div>
+
+    <!-- Script integrado de pagos múltiples -->
+    <script>
+        // Funciones para gestionar el pago de múltiples facturas
+
+        async function openMultiplePaymentModal() {
+            // Aseguramos que el modal esté visible antes de cargar las opciones
+            openModal('multiplePaymentModal');
+
+            // Esperar a que el modal se abra completamente antes de proceder
+            setTimeout(async () => {
+                await loadEmpresasSelectOptions('empresaSelectMultiple');
+            }, 300); // Damos un pequeño retraso para asegurar que el DOM esté actualizado
+        }
+
+        async function loadFacturasForMultiplePayment() {
+            const empresaId = document.getElementById('empresaSelectMultiple').value;
+
+            if (!empresaId) {
+                alert('Selecciona una empresa primero.');
+                return;
+            }
+
+            try {
+                const facturasSnapshot = await db.collection('facturas')
+                    .where('empresaId', '==', empresaId)
+                    .where('estadoPago', '==', 'Pendiente')
+                    .get();
+
+                const facturasContainer = document.getElementById('facturasMultipleContainer');
+                facturasContainer.innerHTML = '';
+
+                if (facturasSnapshot.empty) {
+                    facturasContainer.innerHTML = '<p>No hay facturas pendientes para esta empresa.</p>';
+                    return;
+                }
+
+                facturasSnapshot.forEach(function(doc) {
+                    const factura = doc.data();
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = doc.id;
+                    facturasContainer.appendChild(checkbox);
+
+                    const label = document.createElement('label');
+                    label.textContent = `Factura ${factura.numero} - Monto Pendiente: Q${factura.montoTotal - (factura.pagosTotal || 0)}`;
+                    facturasContainer.appendChild(label);
+
+                    facturasContainer.appendChild(document.createElement('br'));
+                });
+
+            } catch (error) {
+                console.error('Error al cargar facturas:', error);
+                alert('Error al cargar facturas: ' + error.message);
+            }
+        }
+
+        async function applyMultiplePayments() {
+            const selectedFacturas = Array.from(document.querySelectorAll('#facturasMultipleContainer input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+            const paymentAmount = parseFloat(document.getElementById('paymentAmountMultiple').value);
+            const paymentDate = document.getElementById('paymentDateMultiple').value;
+            const paymentMethod = document.getElementById('paymentMethodMultiple').value;
+            const paymentBoletaNumber = document.getElementById('paymentBoletaNumberMultiple').value || null;
+
+            if (!selectedFacturas.length || isNaN(paymentAmount) || !paymentDate || !paymentMethod) {
+                alert('Debes seleccionar facturas y completar toda la información del pago.');
+                return;
+            }
+
+            try {
+                await db.runTransaction(async (transaction) => {
+                    let totalPendiente = 0;
+                    let pagosPorFactura = {};
+
+                    // Calcular total pendiente y crear pagos para cada factura
+                    for (let facturaId of selectedFacturas) {
+                        const facturaDoc = await transaction.get(db.collection('facturas').doc(facturaId));
+                        if (!facturaDoc.exists) {
+                            throw new Error('Factura no encontrada');
+                        }
+
+                        const factura = facturaDoc.data();
+                        const montoPendiente = factura.montoTotal - (factura.pagosTotal || 0);
+                        totalPendiente += montoPendiente;
+                        pagosPorFactura[facturaId] = montoPendiente;
+                    }
+
+                    if (paymentAmount > totalPendiente) {
+                        throw new Error('El monto del pago excede el total pendiente.');
+                    }
+
+                    // Aplicar el pago proporcionalmente a las facturas seleccionadas
+                    for (let facturaId of selectedFacturas) {
+                        const montoFactura = pagosPorFactura[facturaId];
+                        const pagoAplicado = Math.min(paymentAmount, montoFactura);
+
+                        const facturaRef = db.collection('facturas').doc(facturaId);
+                        const facturaDoc = await transaction.get(facturaRef);
+                        const factura = facturaDoc.data();
+                        
+                        const nuevosPagos = [...(factura.pagos || []), {
+                            monto: pagoAplicado,
+                            fecha: paymentDate,
+                            metodoPago: paymentMethod,
+                            numeroBoleta: paymentBoletaNumber
+                        }];
+                        const pagosTotal = (factura.pagosTotal || 0) + pagoAplicado;
+
+                        transaction.update(facturaRef, { pagosTotal, pagos: nuevosPagos });
+                        paymentAmount -= pagoAplicado;
+
+                        if (paymentAmount <= 0) break;
+                    }
+                });
+
+                closeModal('multiplePaymentModal');
+                alert('Pago múltiple aplicado con éxito.');
+                loadFacturas();  // Actualizar la lista de facturas
+
+            } catch (error) {
+                console.error('Error al aplicar pago múltiple:', error);
+                alert('Error al aplicar pago múltiple: ' + error.message);
+            }
+        }
+
+        // Helper functions to open and close modals
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        async function loadEmpresasSelectOptions(empresaSelectId) {
+            try {
+                const empresaSelect = document.getElementById(empresaSelectId);
+                if (!empresaSelect) {
+                    console.error('Elemento empresaSelect no encontrado');
+                    return;
+                }
+                
+                const empresasSnapshot = await db.collection('empresas').get();
+                empresaSelect.innerHTML = '<option value="">Selecciona una Empresa</option>';
+
+                empresasSnapshot.forEach(function(doc) {
+                    const empresa = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = empresa.name;
+                    empresaSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error al cargar opciones de empresas:', error);
+                alert('Error al cargar opciones de empresas: ' + error.message);
+            }
+        }
+
+        // Inicialización de la página al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            openMultiplePaymentModal(); // Abre el modal al cargar la página
+        });
+    </script>
+</body>
+</html>
