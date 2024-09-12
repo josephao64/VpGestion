@@ -10,22 +10,36 @@
 <body>
     <h2>Pago de Facturas</h2>
 
+    <!-- Botón para abrir la página de gestión de empresas -->
+    <a href="empresas.html" target="_blank" class="btn">Gestionar Empresas</a>
+
     <!-- Tabla de facturas -->
     <table>
         <thead>
             <tr>
                 <th>Seleccionar</th>
-                <th>Monto Factura</th>
-                <th>Saldo Pendiente</th>
                 <th>Sucursal</th>
+                <th>Fecha de Factura</th>
+                <th>No. de Factura</th>
+                <th>Monto</th>
+                <th>Monto Pendiente</th>
                 <th>Estado</th>
+                <th>Vence</th>
                 <th>Boleta ID (después del pago)</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="facturas-table">
-            <!-- Facturas generadas dinámicamente -->
+            <!-- Las facturas se generarán dinámicamente a partir de scripts.js -->
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5"></td>
+                <td><strong>Total Pendiente Seleccionado:</strong></td>
+                <td id="total-pendiente">Q0.00</td>
+                <td colspan="3"></td>
+            </tr>
+        </tfoot>
     </table>
 
     <!-- Formulario para aplicar pago -->
@@ -42,6 +56,16 @@
     <div class="form-group">
         <label for="numero-boleta">Número de Boleta (ID):</label>
         <input type="text" id="numero-boleta" placeholder="Ingrese el número de boleta">
+    </div>
+
+    <div class="form-group">
+        <label for="banco">Banco:</label>
+        <select id="banco">
+            <option value="">Seleccione un banco</option>
+            <option value="BANRURAL">Banrural</option>
+            <option value="BI">BI</option>
+            <option value="G&T">G&T</option>
+        </select>
     </div>
 
     <button class="btn" id="aplicar-pago" disabled>Aplicar Pago</button>
@@ -62,14 +86,17 @@
         <table id="reporte-table">
             <thead>
                 <tr>
-                    <th>Factura</th>
-                    <th>Monto Factura</th>
-                    <th>Saldo Pendiente</th>
                     <th>Sucursal</th>
+                    <th>Fecha de Factura</th>
+                    <th>No. de Factura</th>
+                    <th>Monto</th>
+                    <th>Monto Pendiente</th>
                     <th>Estado</th>
+                    <th>Vence</th>
                     <th>Boleta ID</th>
                     <th>Fecha Pago</th>
                     <th>Monto Pagado</th>
+                    <th>Banco</th>
                 </tr>
             </thead>
             <tbody id="reporte-contenido">
@@ -78,6 +105,6 @@
         </table>
     </div>
 
-    <script src="scripts.js"></script>
+    <script src="scripts.js"></script> <!-- Conexión con el archivo de scripts -->
 </body>
 </html>
