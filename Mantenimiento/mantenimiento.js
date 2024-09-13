@@ -11,14 +11,12 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
-// Obtenemos los elementos del DOM
-const form = document.getElementById('maquinariaForm');
-const maquinariaTable = document.getElementById('maquinariaTable').querySelector('tbody');
+let maquinariaActualId = '';
 
 // Función para cargar las sucursales desde Firebase
 async function cargarSucursales() {
     const sucursalSelect = document.getElementById('sucursal');
-    sucursalSelect.innerHTML = ''; // Limpiar opciones previas
+    sucursalSelect.innerHTML = '';
 
     try {
         const snapshot = await db.collection('sucursales').get();
@@ -36,40 +34,79 @@ async function cargarSucursales() {
 
 // Función para calcular el próximo mantenimiento
 function calcularProximoMantenimiento(ultimaFecha, intervalo) {
-    const fechaUltima = new Date(ultimaFecha);
-    fechaUltima.setDate(fechaUltima.getDate() + parseInt(intervalo));
-    return fechaUltima.toISOString().split('T')[0];
+    const fechaUltima = moment(ultimaFecha);
+    return fechaUltima.add(intervalo, 'days').format('YYYY-MM-DD');
 }
 
-// Evento para manejar el envío del formulario
-form.addEventListener('submit', async function(event) {
-    event.preventDefault();
+// Abrir modal de registrar mantenimiento
+function openModalMantenimiento(id, maquinaria) {
+    maquinariaActualId = id;
+    document.getElementById('modalMaquinariaNombre').textContent = maquinaria.nombre;
+    document.getElementById('modalMaquinariaSucursal').textContent = maquinaria.sucursal;
+    document.getElementById('nuevaFecha').value = moment().format('YYYY-MM-DD');
+    document.getElementById('descripcionMantenimiento').value = '';
+    document.getElementById('modalMantenimiento').style.display = 'block';
+}
 
-    const nombre = document.getElementById('nombre').value;
-    const sucursal = document.getElementById('sucursal').value;
-    const intervalo = document.getElementById('intervalo').value;
-    const ultimaFecha = document.getElementById('ultimaFecha').value;
+// Abrir modal de historial de mantenimiento
+async function openModalHistorial(id) {
+    const historialUl = document.getElementById('historialMantenimiento');
+    historialUl.innerHTML = '';
+    const maquinariaDoc = await db.collection('maquinarias').doc(id).get();
+    const historial = maquinariaDoc.data().historial || [];
 
-    const nuevaMaquinaria = {
-        nombre,
-        sucursal,
-        intervalo,
-        ultimaFecha,
-        proximoMantenimiento: calcularProximoMantenimiento(ultimaFecha, intervalo)
-    };
+    historial.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.fecha}: ${item.descripcion}`;
+        historialUl.appendChild(li);
+    });
+
+    document.getElementById('modalHistorial').style.display = 'block';
+}
+
+// Cerrar modal
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Registrar nuevo mantenimiento
+async function registrarNuevoMantenimiento() {
+    const fechaMantenimiento = document.getElementById('nuevaFecha').value;
+    const descripcionMantenimiento = document.getElementById('descripcionMantenimiento').value;
+
+    if (!fechaMantenimiento || !descripcionMantenimiento) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Debes completar todos los campos.',
+        });
+        return;
+    }
+
+    const maquinariaDoc = await db.collection('maquinarias').doc(maquinariaActualId).get();
+    const maquinaria = maquinariaDoc.data();
+    const nuevoProximoMantenimiento = calcularProximoMantenimiento(fechaMantenimiento, maquinaria.intervalo);
 
     try {
-        await db.collection('maquinarias').add(nuevaMaquinaria);
-        form.reset();
+        await db.collection('maquinarias').doc(maquinariaActualId).update({
+            ultimaFecha: fechaMantenimiento,
+            proximoMantenimiento: nuevoProximoMantenimiento,
+            historial: firebase.firestore.FieldValue.arrayUnion({
+                fecha: fechaMantenimiento,
+                descripcion: descripcionMantenimiento
+            })
+        });
+        closeModal('modalMantenimiento');
         renderMaquinaria();
     } catch (error) {
-        console.error("Error al agregar maquinaria: ", error);
+        console.error("Error al registrar mantenimiento: ", error);
     }
-});
+}
 
 // Función para renderizar las maquinarias en la tabla
 async function renderMaquinaria() {
-    maquinariaTable.innerHTML = ''; // Limpiar la tabla antes de redibujar
+    const maquinariaTable = document.getElementById('maquinariaTable').querySelector('tbody');
+    maquinariaTable.innerHTML = '';
     const snapshot = await db.collection('maquinarias').get();
 
     snapshot.forEach((doc) => {
@@ -84,23 +121,78 @@ async function renderMaquinaria() {
                 <td>${maquinaria.ultimaFecha}</td>
                 <td>${proximoMantenimiento}</td>
                 <td>
-                    <button onclick="eliminarMaquinaria('${doc.id}')">Eliminar</button>
+                    <button onclick="openModalMantenimiento('${doc.id}', ${JSON.stringify(maquinaria)})">Registrar Mantenimiento</button>
+                    <button onclick="openModalHistorial('${doc.id}')">Mostrar Historial</button>
                 </td>
             </tr>
         `;
         maquinariaTable.innerHTML += row;
+
+        verificarMantenimiento(doc.id, maquinaria);
     });
 }
 
-// Función para eliminar una maquinaria
-async function eliminarMaquinaria(id) {
-    try {
-        await db.collection('maquinarias').doc(id).delete();
-        renderMaquinaria();
-    } catch (error) {
-        console.error("Error al eliminar maquinaria: ", error);
+// Verificar si una maquinaria necesita mantenimiento
+function verificarMantenimiento(id, maquinaria) {
+    const hoy = moment().startOf('day');
+    const proximoMantenimiento = moment(maquinaria.proximoMantenimiento);
+
+    // Un día antes
+    if (hoy.isSame(proximoMantenimiento.subtract(1, 'days'), 'day')) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Recordatorio',
+            text: `La maquinaria ${maquinaria.nombre} en la sucursal ${maquinaria.sucursal} necesita mantenimiento mañana.`,
+            confirmButtonText: 'Entendido'
+        });
+    }
+
+    // El día del mantenimiento
+    if (hoy.isSame(proximoMantenimiento, 'day')) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Mantenimiento Programado',
+            text: `La maquinaria ${maquinaria.nombre} en la sucursal ${maquinaria.sucursal} necesita mantenimiento hoy.`,
+            confirmButtonText: 'Registrar Mantenimiento',
+            showCancelButton: true,
+            cancelButtonText: 'Posponer',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                openModalMantenimiento(id, maquinaria);
+            }
+        });
     }
 }
+
+// Evento para el formulario de añadir maquinaria
+document.getElementById('maquinariaForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const nombre = document.getElementById('nombre').value;
+    const sucursal = document.getElementById('sucursal').value;
+    const intervalo = document.getElementById('intervalo').value;
+    const ultimaFecha = document.getElementById('ultimaFecha').value;
+
+    const nuevaMaquinaria = {
+        nombre,
+        sucursal,
+        intervalo,
+        ultimaFecha,
+        proximoMantenimiento: calcularProximoMantenimiento(ultimaFecha, intervalo),
+        historial: [{
+            fecha: ultimaFecha,
+            descripcion: `Mantenimiento inicial registrado el ${ultimaFecha}`
+        }]
+    };
+
+    try {
+        await db.collection('maquinarias').add(nuevaMaquinaria);
+        document.getElementById('maquinariaForm').reset();
+        renderMaquinaria();
+    } catch (error) {
+        console.error("Error al agregar maquinaria: ", error);
+    }
+});
 
 // Inicializar tabla y cargar sucursales al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -108,3 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
     renderMaquinaria();
 });
 
+<<<<<<< HEAD
+=======
+// Evento para registrar mantenimiento desde el modal
+document.getElementById('registrarMantenimientoBtn').addEventListener('click', registrarNuevoMantenimiento);
+>>>>>>> 2ae83719ff3ad5b89c65c852df7bf48931c3979f
