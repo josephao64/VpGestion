@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Mantenimiento de Maquinaria</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script defer src="mantenimiento.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Mantenimiento de Maquinaria</h1>
+
+        <!-- Formulario para añadir maquinaria -->
+        <form id="maquinariaForm">
+            <h2>Añadir Maquinaria</h2>
+            <label for="nombre">Nombre de la Maquinaria:</label>
+            <input type="text" id="nombre" required>
+
+            <label for="sucursal">Sucursal:</label>
+            <select id="sucursal"></select>
+
+            <label for="intervalo">Intervalo de Mantenimiento (días):</label>
+            <input type="number" id="intervalo" required>
+
+            <label for="ultimaFecha">Última Fecha de Mantenimiento:</label>
+            <input type="date" id="ultimaFecha" required>
+
+            <button type="submit">Añadir Maquinaria</button>
+        </form>
+
+        <!-- Lista de maquinarias -->
+        <h2>Listado de Maquinaria</h2>
+        <table id="maquinariaTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Sucursal</th>
+                    <th>Intervalo (días)</th>
+                    <th>Último Mantenimiento</th>
+                    <th>Próximo Mantenimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+
+
