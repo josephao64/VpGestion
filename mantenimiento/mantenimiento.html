@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Librería SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script> <!-- Librería Moment.js -->
     <script defer src="mantenimiento.js"></script>
 </head>
 <body>
@@ -46,6 +48,34 @@
             </thead>
             <tbody></tbody>
         </table>
+    </div>
+
+    <!-- Modal para registrar mantenimiento -->
+    <div id="modalMantenimiento" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modalMantenimiento')">&times;</span>
+            <h2>Registrar Mantenimiento</h2>
+            <p>Nombre de la Maquinaria: <span id="modalMaquinariaNombre"></span></p>
+            <p>Sucursal: <span id="modalMaquinariaSucursal"></span></p>
+
+            <!-- Formulario para registrar nuevo mantenimiento -->
+            <label for="nuevaFecha">Fecha del Mantenimiento:</label>
+            <input type="date" id="nuevaFecha" required>
+            
+            <label for="descripcionMantenimiento">Descripción del Mantenimiento:</label>
+            <textarea id="descripcionMantenimiento" rows="4" required></textarea>
+
+            <button id="registrarMantenimientoBtn">Registrar Mantenimiento</button>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar historial -->
+    <div id="modalHistorial" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('modalHistorial')">&times;</span>
+            <h2>Historial de Mantenimiento</h2>
+            <ul id="historialMantenimiento"></ul>
+        </div>
     </div>
 </body>
 </html>
