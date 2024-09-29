@@ -1,0 +1,182 @@
+/* stylesgestionar.css */
+
+/* Estilo para los campos requeridos */
+.required {
+    color: red;
+}
+
+/* Estilos para el cuerpo */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+/* Estilos para los títulos */
+h1, h2 {
+    color: #333;
+}
+
+/* Estilos para los botones */
+.buttons button,
+.filters button,
+.buttons select,
+.filters select {
+    margin: 5px;
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.buttons button:hover,
+.filters button:hover,
+.buttons select:hover,
+.filters select:hover {
+    background-color: #0056b3;
+}
+
+.buttons button:disabled,
+.filters button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Estilos para las tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: white;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilos para los contenedores */
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Estilos para los modales */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos para inputs y selects dentro de modales */
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.modal-content button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.modal-content button:hover {
+    background-color: #218838;
+}
+
+/* Estilos para filtros dentro de los contenedores */
+.filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.filters select {
+    width: 200px;
+}
+
+/* Estilos para las acciones dentro de las tablas */
+table button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+table button:first-child {
+    background-color: #ffc107;
+    color: white;
+}
+
+table button:first-child:hover {
+    background-color: #e0a800;
+}
+
+table button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+table button:last-child:hover {
+    background-color: #c82333;
+}

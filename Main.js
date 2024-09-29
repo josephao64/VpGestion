@@ -12,6 +12,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if (doc.exists) {
             const role = doc.data().role;
             const permissions = doc.data().permissions || [];
+            const username = doc.data().username; // Obtener el nombre del usuario
+
+            // Mostrar el nombre del usuario en la página
+            document.getElementById("username").textContent = username;
 
             if (role === "admin_general") {
                 // Si es Administrador General, habilitar todos los botones

@@ -1,3 +1,4 @@
+// Login.js
 document.addEventListener("DOMContentLoaded", function() {
     // Limpiar cualquier sesión previa almacenada en localStorage
     localStorage.clear();
@@ -68,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         const role = doc.data().role;
                         localStorage.setItem("userRole", role);
                         localStorage.setItem("userId", userId); // Guardar ID de usuario
-                        window.location.href = "../Main.HTML"; // Redirigir a la página principal desde la carpeta Login
+                        window.location.href = "../index.html"; // Redirigir a index.html en el directorio raíz
 
                     } else {
                         errorMessage.textContent = "Contraseña incorrecta";
