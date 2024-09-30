@@ -2,23 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Empresas y Sucursales</title>
     <link rel="stylesheet" href="stylesgestionar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <!-- SweetAlert2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    
-    <!-- Firebase JS SDK -->
+
+    <!-- Firebase JS SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Tu archivo de configuración de Firebase -->
+    <script src="/FirebaseConfig.js"></script>
+
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script defer src="empresas.js"></script>
-    
+
+    <!-- Tu archivo empresas.js -->
+    <script src="empresas.js"></script>
+
     <style>
         /* Estilo para resaltar la fila seleccionada */
         .selected {
@@ -102,6 +107,32 @@
             background-color: #0056b3;
         }
 
+        /* Estilos para las opciones de usuario */
+        .user-info {
+            display: inline-block;
+            margin-left: 20px;
+            vertical-align: middle;
+        }
+
+        .user-info #username {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .user-info button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #dc3545;
+        }
+
+        .user-info button:hover {
+            background-color: #c82333;
+        }
+
         /* Estilos para los modales */
         .modal {
             display: none; /* Hidden by default */
@@ -178,26 +209,31 @@
 </head>
 <body>
     <h1><i class="fas fa-building"></i> Gestión de Empresas y Sucursales</h1>
-    
+
     <div class="buttons">
         <button onclick="showEmpresas()"><i class="fas fa-building"></i> Empresas Activas</button>
         <button onclick="showEmpresasInactivas()"><i class="fas fa-building-slash"></i> Empresas Inactivas</button>
         <button onclick="showSucursales()"><i class="fas fa-map-marker-alt"></i> Sucursales</button>
         <button onclick="window.location.href='../EmpresaMain/EmpresaMain.html'"><i class="fas fa-arrow-left"></i> Volver a Principal</button>
+        <!-- Opciones de usuario (puedes eliminarlas si no las necesitas) -->
+        <div class="user-info">
+            <span id="username">Usuario</span>
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
     </div>
 
     <!-- Contenedores de Empresas Activas, Inactivas y Sucursales -->
     <div id="empresasContainer" class="container" style="display: none;">
         <h2><i class="fas fa-building"></i> Empresas Activas</h2>
         <button id="addEmpresaBtn"><i class="fas fa-plus-circle"></i> Agregar Empresa</button>
-        
+
         <!-- Botones de acción para Empresas Activas -->
         <div class="action-buttons">
-            <button id="editarEmpresaBtn" class="edit-button" onclick="editarEmpresa()" disabled><i class="fas fa-edit"></i> Editar Empresa</button>
-            <button id="desactivarEmpresaBtn" class="deactivate-button" onclick="desactivarEmpresa()" disabled><i class="fas fa-trash-alt"></i> Desactivar Empresa</button>
-            <button id="eliminarEmpresaBtn" class="delete-button" onclick="eliminarEmpresa()" disabled><i class="fas fa-ban"></i> Eliminar Empresa</button>
+            <button id="editarEmpresaBtn" class="edit-button" disabled><i class="fas fa-edit"></i> Editar Empresa</button>
+            <button id="desactivarEmpresaBtn" class="deactivate-button" disabled><i class="fas fa-trash-alt"></i> Desactivar Empresa</button>
+            <button id="eliminarEmpresaBtn" class="delete-button" disabled><i class="fas fa-ban"></i> Eliminar Empresa</button>
         </div>
-        
+
         <table id="empresasTable">
             <thead>
                 <tr>
@@ -215,13 +251,13 @@
 
     <div id="empresasInactivasContainer" class="container" style="display: none;">
         <h2><i class="fas fa-building-slash"></i> Empresas Inactivas</h2>
-        
+
         <!-- Botones de acción para Empresas Inactivas -->
         <div class="action-buttons">
-            <button id="reactivarEmpresaBtn" class="reactivate-button" onclick="reactivarEmpresa()" disabled><i class="fas fa-check-circle"></i> Reactivar Empresa</button>
-            <button id="verHistorialEmpresaBtn" class="history-button" onclick="verHistorialEmpresa()" disabled><i class="fas fa-history"></i> Ver Historial</button>
+            <button id="reactivarEmpresaBtn" class="reactivate-button" disabled><i class="fas fa-check-circle"></i> Reactivar Empresa</button>
+            <button id="verHistorialEmpresaBtn" class="history-button" disabled><i class="fas fa-history"></i> Ver Historial</button>
         </div>
-        
+
         <table id="empresasInactivasTable">
             <thead>
                 <tr>
@@ -239,18 +275,18 @@
 
     <div id="sucursalesContainer" class="container" style="display: none;">
         <h2><i class="fas fa-map-marker-alt"></i> Sucursales</h2>
-        <select id="empresaFilterSelect" onchange="loadSucursales()">
+        <select id="empresaFilterSelect">
             <option value="">Todas las empresas</option>
         </select>
         <button id="addSucursalBtn"><i class="fas fa-plus-circle"></i> Agregar Sucursal</button>
-        
+
         <!-- Botones de acción para Sucursales -->
         <div class="action-buttons">
-            <button id="editarSucursalBtn" class="edit-button" onclick="editarSucursal()" disabled><i class="fas fa-edit"></i> Editar Sucursal</button>
-            <button id="desactivarSucursalBtn" class="deactivate-button" onclick="desactivarSucursal()" disabled><i class="fas fa-trash-alt"></i> Desactivar Sucursal</button>
-            <button id="eliminarSucursalBtn" class="delete-button" onclick="eliminarSucursal()" disabled><i class="fas fa-ban"></i> Eliminar Sucursal</button>
+            <button id="editarSucursalBtn" class="edit-button" disabled><i class="fas fa-edit"></i> Editar Sucursal</button>
+            <button id="desactivarSucursalBtn" class="deactivate-button" disabled><i class="fas fa-trash-alt"></i> Desactivar Sucursal</button>
+            <button id="eliminarSucursalBtn" class="delete-button" disabled><i class="fas fa-ban"></i> Eliminar Sucursal</button>
         </div>
-        
+
         <table id="sucursalesTable">
             <thead>
                 <tr>
@@ -269,7 +305,7 @@
     </div>
 
     <!-- Modales para agregar y editar Empresa y Sucursal -->
-    
+
     <!-- Agregar Empresa Modal -->
     <div id="addEmpresaModal" class="modal">
         <div class="modal-content">
@@ -343,6 +379,9 @@
             <span class="close" onclick="closeModal('motivoDesactivarEmpresaModal')">&times;</span>
             <h2><i class="fas fa-exclamation-triangle"></i> Motivo de Desactivación</h2>
             <form id="motivoDesactivarEmpresaForm">
+                <!-- Campo oculto para almacenar el ID de la empresa a desactivar -->
+                <input type="hidden" id="empresaDesactivarId">
+
                 <label for="motivoDesactivar">Ingrese el motivo de desactivación <span class="required">*</span></label>
                 <textarea id="motivoDesactivar" placeholder="Motivo de desactivación" required></textarea>
 
@@ -455,7 +494,5 @@
             </table>
         </div>
     </div>
-
-    <!-- Scripts adicionales si son necesarios -->
 </body>
 </html>

@@ -1,0 +1,83 @@
+<!-- RRHH/Configuracion/Configuracion.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuración de Políticas</title>
+    <link rel="stylesheet" href="Configuracion.css">
+    <!-- Bootstrap CSS para estilos -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- DataTables CSS para tablas interactivas -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <!-- SweetAlert2 para alertas -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Archivo de configuración de Firebase -->
+    <script src="/FirebaseConfig.js"></script>
+    <!-- Moment.js para manejo de fechas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- jQuery y DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <!-- Archivo JavaScript principal -->
+    <script src="Configuracion.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4">Configuración de Políticas de la Empresa</h2>
+        <div class="mb-3">
+            <button class="btn btn-primary" onclick="abrirModalAgregarPolitica()">Agregar Política</button>
+            <a href="../RecursosHumanos.html" class="btn btn-secondary">Volver a Empleados</a>
+        </div>
+        <table id="politicasTable" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Fecha de Creación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las políticas se cargarán aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal para agregar/editar política -->
+    <div class="modal fade" id="modalPolitica" tabindex="-1" role="dialog" aria-labelledby="modalPoliticaTitulo" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <form id="formPolitica">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalPoliticaTitulo">Agregar Política</h5>
+              <button type="button" class="close" onclick="cerrarModalPolitica()" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <!-- Campos del formulario -->
+                <input type="hidden" id="politicaId">
+                <div class="form-group">
+                    <label for="tituloPolitica">Título de la Política</label>
+                    <input type="text" class="form-control" id="tituloPolitica" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcionPolitica">Descripción</label>
+                    <textarea class="form-control" id="descripcionPolitica" rows="5" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="cerrarModalPolitica()">Cerrar</button>
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

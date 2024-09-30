@@ -1,0 +1,30 @@
+/* RecursosHumanos.css */
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.nav-tabs {
+    margin-bottom: 20px;
+}
+
+.modal-header, .modal-footer {
+    background-color: #f8f9fa;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.table-container {
+    overflow-x: auto;
+}
