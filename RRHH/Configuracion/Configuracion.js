@@ -1,35 +1,38 @@
-// Configuracion.js
+// RRHH/Configuracion/Configuracion.js
 
 // Inicializar Firestore (asegúrate de que FirebaseConfig.js ya está cargado)
 var db = firebase.firestore();
 
 document.addEventListener("DOMContentLoaded", function() {
-    inicializarDataTablePoliticas();
-    cargarPoliticas();
+    inicializarDataTableParametros();
+    cargarParametros();
+    cargarParametrosPredefinidos(); // Cargar parámetros predefinidos si no existen
 
     // Eventos para los formularios
-    document.getElementById('formPolitica').addEventListener('submit', function(event) {
+    document.getElementById('formParametro').addEventListener('submit', function(event) {
         event.preventDefault();
-        guardarPolitica();
+        guardarParametro();
     });
 
     // Resetear formulario al cerrar el modal
-    $('#modalPolitica').on('hidden.bs.modal', function () {
-        document.getElementById('formPolitica').reset();
-        document.getElementById('politicaId').value = '';
-        document.getElementById('modalPoliticaTitulo').textContent = 'Agregar Política';
+    $('#modalParametro').on('hidden.bs.modal', function () {
+        document.getElementById('formParametro').reset();
+        document.getElementById('parametroId').value = '';
+        document.getElementById('modalParametroTitulo').textContent = 'Agregar Parámetro';
+        document.getElementById('claveParametro').disabled = false;
     });
 });
 
-// Inicializar DataTable para Políticas
-var tablaPoliticas;
+// Inicializar DataTable para Parámetros
+var tablaParametros;
 
-function inicializarDataTablePoliticas() {
-    tablaPoliticas = $('#politicasTable').DataTable({
+function inicializarDataTableParametros() {
+    tablaParametros = $('#parametrosTable').DataTable({
         columns: [
-            { data: 'titulo' },
+            { data: 'clave' },
+            { data: 'valor' },
             { data: 'descripcion' },
-            { data: 'fechaCreacion' },
+            { data: 'fechaActualizacion' },
             { data: 'acciones' }
         ],
         language: {
@@ -39,114 +42,156 @@ function inicializarDataTablePoliticas() {
     });
 }
 
-// Función para cargar las políticas en la tabla
-async function cargarPoliticas() {
+// Función para cargar los parámetros en la tabla
+async function cargarParametros() {
     try {
-        const politicasSnapshot = await db.collection('politicas').orderBy('fechaCreacion', 'desc').get();
-        const politicasData = [];
+        const parametrosSnapshot = await db.collection('parametros').get();
+        const parametrosData = [];
 
-        politicasSnapshot.forEach(function(doc) {
-            const politica = doc.data();
+        parametrosSnapshot.forEach(function(doc) {
+            const parametro = doc.data();
+            const fechaActualizacion = parametro.fechaActualizacion ? moment(parametro.fechaActualizacion.toDate()).format('DD/MM/YYYY HH:mm') : 'N/A';
 
-            const fechaCreacion = (politica.fechaCreacion && politica.fechaCreacion.toDate) ? moment(politica.fechaCreacion.toDate()).format('DD/MM/YYYY') : 'N/A';
-
-            politicasData.push({
+            parametrosData.push({
                 id: doc.id,
-                titulo: politica.titulo || 'N/A',
-                descripcion: politica.descripcion || 'N/A',
-                fechaCreacion: fechaCreacion,
-                acciones: `<button class="btn btn-sm btn-primary" onclick="editarPolitica('${doc.id}')">Editar</button>
-                           <button class="btn btn-sm btn-danger" onclick="eliminarPolitica('${doc.id}')">Eliminar</button>`
+                clave: parametro.clave || 'N/A',
+                valor: parametro.valor || 'N/A',
+                descripcion: parametro.descripcion || 'N/A',
+                fechaActualizacion: fechaActualizacion,
+                acciones: `<button class="btn btn-sm btn-primary" onclick="editarParametro('${doc.id}')">Editar</button>
+                           <button class="btn btn-sm btn-danger" onclick="eliminarParametro('${doc.id}')">Eliminar</button>`
             });
         });
 
-        tablaPoliticas.clear();
-        tablaPoliticas.rows.add(politicasData).draw();
+        tablaParametros.clear();
+        tablaParametros.rows.add(parametrosData).draw();
 
     } catch (error) {
-        console.error('Error al cargar políticas:', error);
-        Swal.fire('Error', 'Ocurrió un error al cargar las políticas.', 'error');
+        console.error('Error al cargar parámetros:', error);
+        Swal.fire('Error', 'Ocurrió un error al cargar los parámetros.', 'error');
     }
 }
 
-// Función para abrir el modal de agregar política
-function abrirModalAgregarPolitica() {
-    document.getElementById('modalPoliticaTitulo').textContent = 'Agregar Política';
-    document.getElementById('formPolitica').reset();
-    document.getElementById('politicaId').value = '';
-    $('#modalPolitica').modal('show');
+// Función para cargar parámetros predefinidos si no existen
+async function cargarParametrosPredefinidos() {
+    try {
+        const parametrosRef = db.collection('parametros');
+
+        // Parámetros predefinidos
+        const parametrosPredefinidos = [
+            {
+                clave: 'periodoPruebaDias',
+                valor: '60',
+                descripcion: 'Periodo en días para el contrato de prueba',
+                fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+            },
+            // Puedes agregar más parámetros predefinidos aquí
+        ];
+
+        for (let parametro of parametrosPredefinidos) {
+            const parametroDoc = await parametrosRef.doc(parametro.clave).get();
+            if (!parametroDoc.exists) {
+                await parametrosRef.doc(parametro.clave).set(parametro);
+            }
+        }
+
+        // Recargar los parámetros en la tabla
+        cargarParametros();
+
+    } catch (error) {
+        console.error('Error al cargar parámetros predefinidos:', error);
+    }
 }
 
-// Función para cerrar el modal de política
-function cerrarModalPolitica() {
-    $('#modalPolitica').modal('hide');
+// Función para abrir el modal de agregar parámetro
+function abrirModalAgregarParametro() {
+    document.getElementById('modalParametroTitulo').textContent = 'Agregar Parámetro';
+    document.getElementById('formParametro').reset();
+    document.getElementById('parametroId').value = '';
+    document.getElementById('claveParametro').disabled = false;
+    $('#modalParametro').modal('show');
 }
 
-// Función para guardar (agregar o actualizar) una política
-async function guardarPolitica() {
-    const politicaId = document.getElementById('politicaId').value;
-    const titulo = document.getElementById('tituloPolitica').value.trim();
-    const descripcion = document.getElementById('descripcionPolitica').value.trim();
+// Función para cerrar el modal de parámetro
+function cerrarModalParametro() {
+    $('#modalParametro').modal('hide');
+}
+
+// Función para guardar (agregar o actualizar) un parámetro
+async function guardarParametro() {
+    const parametroId = document.getElementById('parametroId').value;
+    const clave = document.getElementById('claveParametro').value.trim();
+    const valor = document.getElementById('valorParametro').value.trim();
+    const descripcion = document.getElementById('descripcionParametro').value.trim();
 
     // Validaciones
-    if (!titulo || !descripcion) {
+    if (!clave || !valor || !descripcion) {
         Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
         return;
     }
 
     try {
-        const politicaData = {
-            titulo: titulo,
+        const parametroData = {
+            clave: clave,
+            valor: valor,
             descripcion: descripcion,
-            fechaCreacion: firebase.firestore.FieldValue.serverTimestamp()
+            fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        if (politicaId) {
-            // Actualizar política
-            await db.collection('politicas').doc(politicaId).update(politicaData);
-            Swal.fire('Éxito', 'Política actualizada correctamente.', 'success');
+        if (parametroId) {
+            // Actualizar parámetro
+            await db.collection('parametros').doc(clave).update(parametroData);
+            Swal.fire('Éxito', 'Parámetro actualizado correctamente.', 'success');
         } else {
-            // Agregar nueva política
-            await db.collection('politicas').add(politicaData);
-            Swal.fire('Éxito', 'Política agregada correctamente.', 'success');
+            // Verificar si la clave ya existe
+            const parametroExistente = await db.collection('parametros').doc(clave).get();
+            if (parametroExistente.exists) {
+                Swal.fire('Error', 'La clave del parámetro ya existe. Por favor, elige otra clave.', 'error');
+                return;
+            }
+            // Agregar nuevo parámetro
+            await db.collection('parametros').doc(clave).set(parametroData);
+            Swal.fire('Éxito', 'Parámetro agregado correctamente.', 'success');
         }
 
-        $('#modalPolitica').modal('hide');
-        cargarPoliticas();
+        $('#modalParametro').modal('hide');
+        cargarParametros();
 
     } catch (error) {
-        console.error('Error al guardar política:', error);
-        Swal.fire('Error', 'Ocurrió un error al guardar la política.', 'error');
+        console.error('Error al guardar parámetro:', error);
+        Swal.fire('Error', 'Ocurrió un error al guardar el parámetro.', 'error');
     }
 }
 
-// Función para editar una política
-async function editarPolitica(id) {
+// Función para editar un parámetro
+async function editarParametro(id) {
     try {
-        const politicaDoc = await db.collection('politicas').doc(id).get();
-        if (politicaDoc.exists) {
-            const politica = politicaDoc.data();
+        const parametroDoc = await db.collection('parametros').doc(id).get();
+        if (parametroDoc.exists) {
+            const parametro = parametroDoc.data();
 
-            document.getElementById('modalPoliticaTitulo').textContent = 'Editar Política';
-            document.getElementById('politicaId').value = id;
-            document.getElementById('tituloPolitica').value = politica.titulo || '';
-            document.getElementById('descripcionPolitica').value = politica.descripcion || '';
+            document.getElementById('modalParametroTitulo').textContent = 'Editar Parámetro';
+            document.getElementById('parametroId').value = id;
+            document.getElementById('claveParametro').value = parametro.clave || '';
+            document.getElementById('valorParametro').value = parametro.valor || '';
+            document.getElementById('descripcionParametro').value = parametro.descripcion || '';
+            document.getElementById('claveParametro').disabled = true;
 
-            $('#modalPolitica').modal('show');
+            $('#modalParametro').modal('show');
         } else {
-            Swal.fire('Error', 'La política no existe.', 'error');
+            Swal.fire('Error', 'El parámetro no existe.', 'error');
         }
     } catch (error) {
-        console.error('Error al obtener política:', error);
-        Swal.fire('Error', 'Ocurrió un error al obtener los datos de la política.', 'error');
+        console.error('Error al obtener parámetro:', error);
+        Swal.fire('Error', 'Ocurrió un error al obtener los datos del parámetro.', 'error');
     }
 }
 
-// Función para eliminar una política
-function eliminarPolitica(id) {
+// Función para eliminar un parámetro
+function eliminarParametro(id) {
     Swal.fire({
         title: '¿Estás seguro?',
-        text: 'Esta acción eliminará la política permanentemente.',
+        text: 'Esta acción eliminará el parámetro permanentemente.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
@@ -156,12 +201,12 @@ function eliminarPolitica(id) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await db.collection('politicas').doc(id).delete();
-                cargarPoliticas();
-                Swal.fire('Eliminado', 'La política ha sido eliminada.', 'success');
+                await db.collection('parametros').doc(id).delete();
+                cargarParametros();
+                Swal.fire('Eliminado', 'El parámetro ha sido eliminado.', 'success');
             } catch (error) {
-                console.error('Error al eliminar política:', error);
-                Swal.fire('Error', 'Ocurrió un error al eliminar la política.', 'error');
+                console.error('Error al eliminar parámetro:', error);
+                Swal.fire('Error', 'Ocurrió un error al eliminar el parámetro.', 'error');
             }
         }
     });

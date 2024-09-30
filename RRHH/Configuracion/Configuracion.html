@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Configuración de Políticas</title>
+    <title>Configuración de Parámetros</title>
     <link rel="stylesheet" href="Configuracion.css">
     <!-- Bootstrap CSS para estilos -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -28,51 +28,56 @@
 </head>
 <body>
     <div class="container">
-        <h2 class="mt-4">Configuración de Políticas de la Empresa</h2>
-        <div class="mb-3">
-            <button class="btn btn-primary" onclick="abrirModalAgregarPolitica()">Agregar Política</button>
-            <a href="../RecursosHumanos.html" class="btn btn-secondary">Volver a Empleados</a>
+        <h2 class="mt-4">Configuración de Parámetros</h2>
+        <div class="mt-3 mb-3">
+            <button class="btn btn-primary" onclick="abrirModalAgregarParametro()">Agregar Parámetro</button>
+            <a href="../RecursosHumanos.html" class="btn btn-secondary">Volver a Recursos Humanos</a>
         </div>
-        <table id="politicasTable" class="display" style="width:100%">
+        <table id="parametrosTable" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>Título</th>
+                    <th>Clave</th>
+                    <th>Valor</th>
                     <th>Descripción</th>
-                    <th>Fecha de Creación</th>
+                    <th>Fecha de Actualización</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Las políticas se cargarán aquí -->
+                <!-- Los parámetros se cargarán aquí -->
             </tbody>
         </table>
     </div>
 
-    <!-- Modal para agregar/editar política -->
-    <div class="modal fade" id="modalPolitica" tabindex="-1" role="dialog" aria-labelledby="modalPoliticaTitulo" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <!-- Modal para agregar/editar parámetro -->
+    <div class="modal fade" id="modalParametro" tabindex="-1" role="dialog" aria-labelledby="modalParametroTitulo" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-          <form id="formPolitica">
+          <form id="formParametro">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalPoliticaTitulo">Agregar Política</h5>
-              <button type="button" class="close" onclick="cerrarModalPolitica()" aria-label="Cerrar">
+              <h5 class="modal-title" id="modalParametroTitulo">Agregar Parámetro</h5>
+              <button type="button" class="close" onclick="cerrarModalParametro()" aria-label="Cerrar">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-                <!-- Campos del formulario -->
-                <input type="hidden" id="politicaId">
+                <!-- Campos del formulario de parámetro -->
+                <input type="hidden" id="parametroId">
                 <div class="form-group">
-                    <label for="tituloPolitica">Título de la Política</label>
-                    <input type="text" class="form-control" id="tituloPolitica" required>
+                    <label for="claveParametro">Clave del Parámetro</label>
+                    <input type="text" class="form-control" id="claveParametro" required>
                 </div>
                 <div class="form-group">
-                    <label for="descripcionPolitica">Descripción</label>
-                    <textarea class="form-control" id="descripcionPolitica" rows="5" required></textarea>
+                    <label for="valorParametro">Valor del Parámetro</label>
+                    <input type="text" class="form-control" id="valorParametro" required>
+                </div>
+                <div class="form-group">
+                    <label for="descripcionParametro">Descripción</label>
+                    <textarea class="form-control" id="descripcionParametro" rows="3" required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="cerrarModalPolitica()">Cerrar</button>
+              <button type="button" class="btn btn-secondary" onclick="cerrarModalParametro()">Cerrar</button>
               <button type="submit" class="btn btn-primary">Guardar</button>
             </div>
           </form>

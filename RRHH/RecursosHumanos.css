@@ -1,30 +1,119 @@
 /* RecursosHumanos.css */
 
+/* Estilos generales */
 body {
     font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
 }
 
 .container {
     margin-top: 20px;
 }
 
-.nav-tabs {
+/* Títulos */
+h2 {
     margin-bottom: 20px;
 }
 
-.modal-header, .modal-footer {
-    background-color: #f8f9fa;
+/* Botones */
+.btn-primary,
+.btn-secondary {
+    margin-right: 10px;
+}
+
+/* Formularios */
+form .form-group label {
+    font-weight: bold;
+}
+
+form .form-control {
+    border-radius: 4px;
+}
+
+/* Estilos para el modal */
+.modal-header {
+    background-color: #007bff;
+    color: #fff;
 }
 
 .modal-title {
     font-weight: bold;
 }
 
-.modal-body {
-    max-height: 70vh;
+.modal-footer .btn {
+    min-width: 100px;
+}
+
+/* Tablas */
+table.dataTable {
+    width: 100% !important;
+}
+
+table.dataTable thead th {
+    background-color: #007bff;
+    color: #fff;
+    text-align: center;
+}
+
+table.dataTable tbody td {
+    text-align: center;
+}
+
+table.dataTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+/* Estilos para los select */
+.form-control {
+    height: calc(2.25rem + 2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 95%;
+    }
+
+    .form-row .form-group {
+        width: 100%;
+    }
+}
+
+/* Estilos para los botones de acción */
+.btn-sm {
+    margin: 2px;
+}
+
+/* Estilos para el formulario dentro del modal */
+#modalEmpleado .modal-body {
+    max-height: 60vh;
     overflow-y: auto;
 }
 
-.table-container {
-    overflow-x: auto;
+#modalEmpleado .form-group label {
+    margin-bottom: 0.5rem;
+}
+
+#modalEmpleado .form-control {
+    margin-bottom: 1rem;
+}
+
+/* Estilos para los mensajes de validación */
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    display: block;
+}
+
+/* Estilos específicos para campos deshabilitados */
+.form-control[readonly],
+.form-control[disabled] {
+    background-color: #e9ecef;
+    opacity: 1;
 }
