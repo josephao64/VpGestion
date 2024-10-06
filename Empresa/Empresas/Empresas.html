@@ -22,7 +22,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Tu archivo empresas.js -->
-    <script src="empresas.js"></script>
+    <script src="empresas.js" defer></script>
 
     <style>
         /* Estilo para resaltar la fila seleccionada */
@@ -211,9 +211,10 @@
     <h1><i class="fas fa-building"></i> Gestión de Empresas y Sucursales</h1>
 
     <div class="buttons">
-        <button onclick="showEmpresas()"><i class="fas fa-building"></i> Empresas Activas</button>
+        <button onclick="showEmpresasActivas()"><i class="fas fa-building"></i> Empresas Activas</button>
         <button onclick="showEmpresasInactivas()"><i class="fas fa-building-slash"></i> Empresas Inactivas</button>
-        <button onclick="showSucursales()"><i class="fas fa-map-marker-alt"></i> Sucursales</button>
+        <button onclick="showSucursalesActivas()"><i class="fas fa-map-marker-alt"></i> Sucursales Activas</button>
+        <button onclick="showSucursalesInactivas()"><i class="fas fa-map-marker-alt"></i> Sucursales Inactivas</button>
         <button onclick="window.location.href='../EmpresaMain/EmpresaMain.html'"><i class="fas fa-arrow-left"></i> Volver a Principal</button>
         <!-- Opciones de usuario (puedes eliminarlas si no las necesitas) -->
         <div class="user-info">
@@ -223,7 +224,7 @@
     </div>
 
     <!-- Contenedores de Empresas Activas, Inactivas y Sucursales -->
-    <div id="empresasContainer" class="container" style="display: none;">
+    <div id="empresasActivasContainer" class="container" style="display: none;">
         <h2><i class="fas fa-building"></i> Empresas Activas</h2>
         <button id="addEmpresaBtn"><i class="fas fa-plus-circle"></i> Agregar Empresa</button>
 
@@ -273,28 +274,54 @@
         </table>
     </div>
 
-    <div id="sucursalesContainer" class="container" style="display: none;">
-        <h2><i class="fas fa-map-marker-alt"></i> Sucursales</h2>
-        <select id="empresaFilterSelect">
+    <div id="sucursalesActivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-map-marker-alt"></i> Sucursales Activas</h2>
+        <select id="empresaFilterActivasSelect">
             <option value="">Todas las empresas</option>
         </select>
         <button id="addSucursalBtn"><i class="fas fa-plus-circle"></i> Agregar Sucursal</button>
 
-        <!-- Botones de acción para Sucursales -->
+        <!-- Botones de acción para Sucursales Activas -->
         <div class="action-buttons">
             <button id="editarSucursalBtn" class="edit-button" disabled><i class="fas fa-edit"></i> Editar Sucursal</button>
             <button id="desactivarSucursalBtn" class="deactivate-button" disabled><i class="fas fa-trash-alt"></i> Desactivar Sucursal</button>
             <button id="eliminarSucursalBtn" class="delete-button" disabled><i class="fas fa-ban"></i> Eliminar Sucursal</button>
         </div>
 
-        <table id="sucursalesTable">
+        <table id="sucursalesActivasTable">
             <thead>
                 <tr>
                     <th>Nombre</th>
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>Correo Electrónico</th>
-                    <th>Encargado</th>
+                    <th>Tipo</th> <!-- Nueva columna para Tipo de Sucursal -->
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Empresa</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="sucursalesInactivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-map-marker-alt"></i> Sucursales Inactivas</h2>
+
+        <!-- Botones de acción para Sucursales Inactivas -->
+        <div class="action-buttons">
+            <button id="activarSucursalBtn" class="reactivate-button" disabled><i class="fas fa-check-circle"></i> Activar Sucursal</button>
+            <button id="verHistorialSucursalBtn" class="history-button" disabled><i class="fas fa-history"></i> Ver Historial</button>
+        </div>
+
+        <table id="sucursalesInactivasTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Tipo</th> <!-- Nueva columna para Tipo de Sucursal -->
                     <th>Descripción</th>
                     <th>Estado</th>
                     <th>Empresa</th>
@@ -408,10 +435,11 @@
                 <label for="sucursalEmail">Correo Electrónico <span class="required">*</span></label>
                 <input type="email" id="sucursalEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
 
-                <label for="sucursalEncargado">Encargado <span class="required">*</span></label>
-                <select id="sucursalEncargado" required>
-                    <option value="">Selecciona un encargado</option>
-                    <!-- Opciones de encargados disponibles se cargarán dinámicamente -->
+                <label for="sucursalTipo">Tipo de Sucursal <span class="required">*</span></label>
+                <select id="sucursalTipo" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="CE1">CE1 (Capital)</option>
+                    <option value="CE2">CE2 (Departamento)</option>
                 </select>
 
                 <label for="sucursalDescription">Descripción</label>
@@ -451,10 +479,11 @@
                 <label for="editSucursalEmail">Correo Electrónico <span class="required">*</span></label>
                 <input type="email" id="editSucursalEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
 
-                <label for="editSucursalEncargado">Encargado <span class="required">*</span></label>
-                <select id="editSucursalEncargado" required>
-                    <option value="">Selecciona un encargado</option>
-                    <!-- Opciones de encargados disponibles se cargarán dinámicamente -->
+                <label for="editSucursalTipo">Tipo de Sucursal <span class="required">*</span></label>
+                <select id="editSucursalTipo" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="CE1">CE1 (Capital)</option>
+                    <option value="CE2">CE2 (Departamento)</option>
                 </select>
 
                 <label for="editSucursalDescription">Descripción</label>
@@ -483,6 +512,24 @@
             <span class="close" onclick="closeModal('historialEmpresaModal')">&times;</span>
             <h2><i class="fas fa-history"></i> Historial de Cambios de la Empresa</h2>
             <table id="historialEmpresaTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Motivo de Cambio</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para Historial de Cambios de Sucursal -->
+    <div id="historialSucursalModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('historialSucursalModal')">&times;</span>
+            <h2><i class="fas fa-history"></i> Historial de Cambios de la Sucursal</h2>
+            <table id="historialSucursalTable">
                 <thead>
                     <tr>
                         <th>Fecha</th>

@@ -7,15 +7,16 @@ var db = firebase.firestore();
 var selectedEmpresaId = null;
 var selectedEmpresaInactivaId = null;
 var selectedSucursalId = null;
+var selectedSucursalInactivaId = null;
 
 // Función que se ejecuta al cargar el DOM
 document.addEventListener("DOMContentLoaded", function() {
     estilizarBotones();
-    loadEmpresas();
+    loadEmpresasActivas();
     loadEmpresasInactivas();
-    loadSucursales();
+    loadSucursalesActivas();
+    loadSucursalesInactivas();
     loadEmpresasSelectOptions();
-    loadEncargadosSelectOptions('sucursalEncargado');
 
     // Asignar eventos a los botones de agregar
     document.getElementById('addEmpresaBtn').addEventListener('click', () => {
@@ -26,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('addSucursalBtn').addEventListener('click', () => {
         resetAddSucursalForm();
         loadEmpresasSelectOptions();
-        loadEncargadosSelectOptions('sucursalEncargado');
         openModal('addSucursalModal');
     });
 
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('desactivarEmpresaBtn').addEventListener('click', () => {
         if (selectedEmpresaId) {
-            solicitarMotivoDesactivacion(selectedEmpresaId);
+            solicitarMotivoDesactivacionEmpresa(selectedEmpresaId);
         }
     });
 
@@ -79,13 +79,41 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    document.getElementById('activarSucursalBtn').addEventListener('click', () => {
+        if (selectedSucursalInactivaId) {
+            activarSucursal(selectedSucursalInactivaId);
+        }
+    });
+
+    document.getElementById('verHistorialSucursalBtn').addEventListener('click', () => {
+        if (selectedSucursalInactivaId) {
+            verHistorialSucursal(selectedSucursalInactivaId);
+        }
+    });
+
     // Asignar eventos a las tablas para manejar selección
     assignTableSelectionEvents('empresasTable', 'empresa');
     assignTableSelectionEvents('empresasInactivasTable', 'empresaInactiva');
-    assignTableSelectionEvents('sucursalesTable', 'sucursal');
+    assignTableSelectionEvents('sucursalesActivasTable', 'sucursalActiva');
+    assignTableSelectionEvents('sucursalesInactivasTable', 'sucursalInactiva');
 
     // Mostrar el contenedor de empresas activas por defecto
-    showEmpresas();
+    showEmpresasActivas();
+
+    // Evento para el filtro de sucursales activas por empresa
+    document.getElementById('empresaFilterActivasSelect').addEventListener('change', function() {
+        loadSucursalesActivas();
+    });
+
+    // Evento para cerrar sesión
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        firebase.auth().signOut().then(() => {
+            window.location.href = '../login.html'; // Redirige a la página de login
+        }).catch((error) => {
+            console.error('Error al cerrar sesión:', error);
+            Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
+        });
+    });
 });
 
 // Función para estilizar botones según su estado
@@ -106,8 +134,6 @@ function estilizarBotones() {
                 button.style.backgroundColor = "#28a745";
             } else if (button.classList.contains('history-button')) {
                 button.style.backgroundColor = "#17a2b8";
-            } else {
-                button.style.backgroundColor = "#007BFF";
             }
             button.style.cursor = "pointer";
         }
@@ -115,22 +141,32 @@ function estilizarBotones() {
 }
 
 // Funciones para mostrar y ocultar contenedores
-function showEmpresas() {
-    document.getElementById('empresasContainer').style.display = 'block';
+function showEmpresasActivas() {
+    document.getElementById('empresasActivasContainer').style.display = 'block';
     document.getElementById('empresasInactivasContainer').style.display = 'none';
-    document.getElementById('sucursalesContainer').style.display = 'none';
+    document.getElementById('sucursalesActivasContainer').style.display = 'none';
+    document.getElementById('sucursalesInactivasContainer').style.display = 'none';
 }
 
 function showEmpresasInactivas() {
-    document.getElementById('empresasContainer').style.display = 'none';
+    document.getElementById('empresasActivasContainer').style.display = 'none';
     document.getElementById('empresasInactivasContainer').style.display = 'block';
-    document.getElementById('sucursalesContainer').style.display = 'none';
+    document.getElementById('sucursalesActivasContainer').style.display = 'none';
+    document.getElementById('sucursalesInactivasContainer').style.display = 'none';
 }
 
-function showSucursales() {
-    document.getElementById('empresasContainer').style.display = 'none';
+function showSucursalesActivas() {
+    document.getElementById('empresasActivasContainer').style.display = 'none';
     document.getElementById('empresasInactivasContainer').style.display = 'none';
-    document.getElementById('sucursalesContainer').style.display = 'block';
+    document.getElementById('sucursalesActivasContainer').style.display = 'block';
+    document.getElementById('sucursalesInactivasContainer').style.display = 'none';
+}
+
+function showSucursalesInactivas() {
+    document.getElementById('empresasActivasContainer').style.display = 'none';
+    document.getElementById('empresasInactivasContainer').style.display = 'none';
+    document.getElementById('sucursalesActivasContainer').style.display = 'none';
+    document.getElementById('sucursalesInactivasContainer').style.display = 'block';
 }
 
 // Funciones para abrir y cerrar modales
@@ -157,7 +193,16 @@ function resetAddSucursalForm() {
 // Función para asignar eventos de selección a tablas
 function assignTableSelectionEvents(tableId, type) {
     const table = document.getElementById(tableId);
+    if (!table) {
+        console.error(`Tabla con ID '${tableId}' no encontrada.`);
+        return;
+    }
+
     const tbody = table.getElementsByTagName('tbody')[0];
+    if (!tbody) {
+        console.error(`No se encontró <tbody> en la tabla '${tableId}'.`);
+        return;
+    }
 
     tbody.addEventListener('click', function(event) {
         const target = event.target.closest('tr');
@@ -170,8 +215,10 @@ function assignTableSelectionEvents(tableId, type) {
                 selectedEmpresaId = null;
             } else if (type === 'empresaInactiva') {
                 selectedEmpresaInactivaId = null;
-            } else if (type === 'sucursal') {
+            } else if (type === 'sucursalActiva') {
                 selectedSucursalId = null;
+            } else if (type === 'sucursalInactiva') {
+                selectedSucursalInactivaId = null;
             }
         } else {
             // Deseleccionar otras filas
@@ -187,12 +234,20 @@ function assignTableSelectionEvents(tableId, type) {
                 selectedEmpresaId = id;
                 selectedEmpresaInactivaId = null;
                 selectedSucursalId = null;
+                selectedSucursalInactivaId = null;
             } else if (type === 'empresaInactiva') {
                 selectedEmpresaInactivaId = id;
                 selectedEmpresaId = null;
                 selectedSucursalId = null;
-            } else if (type === 'sucursal') {
+                selectedSucursalInactivaId = null;
+            } else if (type === 'sucursalActiva') {
                 selectedSucursalId = id;
+                selectedEmpresaId = null;
+                selectedEmpresaInactivaId = null;
+                selectedSucursalInactivaId = null;
+            } else if (type === 'sucursalInactiva') {
+                selectedSucursalInactivaId = id;
+                selectedSucursalId = null;
                 selectedEmpresaId = null;
                 selectedEmpresaInactivaId = null;
             }
@@ -221,7 +276,7 @@ function updateActionButtons() {
     reactivarEmpresaBtn.disabled = !selectedEmpresaInactivaId;
     verHistorialEmpresaBtn.disabled = !selectedEmpresaInactivaId;
 
-    // Sucursales
+    // Sucursales Activas
     const editarSucursalBtn = document.getElementById('editarSucursalBtn');
     const desactivarSucursalBtn = document.getElementById('desactivarSucursalBtn');
     const eliminarSucursalBtn = document.getElementById('eliminarSucursalBtn');
@@ -229,6 +284,13 @@ function updateActionButtons() {
     editarSucursalBtn.disabled = !selectedSucursalId;
     desactivarSucursalBtn.disabled = !selectedSucursalId;
     eliminarSucursalBtn.disabled = !selectedSucursalId;
+
+    // Sucursales Inactivas
+    const activarSucursalBtn = document.getElementById('activarSucursalBtn');
+    const verHistorialSucursalBtn = document.getElementById('verHistorialSucursalBtn');
+
+    activarSucursalBtn.disabled = !selectedSucursalInactivaId;
+    verHistorialSucursalBtn.disabled = !selectedSucursalInactivaId;
 
     // Estilizar botones según su estado
     estilizarBotones();
@@ -300,7 +362,7 @@ async function addEmpresa() {
         });
 
         closeModal('addEmpresaModal');
-        loadEmpresas();
+        loadEmpresasActivas();
         Swal.fire('Éxito', 'Empresa agregada con éxito.', 'success');
         document.getElementById('addEmpresaForm').reset();
     } catch (error) {
@@ -310,7 +372,7 @@ async function addEmpresa() {
 }
 
 // Función para cargar todas las empresas activas
-async function loadEmpresas() {
+async function loadEmpresasActivas() {
     try {
         const empresasSnapshot = await db.collection('empresas').where('status', '==', 'activo').orderBy('name').get();
         const empresasTableBody = document.getElementById('empresasTable').getElementsByTagName('tbody')[0];
@@ -338,8 +400,8 @@ async function loadEmpresas() {
         });
         updateActionButtons();
     } catch (error) {
-        console.error('Error al cargar empresas:', error);
-        Swal.fire('Error', 'Ocurrió un error al cargar las empresas.', 'error');
+        console.error('Error al cargar empresas activas:', error);
+        Swal.fire('Error', 'Ocurrió un error al cargar las empresas activas.', 'error');
     }
 }
 
@@ -494,11 +556,11 @@ async function updateEmpresa() {
             empresaId: id,
             motivoCambio: motivoCambio,
             fecha: firebase.firestore.FieldValue.serverTimestamp(),
-            usuario: "Desconocido"
+            usuario: "Desconocido" // Reemplazar con el nombre del usuario autenticado si está disponible
         });
 
         closeModal('editEmpresaModal');
-        loadEmpresas();
+        loadEmpresasActivas();
         loadEmpresasInactivas();
         Swal.fire('Éxito', 'Empresa actualizada con éxito.', 'success');
     } catch (error) {
@@ -507,8 +569,8 @@ async function updateEmpresa() {
     }
 }
 
-// Función para solicitar motivo de desactivación
-function solicitarMotivoDesactivacion(id) {
+// Función para solicitar motivo de desactivación de empresa
+function solicitarMotivoDesactivacionEmpresa(id) {
     document.getElementById('motivoDesactivar').value = '';
     document.getElementById('empresaDesactivarId').value = id;
     openModal('motivoDesactivarEmpresaModal');
@@ -535,11 +597,11 @@ async function confirmDesactivarEmpresa() {
             empresaId: id,
             motivoCambio: motivoDesactivar,
             fecha: firebase.firestore.FieldValue.serverTimestamp(),
-            usuario: "Desconocido"
+            usuario: "Desconocido" // Reemplazar con el nombre del usuario autenticado si está disponible
         });
 
         closeModal('motivoDesactivarEmpresaModal');
-        loadEmpresas();
+        loadEmpresasActivas();
         loadEmpresasInactivas();
         Swal.fire('Éxito', 'Empresa desactivada con éxito.', 'success');
     } catch (error) {
@@ -563,7 +625,7 @@ async function eliminarEmpresa(id) {
         if (result.isConfirmed) {
             try {
                 await db.collection('empresas').doc(id).delete();
-                loadEmpresas();
+                loadEmpresasActivas();
                 Swal.fire('Eliminada', 'La empresa ha sido eliminada.', 'success');
 
                 // Limpiar selección y deshabilitar botones
@@ -597,7 +659,7 @@ async function reactivarEmpresa(id) {
                 await db.collection('empresas').doc(id).update({
                     status: 'activo'
                 });
-                loadEmpresas();
+                loadEmpresasActivas();
                 loadEmpresasInactivas();
                 Swal.fire('Reactivada', 'La empresa ha sido reactivada.', 'success');
 
@@ -643,15 +705,14 @@ async function verHistorialEmpresa(id) {
     }
 }
 
-// Funciones relacionadas con sucursales (addSucursal, loadSucursales, openEditSucursalModal, updateSucursal, eliminarSucursal, desactivarSucursal)
-
+// Función para agregar una nueva sucursal
 async function addSucursal() {
     try {
         const sucursalName = document.getElementById('sucursalName').value.trim();
         const sucursalAddress = document.getElementById('sucursalAddress').value.trim();
         const sucursalPhone = document.getElementById('sucursalPhone').value.trim();
         const sucursalEmail = document.getElementById('sucursalEmail').value.trim();
-        const sucursalEncargado = document.getElementById('sucursalEncargado').value;
+        const sucursalTipo = document.getElementById('sucursalTipo').value; // CE1 o CE2
         const sucursalDescription = document.getElementById('sucursalDescription').value.trim();
         const empresaId = document.getElementById('empresaSelect').value;
         const sucursalStatus = document.getElementById('sucursalStatus').value;
@@ -687,8 +748,8 @@ async function addSucursal() {
             return;
         }
 
-        if (!sucursalEncargado) {
-            Swal.fire('Error', 'Debes seleccionar un encargado.', 'error');
+        if (!sucursalTipo) {
+            Swal.fire('Error', 'Debes seleccionar el tipo de sucursal.', 'error');
             return;
         }
 
@@ -718,14 +779,14 @@ async function addSucursal() {
             phone: sucursalPhone,
             email: sucursalEmail,
             creationDate: firebase.firestore.FieldValue.serverTimestamp(),
-            encargado: sucursalEncargado,
+            tipoSucursal: sucursalTipo,
             description: sucursalDescription,
             status: sucursalStatus,
             empresaId: empresaId
         });
 
         closeModal('addSucursalModal');
-        loadSucursales();
+        loadSucursalesActivas();
         Swal.fire('Éxito', 'Sucursal agregada con éxito.', 'success');
         document.getElementById('addSucursalForm').reset();
     } catch (error) {
@@ -734,10 +795,10 @@ async function addSucursal() {
     }
 }
 
-// Función para cargar todas las sucursales
-async function loadSucursales() {
+// Función para cargar todas las sucursales activas
+async function loadSucursalesActivas() {
     try {
-        const empresaFilter = document.getElementById('empresaFilterSelect').value;
+        const empresaFilter = document.getElementById('empresaFilterActivasSelect').value;
         let sucursalesQuery = db.collection('sucursales').where('status', '==', 'activo');
 
         if (empresaFilter) {
@@ -745,7 +806,7 @@ async function loadSucursales() {
         }
 
         const sucursalesSnapshot = await sucursalesQuery.orderBy('name').get();
-        const sucursalesTableBody = document.getElementById('sucursalesTable').getElementsByTagName('tbody')[0];
+        const sucursalesTableBody = document.getElementById('sucursalesActivasTable').getElementsByTagName('tbody')[0];
         sucursalesTableBody.innerHTML = '';
 
         // Obtener nombres de empresas para mostrar en la tabla
@@ -767,7 +828,7 @@ async function loadSucursales() {
             row.insertCell(1).textContent = sucursal.address;
             row.insertCell(2).textContent = sucursal.phone;
             row.insertCell(3).textContent = sucursal.email;
-            row.insertCell(4).textContent = sucursal.encargado;
+            row.insertCell(4).textContent = sucursal.tipoSucursal || 'N/A';
             row.insertCell(5).textContent = sucursal.description || 'N/A';
             row.insertCell(6).textContent = sucursal.status.charAt(0).toUpperCase() + sucursal.status.slice(1);
             row.insertCell(7).textContent = empresas[sucursal.empresaId] || 'N/A';
@@ -775,13 +836,57 @@ async function loadSucursales() {
 
         // Limpiar selección y deshabilitar botones
         selectedSucursalId = null;
-        document.querySelectorAll('#sucursalesTable tbody tr').forEach(row => {
+        document.querySelectorAll('#sucursalesActivasTable tbody tr').forEach(row => {
             row.classList.remove('selected');
         });
         updateActionButtons();
     } catch (error) {
-        console.error('Error al cargar sucursales:', error);
-        Swal.fire('Error', 'Ocurrió un error al cargar las sucursales.', 'error');
+        console.error('Error al cargar sucursales activas:', error);
+        Swal.fire('Error', 'Ocurrió un error al cargar las sucursales activas.', 'error');
+    }
+}
+
+// Función para cargar todas las sucursales inactivas
+async function loadSucursalesInactivas() {
+    try {
+        const sucursalesSnapshot = await db.collection('sucursales').where('status', '==', 'inactivo').orderBy('name').get();
+        const sucursalesTableBody = document.getElementById('sucursalesInactivasTable').getElementsByTagName('tbody')[0];
+        sucursalesTableBody.innerHTML = '';
+
+        // Obtener nombres de empresas para mostrar en la tabla
+        const empresasSnapshot = await db.collection('empresas').where('status', '==', 'activo').get();
+        const empresas = {};
+        empresasSnapshot.forEach(function(doc) {
+            const empresa = doc.data();
+            empresas[doc.id] = empresa.name;
+        });
+
+        sucursalesSnapshot.forEach(function(doc) {
+            const sucursal = doc.data();
+            const row = sucursalesTableBody.insertRow();
+
+            // Agregar ID como atributo data-id
+            row.setAttribute('data-id', doc.id);
+
+            row.insertCell(0).textContent = sucursal.name;
+            row.insertCell(1).textContent = sucursal.address;
+            row.insertCell(2).textContent = sucursal.phone;
+            row.insertCell(3).textContent = sucursal.email;
+            row.insertCell(4).textContent = sucursal.tipoSucursal || 'N/A';
+            row.insertCell(5).textContent = sucursal.description || 'N/A';
+            row.insertCell(6).textContent = sucursal.status.charAt(0).toUpperCase() + sucursal.status.slice(1);
+            row.insertCell(7).textContent = empresas[sucursal.empresaId] || 'N/A';
+        });
+
+        // Limpiar selección y deshabilitar botones
+        selectedSucursalInactivaId = null;
+        document.querySelectorAll('#sucursalesInactivasTable tbody tr').forEach(row => {
+            row.classList.remove('selected');
+        });
+        updateActionButtons();
+    } catch (error) {
+        console.error('Error al cargar sucursales inactivas:', error);
+        Swal.fire('Error', 'Ocurrió un error al cargar las sucursales inactivas.', 'error');
     }
 }
 
@@ -796,13 +901,10 @@ async function openEditSucursalModal(id) {
             document.getElementById('editSucursalAddress').value = sucursal.address;
             document.getElementById('editSucursalPhone').value = sucursal.phone;
             document.getElementById('editSucursalEmail').value = sucursal.email;
+            document.getElementById('editSucursalTipo').value = sucursal.tipoSucursal || '';
             document.getElementById('editSucursalDescription').value = sucursal.description || '';
             document.getElementById('editSucursalStatus').value = sucursal.status;
-            document.getElementById('editEmpresaSelect').value = sucursal.empresaId;
-
-            // Cargar encargados y seleccionar el actual
-            await loadEncargadosSelectOptionsEditar('editSucursalEncargado', sucursal.encargado);
-            await loadEmpresasSelectOptions(); // Asegurar que las opciones de empresas estén actualizadas
+            document.getElementById('editEmpresaSelect').value = sucursal.empresaId || '';
 
             openModal('editSucursalModal');
         } else {
@@ -822,7 +924,7 @@ async function updateSucursal() {
         const sucursalAddress = document.getElementById('editSucursalAddress').value.trim();
         const sucursalPhone = document.getElementById('editSucursalPhone').value.trim();
         const sucursalEmail = document.getElementById('editSucursalEmail').value.trim();
-        const sucursalEncargado = document.getElementById('editSucursalEncargado').value;
+        const sucursalTipo = document.getElementById('editSucursalTipo').value; // CE1 o CE2
         const sucursalDescription = document.getElementById('editSucursalDescription').value.trim();
         const empresaId = document.getElementById('editEmpresaSelect').value;
         const sucursalStatus = document.getElementById('editSucursalStatus').value;
@@ -858,8 +960,8 @@ async function updateSucursal() {
             return;
         }
 
-        if (!sucursalEncargado) {
-            Swal.fire('Error', 'Debes seleccionar un encargado.', 'error');
+        if (!sucursalTipo) {
+            Swal.fire('Error', 'Debes seleccionar el tipo de sucursal.', 'error');
             return;
         }
 
@@ -904,14 +1006,22 @@ async function updateSucursal() {
             address: sucursalAddress,
             phone: sucursalPhone,
             email: sucursalEmail,
-            encargado: sucursalEncargado,
+            tipoSucursal: sucursalTipo,
             description: sucursalDescription,
             status: sucursalStatus,
             empresaId: empresaId
         });
 
+        // Guardar en el historial de cambios
+        await db.collection('sucursalHistorial').add({
+            sucursalId: id,
+            motivoCambio: "Actualización de sucursal",
+            fecha: firebase.firestore.FieldValue.serverTimestamp(),
+            usuario: "Desconocido" // Reemplazar con el nombre del usuario autenticado si está disponible
+        });
+
         closeModal('editSucursalModal');
-        loadSucursales();
+        loadSucursalesActivas();
         Swal.fire('Éxito', 'Sucursal actualizada con éxito.', 'success');
     } catch (error) {
         console.error('Error al actualizar sucursal:', error);
@@ -934,12 +1044,12 @@ async function eliminarSucursal(id) {
         if (result.isConfirmed) {
             try {
                 await db.collection('sucursales').doc(id).delete();
-                loadSucursales();
+                loadSucursalesActivas();
                 Swal.fire('Eliminada', 'La sucursal ha sido eliminada.', 'success');
 
                 // Limpiar selección y deshabilitar botones
                 selectedSucursalId = null;
-                document.querySelectorAll('#sucursalesTable tbody tr').forEach(row => {
+                document.querySelectorAll('#sucursalesActivasTable tbody tr').forEach(row => {
                     row.classList.remove('selected');
                 });
                 updateActionButtons();
@@ -969,12 +1079,22 @@ async function desactivarSucursal(id) {
                     status: 'inactivo',
                     fechaDesactivacion: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                loadSucursales();
+
+                // Guardar en el historial de cambios
+                await db.collection('sucursalHistorial').add({
+                    sucursalId: id,
+                    motivoCambio: "Desactivación de sucursal",
+                    fecha: firebase.firestore.FieldValue.serverTimestamp(),
+                    usuario: "Desconocido" // Reemplazar con el nombre del usuario autenticado si está disponible
+                });
+
+                loadSucursalesActivas();
+                loadSucursalesInactivas();
                 Swal.fire('Desactivada', 'La sucursal ha sido desactivada.', 'success');
 
                 // Limpiar selección y deshabilitar botones
                 selectedSucursalId = null;
-                document.querySelectorAll('#sucursalesTable tbody tr').forEach(row => {
+                document.querySelectorAll('#sucursalesActivasTable tbody tr').forEach(row => {
                     row.classList.remove('selected');
                 });
                 updateActionButtons();
@@ -986,17 +1106,90 @@ async function desactivarSucursal(id) {
     });
 }
 
+// Función para activar una sucursal inactiva
+async function activarSucursal(id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Deseas activar esta sucursal?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Sí, activar',
+        cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await db.collection('sucursales').doc(id).update({
+                    status: 'activo',
+                    fechaActivacion: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Guardar en el historial de cambios
+                await db.collection('sucursalHistorial').add({
+                    sucursalId: id,
+                    motivoCambio: "Activación de sucursal",
+                    fecha: firebase.firestore.FieldValue.serverTimestamp(),
+                    usuario: "Desconocido" // Reemplazar con el nombre del usuario autenticado si está disponible
+                });
+
+                loadSucursalesActivas();
+                loadSucursalesInactivas();
+                Swal.fire('Activada', 'La sucursal ha sido activada.', 'success');
+
+                // Limpiar selección y deshabilitar botones
+                selectedSucursalInactivaId = null;
+                document.querySelectorAll('#sucursalesInactivasTable tbody tr').forEach(row => {
+                    row.classList.remove('selected');
+                });
+                updateActionButtons();
+            } catch (error) {
+                console.error('Error al activar sucursal:', error);
+                Swal.fire('Error', 'Ocurrió un error al activar la sucursal.', 'error');
+            }
+        }
+    });
+}
+
+// Función para ver el historial de cambios de una sucursal
+async function verHistorialSucursal(id) {
+    try {
+        const historialSnapshot = await db.collection('sucursalHistorial')
+            .where('sucursalId', '==', id)
+            .orderBy('fecha', 'desc')
+            .get();
+
+        const historialTableBody = document.getElementById('historialSucursalTable').getElementsByTagName('tbody')[0];
+        historialTableBody.innerHTML = '';
+
+        historialSnapshot.forEach(function(doc) {
+            const cambio = doc.data();
+            const row = historialTableBody.insertRow();
+
+            const fecha = cambio.fecha.toDate().toLocaleString();
+            row.insertCell(0).textContent = fecha;
+            row.insertCell(1).textContent = cambio.motivoCambio;
+            row.insertCell(2).textContent = cambio.usuario || 'Desconocido';
+        });
+
+        openModal('historialSucursalModal');
+    } catch (error) {
+        console.error('Error al cargar historial de sucursal:', error);
+        Swal.fire('Error', 'Ocurrió un error al cargar el historial de la sucursal.', 'error');
+    }
+}
+
 // Función para cargar las opciones de empresas en los selects
 async function loadEmpresasSelectOptions() {
     try {
         const empresasSnapshot = await db.collection('empresas').where('status', '==', 'activo').orderBy('name').get();
         const empresaSelect = document.getElementById('empresaSelect');
         const editEmpresaSelect = document.getElementById('editEmpresaSelect');
-        const empresaFilterSelect = document.getElementById('empresaFilterSelect');
+        const empresaFilterActivasSelect = document.getElementById('empresaFilterActivasSelect');
 
         empresaSelect.innerHTML = '<option value="">Selecciona una empresa</option>';
         editEmpresaSelect.innerHTML = '<option value="">Selecciona una empresa</option>';
-        empresaFilterSelect.innerHTML = '<option value="">Todas las empresas</option>';
+        empresaFilterActivasSelect.innerHTML = '<option value="">Todas las empresas</option>';
 
         empresasSnapshot.forEach(function(doc) {
             const empresa = doc.data();
@@ -1014,7 +1207,7 @@ async function loadEmpresasSelectOptions() {
             const filterOption = document.createElement('option');
             filterOption.value = doc.id;
             filterOption.textContent = empresa.name;
-            empresaFilterSelect.appendChild(filterOption);
+            empresaFilterActivasSelect.appendChild(filterOption);
         });
     } catch (error) {
         console.error('Error al cargar opciones de empresas:', error);
@@ -1022,61 +1215,10 @@ async function loadEmpresasSelectOptions() {
     }
 }
 
-// Función para cargar las opciones de encargados en los selects
-async function loadEncargadosSelectOptions(selectId) {
-    try {
-        // Supongamos que los encargados están en una colección llamada 'encargados'
-        const encargadosSnapshot = await db.collection('encargados').orderBy('nombre').get();
-        const encargadoSelect = document.getElementById(selectId);
-
-        encargadoSelect.innerHTML = '<option value="">Selecciona un encargado</option>';
-
-        encargadosSnapshot.forEach(function(doc) {
-            const encargado = doc.data();
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = encargado.nombre;
-            encargadoSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error al cargar opciones de encargados:', error);
-        Swal.fire('Error', 'Ocurrió un error al cargar los encargados.', 'error');
-    }
-}
-
-// Función para cargar las opciones de encargados en los selects de edición con selección predefinida
-async function loadEncargadosSelectOptionsEditar(selectId, encargadoId) {
-    try {
-        const encargadosSnapshot = await db.collection('encargados').orderBy('nombre').get();
-        const encargadoSelect = document.getElementById(selectId);
-
-        encargadoSelect.innerHTML = '<option value="">Selecciona un encargado</option>';
-
-        encargadosSnapshot.forEach(function(doc) {
-            const encargado = doc.data();
-            const option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = encargado.nombre;
-            if (doc.id === encargadoId) {
-                option.selected = true;
-            }
-            encargadoSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error al cargar opciones de encargados:', error);
-        Swal.fire('Error', 'Ocurrió un error al cargar los encargados.', 'error');
-    }
-}
-
-// Evento para el filtro de sucursales por empresa
-document.getElementById('empresaFilterSelect').addEventListener('change', function() {
-    loadSucursales();
-});
-
 // Función para cerrar modales al hacer clic fuera de ellos
 window.onclick = function(event) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
+    const modales = document.querySelectorAll('.modal');
+    modales.forEach(modal => {
         if (event.target == modal) {
             modal.style.display = "none";
         }

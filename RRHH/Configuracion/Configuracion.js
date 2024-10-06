@@ -14,13 +14,28 @@ document.addEventListener("DOMContentLoaded", function() {
         guardarParametro();
     });
 
-    // Resetear formulario al cerrar el modal
+    document.getElementById('formSalarios').addEventListener('submit', function(event) {
+        event.preventDefault();
+        guardarSalarios();
+    });
+
+    // Eventos para calcular automáticamente los salarios
+    configurarEventosCalculoSalarios();
+
+    // Resetear formularios al cerrar los modales
     $('#modalParametro').on('hidden.bs.modal', function () {
         document.getElementById('formParametro').reset();
         document.getElementById('parametroId').value = '';
         document.getElementById('modalParametroTitulo').textContent = 'Agregar Parámetro';
         document.getElementById('claveParametro').disabled = false;
     });
+
+    $('#modalSalarios').on('hidden.bs.modal', function () {
+        document.getElementById('formSalarios').reset();
+    });
+
+    // Cargar salarios al iniciar
+    cargarSalarios();
 });
 
 // Inicializar DataTable para Parámetros
@@ -81,7 +96,7 @@ async function cargarParametrosPredefinidos() {
         const parametrosPredefinidos = [
             {
                 clave: 'periodoPruebaDias',
-                valor: '60',
+                valor: '60', // Puedes ajustar este valor según tus necesidades
                 descripcion: 'Periodo en días para el contrato de prueba',
                 fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             },
@@ -127,6 +142,11 @@ async function guardarParametro() {
     // Validaciones
     if (!clave || !valor || !descripcion) {
         Swal.fire('Error', 'Todos los campos son obligatorios.', 'error');
+        return;
+    }
+
+    if (isNaN(valor) || parseInt(valor) <= 0) {
+        Swal.fire('Error', 'El valor del parámetro debe ser un número entero positivo.', 'error');
         return;
     }
 
@@ -210,4 +230,143 @@ function eliminarParametro(id) {
             }
         }
     });
+}
+
+// Función para configurar eventos de cálculo automático de salarios
+function configurarEventosCalculoSalarios() {
+    // CE1
+    document.getElementById('ce1SalarioQuincenal').addEventListener('input', calcularSalarioCE1);
+    document.getElementById('ce1BonificacionDecreto').addEventListener('input', calcularSalarioTotalCE1);
+    document.getElementById('ce1DescuentoIGSS').addEventListener('input', calcularSalarioTotalCE1);
+
+    // CE2
+    document.getElementById('ce2SalarioQuincenal').addEventListener('input', calcularSalarioCE2);
+    document.getElementById('ce2BonificacionDecreto').addEventListener('input', calcularSalarioTotalCE2);
+    document.getElementById('ce2DescuentoIGSS').addEventListener('input', calcularSalarioTotalCE2);
+}
+
+// Función para calcular el Salario Diario de CE1
+function calcularSalarioCE1() {
+    const salarioQuincenal = parseFloat(document.getElementById('ce1SalarioQuincenal').value) || 0;
+    const salarioDiario = ((salarioQuincenal * 2) * 12) / 365;
+    document.getElementById('ce1SalarioDiario').value = salarioDiario.toFixed(2);
+    calcularSalarioTotalCE1();
+}
+
+// Función para calcular el Salario Total Quincenal de CE1
+function calcularSalarioTotalCE1() {
+    const salarioQuincenal = parseFloat(document.getElementById('ce1SalarioQuincenal').value) || 0;
+    const bonificacionDecreto = parseFloat(document.getElementById('ce1BonificacionDecreto').value) || 0;
+    const descuentoIGSS = parseFloat(document.getElementById('ce1DescuentoIGSS').value) || 0;
+    const salarioTotalQuincenal = salarioQuincenal + bonificacionDecreto - descuentoIGSS;
+    document.getElementById('ce1SalarioTotalQuincenal').value = salarioTotalQuincenal.toFixed(2);
+}
+
+// Función para calcular el Salario Diario de CE2
+function calcularSalarioCE2() {
+    const salarioQuincenal = parseFloat(document.getElementById('ce2SalarioQuincenal').value) || 0;
+    const salarioDiario = ((salarioQuincenal * 2) * 12) / 365;
+    document.getElementById('ce2SalarioDiario').value = salarioDiario.toFixed(2);
+    calcularSalarioTotalCE2();
+}
+
+// Función para calcular el Salario Total Quincenal de CE2
+function calcularSalarioTotalCE2() {
+    const salarioQuincenal = parseFloat(document.getElementById('ce2SalarioQuincenal').value) || 0;
+    const bonificacionDecreto = parseFloat(document.getElementById('ce2BonificacionDecreto').value) || 0;
+    const descuentoIGSS = parseFloat(document.getElementById('ce2DescuentoIGSS').value) || 0;
+    const salarioTotalQuincenal = salarioQuincenal + bonificacionDecreto - descuentoIGSS;
+    document.getElementById('ce2SalarioTotalQuincenal').value = salarioTotalQuincenal.toFixed(2);
+}
+
+// Función para abrir el modal de salarios
+function abrirModalSalarios() {
+    cargarSalarios(); // Cargar los salarios actuales
+    $('#modalSalarios').modal('show');
+}
+
+// Función para cerrar el modal de salarios
+function cerrarModalSalarios() {
+    $('#modalSalarios').modal('hide');
+}
+
+// Función para guardar salarios mínimos
+async function guardarSalarios() {
+    // CE1 (Capital)
+    const ce1SalarioQuincenal = parseFloat(document.getElementById('ce1SalarioQuincenal').value) || 0;
+    const ce1SalarioDiario = parseFloat(document.getElementById('ce1SalarioDiario').value) || 0;
+    const ce1BonificacionDecreto = parseFloat(document.getElementById('ce1BonificacionDecreto').value) || 0;
+    const ce1DescuentoIGSS = parseFloat(document.getElementById('ce1DescuentoIGSS').value) || 0;
+    const ce1SalarioTotalQuincenal = parseFloat(document.getElementById('ce1SalarioTotalQuincenal').value) || 0;
+
+    // CE2 (Departamentos)
+    const ce2SalarioQuincenal = parseFloat(document.getElementById('ce2SalarioQuincenal').value) || 0;
+    const ce2SalarioDiario = parseFloat(document.getElementById('ce2SalarioDiario').value) || 0;
+    const ce2BonificacionDecreto = parseFloat(document.getElementById('ce2BonificacionDecreto').value) || 0;
+    const ce2DescuentoIGSS = parseFloat(document.getElementById('ce2DescuentoIGSS').value) || 0;
+    const ce2SalarioTotalQuincenal = parseFloat(document.getElementById('ce2SalarioTotalQuincenal').value) || 0;
+
+    // Validaciones
+    if (ce1SalarioQuincenal <= 0 || ce1BonificacionDecreto < 0 || ce1DescuentoIGSS < 0 ||
+        ce2SalarioQuincenal <= 0 || ce2BonificacionDecreto < 0 || ce2DescuentoIGSS < 0) {
+        Swal.fire('Error', 'Los valores ingresados deben ser números positivos.', 'error');
+        return;
+    }
+
+    try {
+        const salariosData = {
+            ce1: {
+                salarioQuincenal: ce1SalarioQuincenal,
+                salarioDiario: ce1SalarioDiario,
+                bonificacionDecreto: ce1BonificacionDecreto,
+                descuentoIGSS: ce1DescuentoIGSS,
+                salarioTotalQuincenal: ce1SalarioTotalQuincenal
+            },
+            ce2: {
+                salarioQuincenal: ce2SalarioQuincenal,
+                salarioDiario: ce2SalarioDiario,
+                bonificacionDecreto: ce2BonificacionDecreto,
+                descuentoIGSS: ce2DescuentoIGSS,
+                salarioTotalQuincenal: ce2SalarioTotalQuincenal
+            },
+            fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('parametros').doc('salariosMinimos').set(salariosData);
+
+        Swal.fire('Éxito', 'Salarios mínimos guardados correctamente.', 'success');
+        $('#modalSalarios').modal('hide');
+    } catch (error) {
+        console.error('Error al guardar salarios mínimos:', error);
+        Swal.fire('Error', 'Ocurrió un error al guardar los salarios mínimos.', 'error');
+    }
+}
+
+// Función para cargar salarios mínimos
+async function cargarSalarios() {
+    try {
+        const salariosDoc = await db.collection('parametros').doc('salariosMinimos').get();
+        if (salariosDoc.exists) {
+            const salarios = salariosDoc.data();
+            // CE1 (Capital)
+            document.getElementById('ce1SalarioQuincenal').value = salarios.ce1.salarioQuincenal || '';
+            document.getElementById('ce1BonificacionDecreto').value = salarios.ce1.bonificacionDecreto || '';
+            document.getElementById('ce1DescuentoIGSS').value = salarios.ce1.descuentoIGSS || '';
+            document.getElementById('ce1SalarioDiario').value = salarios.ce1.salarioDiario || '';
+            document.getElementById('ce1SalarioTotalQuincenal').value = salarios.ce1.salarioTotalQuincenal || '';
+
+            // CE2 (Departamentos)
+            document.getElementById('ce2SalarioQuincenal').value = salarios.ce2.salarioQuincenal || '';
+            document.getElementById('ce2BonificacionDecreto').value = salarios.ce2.bonificacionDecreto || '';
+            document.getElementById('ce2DescuentoIGSS').value = salarios.ce2.descuentoIGSS || '';
+            document.getElementById('ce2SalarioDiario').value = salarios.ce2.salarioDiario || '';
+            document.getElementById('ce2SalarioTotalQuincenal').value = salarios.ce2.salarioTotalQuincenal || '';
+
+            // Recalcular salarios al cargar
+            calcularSalarioCE1();
+            calcularSalarioCE2();
+        }
+    } catch (error) {
+        console.error('Error al cargar salarios mínimos:', error);
+    }
 }

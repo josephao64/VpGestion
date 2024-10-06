@@ -30,9 +30,11 @@
     <div class="container">
         <h2 class="mt-4">Configuración de Parámetros</h2>
         <div class="mt-3 mb-3">
-            <button class="btn btn-primary" onclick="abrirModalAgregarParametro()">Agregar Parámetro</button>
+            <button class="btn btn-primary" onclick="abrirModalAgregarParametro()">Agregar Parámetro General</button>
+            <button class="btn btn-primary" onclick="abrirModalSalarios()">Configurar Salarios Mínimos</button>
             <a href="../RecursosHumanos.html" class="btn btn-secondary">Volver a Recursos Humanos</a>
         </div>
+        <h4>Parámetros Generales</h4>
         <table id="parametrosTable" class="display" style="width:100%">
             <thead>
                 <tr>
@@ -49,7 +51,7 @@
         </table>
     </div>
 
-    <!-- Modal para agregar/editar parámetro -->
+    <!-- Modal para agregar/editar parámetro general -->
     <div class="modal fade" id="modalParametro" tabindex="-1" role="dialog" aria-labelledby="modalParametroTitulo" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -69,7 +71,7 @@
                 </div>
                 <div class="form-group">
                     <label for="valorParametro">Valor del Parámetro</label>
-                    <input type="text" class="form-control" id="valorParametro" required>
+                    <input type="number" class="form-control" id="valorParametro" required>
                 </div>
                 <div class="form-group">
                     <label for="descripcionParametro">Descripción</label>
@@ -79,6 +81,76 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" onclick="cerrarModalParametro()">Cerrar</button>
               <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para configurar salarios mínimos -->
+    <div class="modal fade" id="modalSalarios" tabindex="-1" role="dialog" aria-labelledby="modalSalariosTitulo" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <form id="formSalarios">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalSalariosTitulo">Configurar Salarios Mínimos</h5>
+              <button type="button" class="close" onclick="cerrarModalSalarios()" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <!-- Campos para CE1 (Capital) -->
+                <h5>CE1 (Capital)</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="ce1SalarioQuincenal">Salario Quincenal</label>
+                        <input type="number" class="form-control" id="ce1SalarioQuincenal" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce1SalarioDiario">Salario Diario</label>
+                        <input type="number" class="form-control" id="ce1SalarioDiario" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce1BonificacionDecreto">Bonificación Decreto</label>
+                        <input type="number" class="form-control" id="ce1BonificacionDecreto" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce1DescuentoIGSS">Descuento IGSS</label>
+                        <input type="number" class="form-control" id="ce1DescuentoIGSS" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="ce1SalarioTotalQuincenal">Salario Total Quincenal</label>
+                        <input type="number" class="form-control" id="ce1SalarioTotalQuincenal" readonly>
+                    </div>
+                </div>
+                <!-- Campos para CE2 (Departamentos) -->
+                <h5>CE2 (Departamentos)</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="ce2SalarioQuincenal">Salario Quincenal</label>
+                        <input type="number" class="form-control" id="ce2SalarioQuincenal" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce2SalarioDiario">Salario Diario</label>
+                        <input type="number" class="form-control" id="ce2SalarioDiario" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce2BonificacionDecreto">Bonificación Decreto</label>
+                        <input type="number" class="form-control" id="ce2BonificacionDecreto" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="ce2DescuentoIGSS">Descuento IGSS</label>
+                        <input type="number" class="form-control" id="ce2DescuentoIGSS" required step="0.01" min="0">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="ce2SalarioTotalQuincenal">Salario Total Quincenal</label>
+                        <input type="number" class="form-control" id="ce2SalarioTotalQuincenal" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="cerrarModalSalarios()">Cerrar</button>
+              <button type="submit" class="btn btn-primary">Guardar Salarios</button>
             </div>
           </form>
         </div>
