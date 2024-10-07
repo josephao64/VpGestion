@@ -1,14 +1,16 @@
-<!-- RecursosHumanos.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Empleados</title>
-    <link rel="stylesheet" href="RecursosHumanos.css">
+    <title>Gestión de Empleados - Recursos Humanos</title>
     <!-- Bootstrap CSS para estilos -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- DataTables CSS para tablas interactivas -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <!-- DataTables Select CSS para selección de filas -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- SweetAlert2 para alertas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Firebase SDK -->
@@ -20,27 +22,78 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <!-- jQuery y DataTables JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Select JS -->
+    <script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
     <!-- Bootstrap JS y dependencias -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <!-- jsPDF para generar PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.3/jspdf.umd.min.js"></script>
     <!-- Archivo JavaScript principal -->
     <script src="RecursosHumanos.js" defer></script>
+    <style>
+        /* Estilos personalizados */
+        .required::after {
+            content: "*";
+            color: red;
+            margin-left: 2px;
+        }
+        .modal-lg {
+            max-width: 90% !important;
+        }
+        /* Resaltar la fila seleccionada */
+        table.dataTable tbody tr.selected {
+            background-color: #acbad4;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="mt-4">Gestión de Empleados</h2>
+    <div class="container mt-4">
+        <h2>Gestión de Empleados</h2>
         <div class="mb-3">
-            <button class="btn btn-primary" onclick="abrirModalAgregarEmpleado()">Agregar Empleado</button>
-            <a href="Configuracion/Configuracion.html" class="btn btn-secondary">Configuración de Parámetros</a>
+            <button class="btn btn-success" onclick="abrirModalAgregarEmpleado()">
+                <i class="fas fa-user-plus"></i> Agregar Empleado
+            </button>
+            <button id="btnVerDetalles" class="btn btn-info" disabled onclick="verDetallesEmpleado()">
+                <i class="fas fa-eye"></i> Ver Detalles
+            </button>
+            <button id="btnEditarEmpleado" class="btn btn-warning" disabled onclick="editarEmpleado()">
+                <i class="fas fa-edit"></i> Editar
+            </button>
+            <button id="btnEliminarEmpleado" class="btn btn-danger" disabled onclick="eliminarEmpleado()">
+                <i class="fas fa-trash-alt"></i> Eliminar
+            </button>
+            <a href="/RRHH/Configuracion/Configuracion.html" class="btn btn-secondary">
+                <i class="fas fa-cogs"></i> Configuración
+            </a>
         </div>
-        <div class="form-group">
-            <label for="sucursalFiltro">Filtrar por Sucursal:</label>
-            <select id="sucursalFiltro" class="form-control" style="max-width: 300px;">
-                <!-- Opciones cargadas dinámicamente -->
-            </select>
+        <!-- Filtros -->
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="sucursalFiltro">Filtrar por Sucursal:</label>
+                <select id="sucursalFiltro" class="form-control">
+                    <option value="">Todas las sucursales</option>
+                    <!-- Opciones cargadas dinámicamente -->
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="estadoFiltro">Filtrar por Estado:</label>
+                <select id="estadoFiltro" class="form-control">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+            </div>
+            <div class="form-group col-md-4">
+                <label for="tipoContratoFiltro">Filtrar por Tipo de Contrato:</label>
+                <select id="tipoContratoFiltro" class="form-control">
+                    <option value="">Todos los tipos de contrato</option>
+                    <option value="indefinido">Indefinido</option>
+                    <option value="temporal">Temporal</option>
+                    <option value="prueba">Prueba</option>
+                </select>
+            </div>
         </div>
+        <!-- Tabla de Empleados -->
         <table id="empleadosTable" class="display" style="width:100%">
             <thead>
                 <tr>
@@ -50,7 +103,7 @@
                     <th>Sucursal</th>
                     <th>Teléfono 1</th>
                     <th>Fecha Inicio Relación</th>
-                    <th>Acciones</th>
+                    <!-- La columna de acciones ha sido eliminada -->
                 </tr>
             </thead>
             <tbody>
@@ -76,11 +129,11 @@
                 <input type="hidden" id="empleadoId">
                 <div class="form-row">
                     <div class="form-group col-md-4">
-                        <label for="fechaInicioRelacion">Fecha Inicio Relación Trabajo</label>
+                        <label for="fechaInicioRelacion">Fecha Inicio Relación Trabajo <span class="required">*</span></label>
                         <input type="date" class="form-control" id="fechaInicioRelacion" required>
                     </div>
                     <div class="form-group col-md-4">
-                        <label for="tipoContrato">Tipo de Contrato</label>
+                        <label for="tipoContrato">Tipo de Contrato <span class="required">*</span></label>
                         <select id="tipoContrato" class="form-control" required>
                             <option value="">Selecciona un tipo</option>
                             <option value="indefinido">Indefinido</option>
@@ -88,9 +141,10 @@
                             <option value="prueba">Prueba</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="duracionContrato">Duración del Contrato</label>
-                        <input type="text" class="form-control" id="duracionContrato">
+                    <!-- Para contratos temporales -->
+                    <div class="form-group col-md-4" id="duracionContratoContainer">
+                        <label for="duracionContrato">Duración del Contrato (días)</label>
+                        <input type="number" class="form-control" id="duracionContrato" min="1">
                     </div>
                 </div>
                 <div class="form-row">
@@ -99,7 +153,11 @@
                         <input type="date" class="form-control" id="fechaFinContrato">
                     </div>
                     <div class="form-group col-md-4">
-                        <label for="puestoContrato">Puesto</label>
+                        <label for="lapsoContrato">Lapso del Contrato (en letras)</label>
+                        <input type="text" class="form-control" id="lapsoContrato" readonly>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="puestoContrato">Puesto <span class="required">*</span></label>
                         <select id="puestoContrato" class="form-control" required>
                             <option value="">Selecciona un puesto</option>
                             <option value="Administración">Administración</option>
@@ -109,16 +167,29 @@
                             <option value="Repartidor">Repartidor</option>
                         </select>
                     </div>
+                </div>
+                <!-- Campos adicionales -->
+                <div class="form-row">
                     <div class="form-group col-md-4">
-                        <label for="sucursalContrato">Sucursal</label>
+                        <label for="lugarFirmaContrato">Lugar de Firma del Contrato <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="lugarFirmaContrato" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="fechaFirmaContrato">Fecha de Firma del Contrato <span class="required">*</span></label>
+                        <input type="date" class="form-control" id="fechaFirmaContrato" required>
+                    </div>
+                </div>
+                <!-- Fin de campos adicionales -->
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="sucursalContrato">Sucursal <span class="required">*</span></label>
                         <select id="sucursalContrato" class="form-control" required>
+                            <option value="">Selecciona una sucursal</option>
                             <!-- Opciones cargadas dinámicamente -->
                         </select>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group col-md-4">
-                        <label for="tipoJornada">Jornada Trabajada</label>
+                        <label for="tipoJornada">Jornada Trabajada <span class="required">*</span></label>
                         <select id="tipoJornada" class="form-control" required>
                             <option value="">Selecciona una jornada</option>
                             <option value="mixta">Mixta</option>
@@ -127,21 +198,38 @@
                             <option value="diurna">Diurna</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="salarioQuincenal">Salario Quincenal</label>
+                </div>
+                <!-- Información del Salario -->
+                <hr>
+                <h5>Información del Salario</h5>
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="salarioQuincenal">Salario Quincenal (Q) <span class="required">*</span></label>
                         <input type="number" class="form-control" id="salarioQuincenal" min="0" step="0.01" required>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="salarioTotalQuincenal">Salario Total Quincenal</label>
+                    <div class="form-group col-md-2">
+                        <label for="salarioDiario">Salario Diario (Q)</label>
+                        <input type="number" class="form-control" id="salarioDiario" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="bonificacionDecreto">Bonificación Decreto (Q)</label>
+                        <input type="number" class="form-control" id="bonificacionDecreto" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="descuentoIGSS">Descuento IGSS (Q)</label>
+                        <input type="number" class="form-control" id="descuentoIGSS" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="extraEncargado">Extra Encargado (Q)</label>
+                        <input type="number" class="form-control" id="extraEncargado" min="0" step="0.01" readonly>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="salarioTotalQuincenal">Salario Total Quincenal (Q)</label>
                         <input type="number" class="form-control" id="salarioTotalQuincenal" readonly>
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="salarioDiario">Salario Diario</label>
-                        <input type="number" class="form-control" id="salarioDiario" readonly>
-                    </div>
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-2">
                         <label for="pagarIGSS">¿Pagar IGSS?</label>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="pagarIGSS">
@@ -150,62 +238,48 @@
                             </label>
                         </div>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="lugarFirmaContrato">Lugar de Firma del Contrato</label>
-                        <input type="text" class="form-control" id="lugarFirmaContrato" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="fechaFirmaContrato">Fecha de Firma del Contrato</label>
-                        <input type="date" class="form-control" id="fechaFirmaContrato" required>
-                    </div>
-                    <div class="form-group col-md-8">
-                        <label for="lapsoContrato">Lapso del Contrato (en letras)</label>
-                        <input type="text" class="form-control" id="lapsoContrato" readonly>
-                    </div>
                 </div>
                 <hr>
                 <!-- Información del Empleado -->
                 <h5>Información del Empleado</h5>
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="nombreEmpleado">Nombre Completo</label>
+                        <label for="nombreEmpleado">Nombre Completo <span class="required">*</span></label>
                         <input type="text" class="form-control" id="nombreEmpleado" required>
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="emailEmpleado">Email</label>
+                        <label for="emailEmpleado">Email <span class="required">*</span></label>
                         <input type="email" class="form-control" id="emailEmpleado" required>
                     </div>
                 </div>
                 <!-- Resto de los campos del empleado -->
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="telefono1Empleado">Teléfono 1</label>
-                        <input type="text" class="form-control" id="telefono1Empleado" required>
+                        <label for="telefono1Empleado">Teléfono 1 <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="telefono1Empleado" required pattern="^\d{8}$" title="Debe tener exactamente 8 dígitos.">
                     </div>
                     <div class="form-group col-md-6">
                         <label for="telefono2Empleado">Teléfono 2</label>
-                        <input type="text" class="form-control" id="telefono2Empleado" placeholder="Opcional">
+                        <input type="text" class="form-control" id="telefono2Empleado" placeholder="Opcional" pattern="^\d{8}$" title="Debe tener exactamente 8 dígitos si se ingresa.">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="dpiEmpleado">DPI</label>
-                        <input type="text" class="form-control" id="dpiEmpleado" required>
+                        <label for="dpiEmpleado">DPI <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="dpiEmpleado" required pattern="^\d{13}$" title="Debe tener exactamente 13 dígitos.">
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="direccionEmpleado">Dirección</label>
+                        <label for="direccionEmpleado">Dirección <span class="required">*</span></label>
                         <input type="text" class="form-control" id="direccionEmpleado" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="fechaNacimientoEmpleado">Fecha de Nacimiento</label>
+                        <label for="fechaNacimientoEmpleado">Fecha de Nacimiento <span class="required">*</span></label>
                         <input type="date" class="form-control" id="fechaNacimientoEmpleado" required>
                     </div>
                     <div class="form-group col-md-6">
-                        <label for="estadoEmpleado">Estado</label>
+                        <label for="estadoEmpleado">Estado <span class="required">*</span></label>
                         <select id="estadoEmpleado" class="form-control" required>
                             <option value="activo">Activo</option>
                             <option value="inactivo">Inactivo</option>
@@ -214,8 +288,12 @@
                 </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="cerrarModalEmpleado()">Cerrar</button>
-              <button type="submit" class="btn btn-primary">Guardar</button>
+              <button type="button" class="btn btn-secondary" onclick="cerrarModalEmpleado()">
+                  <i class="fas fa-times"></i> Cerrar
+              </button>
+              <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Guardar
+              </button>
             </div>
           </form>
         </div>
@@ -236,12 +314,15 @@
             <!-- Aquí se cargarán los detalles del empleado -->
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalles()">Cerrar</button>
-            <button type="button" class="btn btn-primary" onclick="exportarDetallesEmpleado()">Exportar Detalles</button>
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalDetalles()">
+                <i class="fas fa-times"></i> Cerrar
+            </button>
+            <button type="button" class="btn btn-primary" onclick="exportarDetallesEmpleado()">
+                <i class="fas fa-file-pdf"></i> Exportar Detalles
+            </button>
           </div>
         </div>
       </div>
     </div>
-
 </body>
 </html>

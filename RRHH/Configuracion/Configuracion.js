@@ -73,8 +73,14 @@ async function cargarParametros() {
                 valor: parametro.valor || 'N/A',
                 descripcion: parametro.descripcion || 'N/A',
                 fechaActualizacion: fechaActualizacion,
-                acciones: `<button class="btn btn-sm btn-primary" onclick="editarParametro('${doc.id}')">Editar</button>
-                           <button class="btn btn-sm btn-danger" onclick="eliminarParametro('${doc.id}')">Eliminar</button>`
+                acciones: `
+                    <button class="btn btn-sm btn-primary" onclick="editarParametro('${doc.id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarParametro('${doc.id}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `
             });
         });
 
@@ -100,6 +106,12 @@ async function cargarParametrosPredefinidos() {
                 descripcion: 'Periodo en días para el contrato de prueba',
                 fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             },
+            {
+                clave: 'extraEncargado',
+                valor: '500', // Valor predeterminado para el extra encargado
+                descripcion: 'Monto extra para el puesto de Encargado',
+                fechaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+            }
             // Puedes agregar más parámetros predefinidos aquí
         ];
 
@@ -145,8 +157,8 @@ async function guardarParametro() {
         return;
     }
 
-    if (isNaN(valor) || parseInt(valor) <= 0) {
-        Swal.fire('Error', 'El valor del parámetro debe ser un número entero positivo.', 'error');
+    if (isNaN(valor) || parseFloat(valor) < 0) {
+        Swal.fire('Error', 'El valor del parámetro debe ser un número positivo.', 'error');
         return;
     }
 

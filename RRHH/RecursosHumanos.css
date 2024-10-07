@@ -13,12 +13,18 @@ body {
 /* Títulos */
 h2 {
     margin-bottom: 20px;
+    color: #343a40;
 }
 
 /* Botones */
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-success,
+.btn-warning,
+.btn-danger,
+.btn-info {
     margin-right: 10px;
+    margin-bottom: 5px;
 }
 
 /* Formularios */
@@ -28,6 +34,7 @@ form .form-group label {
 
 form .form-control {
     border-radius: 4px;
+    transition: border-color 0.3s;
 }
 
 /* Estilos para el modal */
@@ -116,4 +123,38 @@ table.dataTable tbody tr:hover {
 .form-control[disabled] {
     background-color: #e9ecef;
     opacity: 1;
+}
+
+/* Estilos para los campos calculados */
+#salarioDiario,
+#salarioTotalQuincenal,
+#duracionContrato,
+#lapsoContrato {
+    background-color: #fff3cd;
+}
+
+/* Hover effect for action buttons */
+.btn-info:hover {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-warning:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+.btn-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
