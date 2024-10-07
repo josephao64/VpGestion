@@ -2,27 +2,239 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Empresas y Sucursales</title>
     <link rel="stylesheet" href="stylesgestionar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- Firebase JS SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script defer src="empresas.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <!-- Tu archivo de configuración de Firebase -->
+    <script src="/FirebaseConfig.js"></script>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Tu archivo empresas.js -->
+    <script src="empresas.js" defer></script>
+
+    <style>
+        /* Estilo para resaltar la fila seleccionada */
+        .selected {
+            background-color: #d1ecf1;
+        }
+
+        /* Estilos para los botones de acción */
+        .action-buttons {
+            margin: 20px 0;
+        }
+
+        .action-buttons button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #007BFF;
+        }
+
+        .action-buttons button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .edit-button {
+            background-color: #28a745;
+        }
+
+        .deactivate-button {
+            background-color: #dc3545;
+        }
+
+        .delete-button {
+            background-color: #343a40;
+        }
+
+        .reactivate-button {
+            background-color: #28a745;
+        }
+
+        .history-button {
+            background-color: #17a2b8;
+        }
+
+        /* Estilos para las tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #dee2e6;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        /* Estilos para los botones principales */
+        .buttons button {
+            margin-right: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #007BFF;
+        }
+
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilos para las opciones de usuario */
+        .user-info {
+            display: inline-block;
+            margin-left: 20px;
+            vertical-align: middle;
+        }
+
+        .user-info #username {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .user-info button {
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #dc3545;
+        }
+
+        .user-info button:hover {
+            background-color: #c82333;
+        }
+
+        /* Estilos para los modales */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        button[type="button"] {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        .required {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1><i class="fas fa-building"></i> Gestión de Empresas y Sucursales</h1>
-    
+
     <div class="buttons">
-        <button onclick="showEmpresas()"><i class="fas fa-building"></i> Empresas</button>
-        <button onclick="showSucursales()"><i class="fas fa-map-marker-alt"></i> Sucursales</button>
+        <button onclick="showEmpresasActivas()"><i class="fas fa-building"></i> Empresas Activas</button>
+        <button onclick="showEmpresasInactivas()"><i class="fas fa-building-slash"></i> Empresas Inactivas</button>
+        <button onclick="showSucursalesActivas()"><i class="fas fa-map-marker-alt"></i> Sucursales Activas</button>
+        <button onclick="showSucursalesInactivas()"><i class="fas fa-map-marker-alt"></i> Sucursales Inactivas</button>
         <button onclick="window.location.href='../EmpresaMain/EmpresaMain.html'"><i class="fas fa-arrow-left"></i> Volver a Principal</button>
+        <!-- Opciones de usuario (puedes eliminarlas si no las necesitas) -->
+        <div class="user-info">
+            <span id="username">Usuario</span>
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
     </div>
 
-    <!-- Contenedores de Empresas y Sucursales -->
-    <div id="empresasContainer" class="container" style="display: none;">
-        <h2><i class="fas fa-building"></i> Empresas</h2>
+    <!-- Contenedores de Empresas Activas, Inactivas y Sucursales -->
+    <div id="empresasActivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-building"></i> Empresas Activas</h2>
         <button id="addEmpresaBtn"><i class="fas fa-plus-circle"></i> Agregar Empresa</button>
+
+        <!-- Botones de acción para Empresas Activas -->
+        <div class="action-buttons">
+            <button id="editarEmpresaBtn" class="edit-button" disabled><i class="fas fa-edit"></i> Editar Empresa</button>
+            <button id="desactivarEmpresaBtn" class="deactivate-button" disabled><i class="fas fa-trash-alt"></i> Desactivar Empresa</button>
+            <button id="eliminarEmpresaBtn" class="delete-button" disabled><i class="fas fa-ban"></i> Eliminar Empresa</button>
+        </div>
+
         <table id="empresasTable">
             <thead>
                 <tr>
@@ -30,35 +242,89 @@
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>Correo Electrónico</th>
-                    <th>Fecha de Creación</th>
                     <th>Descripción</th>
                     <th>Estado</th>
-                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <div id="sucursalesContainer" class="container" style="display: none;">
-        <h2><i class="fas fa-map-marker-alt"></i> Sucursales</h2>
-        <select id="empresaFilterSelect" onchange="loadSucursales()">
-            <option value="">Todas las empresas</option>
-        </select>
-        <button id="addSucursalBtn"><i class="fas fa-plus-circle"></i> Agregar Sucursal</button>
-        <table id="sucursalesTable">
+    <div id="empresasInactivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-building-slash"></i> Empresas Inactivas</h2>
+
+        <!-- Botones de acción para Empresas Inactivas -->
+        <div class="action-buttons">
+            <button id="reactivarEmpresaBtn" class="reactivate-button" disabled><i class="fas fa-check-circle"></i> Reactivar Empresa</button>
+            <button id="verHistorialEmpresaBtn" class="history-button" disabled><i class="fas fa-history"></i> Ver Historial</button>
+        </div>
+
+        <table id="empresasInactivasTable">
             <thead>
                 <tr>
                     <th>Nombre</th>
                     <th>Dirección</th>
                     <th>Teléfono</th>
                     <th>Correo Electrónico</th>
-                    <th>Fecha de Creación</th>
-                    <th>Encargado</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="sucursalesActivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-map-marker-alt"></i> Sucursales Activas</h2>
+        <select id="empresaFilterActivasSelect">
+            <option value="">Todas las empresas</option>
+        </select>
+        <button id="addSucursalBtn"><i class="fas fa-plus-circle"></i> Agregar Sucursal</button>
+
+        <!-- Botones de acción para Sucursales Activas -->
+        <div class="action-buttons">
+            <button id="editarSucursalBtn" class="edit-button" disabled><i class="fas fa-edit"></i> Editar Sucursal</button>
+            <button id="desactivarSucursalBtn" class="deactivate-button" disabled><i class="fas fa-trash-alt"></i> Desactivar Sucursal</button>
+            <button id="eliminarSucursalBtn" class="delete-button" disabled><i class="fas fa-ban"></i> Eliminar Sucursal</button>
+        </div>
+
+        <table id="sucursalesActivasTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Tipo</th> <!-- Nueva columna para Tipo de Sucursal -->
                     <th>Descripción</th>
                     <th>Estado</th>
                     <th>Empresa</th>
-                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="sucursalesInactivasContainer" class="container" style="display: none;">
+        <h2><i class="fas fa-map-marker-alt"></i> Sucursales Inactivas</h2>
+
+        <!-- Botones de acción para Sucursales Inactivas -->
+        <div class="action-buttons">
+            <button id="activarSucursalBtn" class="reactivate-button" disabled><i class="fas fa-check-circle"></i> Activar Sucursal</button>
+            <button id="verHistorialSucursalBtn" class="history-button" disabled><i class="fas fa-history"></i> Ver Historial</button>
+        </div>
+
+        <table id="sucursalesInactivasTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Tipo</th> <!-- Nueva columna para Tipo de Sucursal -->
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Empresa</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -66,81 +332,213 @@
     </div>
 
     <!-- Modales para agregar y editar Empresa y Sucursal -->
+
+    <!-- Agregar Empresa Modal -->
     <div id="addEmpresaModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addEmpresaModal')">&times;</span>
             <h2><i class="fas fa-plus-circle"></i> Agregar Empresa</h2>
-            <input type="text" id="empresaName" placeholder="Nombre de la Empresa">
-            <input type="text" id="empresaAddress" placeholder="Dirección">
-            <input type="tel" id="empresaPhone" placeholder="Teléfono">
-            <input type="email" id="empresaEmail" placeholder="Correo Electrónico">
-            <input type="date" id="empresaCreationDate" placeholder="Fecha de Creación">
-            <input type="text" id="empresaDescription" placeholder="Descripción">
-            <select id="empresaStatus">
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-            <button onclick="addEmpresa()"><i class="fas fa-save"></i> Agregar Empresa</button>
+            <form id="addEmpresaForm">
+                <label for="empresaName">Nombre de la Empresa <span class="required">*</span></label>
+                <input type="text" id="empresaName" placeholder="Nombre de la Empresa" required pattern="^[A-Za-z0-9\s]+$" title="El nombre solo puede contener letras, números y espacios.">
+
+                <label for="empresaAddress">Dirección <span class="required">*</span></label>
+                <input type="text" id="empresaAddress" placeholder="Dirección" required>
+
+                <label for="empresaPhone">Teléfono <span class="required">*</span></label>
+                <input type="tel" id="empresaPhone" placeholder="Teléfono (8 dígitos)" required pattern="^\d{8}$" title="El teléfono debe tener exactamente 8 dígitos.">
+
+                <label for="empresaEmail">Correo Electrónico <span class="required">*</span></label>
+                <input type="email" id="empresaEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
+
+                <label for="empresaDescription">Descripción</label>
+                <input type="text" id="empresaDescription" placeholder="Descripción">
+
+                <!-- Campo de Estado: Activo por defecto, oculto -->
+                <input type="hidden" id="empresaStatus" value="activo">
+
+                <button type="button" onclick="addEmpresa()"><i class="fas fa-save"></i> Agregar Empresa</button>
+            </form>
         </div>
     </div>
 
+    <!-- Editar Empresa Modal -->
     <div id="editEmpresaModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('editEmpresaModal')">&times;</span>
             <h2><i class="fas fa-edit"></i> Editar Empresa</h2>
-            <input type="hidden" id="editEmpresaId">
-            <input type="text" id="editEmpresaName" placeholder="Nombre de la Empresa">
-            <input type="text" id="editEmpresaAddress" placeholder="Dirección">
-            <input type="tel" id="editEmpresaPhone" placeholder="Teléfono">
-            <input type="email" id="editEmpresaEmail" placeholder="Correo Electrónico">
-            <input type="date" id="editEmpresaCreationDate" placeholder="Fecha de Creación">
-            <input type="text" id="editEmpresaDescription" placeholder="Descripción">
-            <select id="editEmpresaStatus">
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-            <button id="saveEditEmpresaBtn" onclick="updateEmpresa()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            <form id="editEmpresaForm">
+                <input type="hidden" id="editEmpresaId">
+
+                <label for="editEmpresaName">Nombre de la Empresa <span class="required">*</span></label>
+                <input type="text" id="editEmpresaName" placeholder="Nombre de la Empresa" required pattern="^[A-Za-z0-9\s]+$" title="El nombre solo puede contener letras, números y espacios.">
+
+                <label for="editEmpresaAddress">Dirección <span class="required">*</span></label>
+                <input type="text" id="editEmpresaAddress" placeholder="Dirección" required>
+
+                <label for="editEmpresaPhone">Teléfono <span class="required">*</span></label>
+                <input type="tel" id="editEmpresaPhone" placeholder="Teléfono (8 dígitos)" required pattern="^\d{8}$" title="El teléfono debe tener exactamente 8 dígitos.">
+
+                <label for="editEmpresaEmail">Correo Electrónico <span class="required">*</span></label>
+                <input type="email" id="editEmpresaEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
+
+                <label for="editEmpresaDescription">Descripción</label>
+                <input type="text" id="editEmpresaDescription" placeholder="Descripción">
+
+                <!-- Campo para Motivo de Cambio -->
+                <label for="motivoCambio">Motivo de Cambio <span class="required">*</span></label>
+                <textarea id="motivoCambio" placeholder="Explica el motivo de los cambios realizados" required></textarea>
+
+                <!-- Campo de Estado: Solo modificable internamente, oculto -->
+                <select id="editEmpresaStatus" style="display:none;">
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+
+                <button type="button" onclick="updateEmpresa()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            </form>
         </div>
     </div>
 
+    <!-- Modal para Ingresar Motivo de Desactivación -->
+    <div id="motivoDesactivarEmpresaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('motivoDesactivarEmpresaModal')">&times;</span>
+            <h2><i class="fas fa-exclamation-triangle"></i> Motivo de Desactivación</h2>
+            <form id="motivoDesactivarEmpresaForm">
+                <!-- Campo oculto para almacenar el ID de la empresa a desactivar -->
+                <input type="hidden" id="empresaDesactivarId">
+
+                <label for="motivoDesactivar">Ingrese el motivo de desactivación <span class="required">*</span></label>
+                <textarea id="motivoDesactivar" placeholder="Motivo de desactivación" required></textarea>
+
+                <button type="button" onclick="confirmDesactivarEmpresa()"><i class="fas fa-trash-alt"></i> Desactivar Empresa</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Agregar Sucursal Modal -->
     <div id="addSucursalModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('addSucursalModal')">&times;</span>
             <h2><i class="fas fa-plus-circle"></i> Agregar Sucursal</h2>
-            <input type="text" id="sucursalName" placeholder="Nombre de la Sucursal">
-            <input type="text" id="sucursalAddress" placeholder="Dirección">
-            <input type="tel" id="sucursalPhone" placeholder="Teléfono">
-            <input type="email" id="sucursalEmail" placeholder="Correo Electrónico">
-            <input type="date" id="sucursalCreationDate" placeholder="Fecha de Creación">
-            <input type="text" id="sucursalEncargado" placeholder="Encargado">
-            <input type="text" id="sucursalDescription" placeholder="Descripción">
-            <select id="sucursalStatus">
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-            <select id="empresaSelect"></select>
-            <button id="saveAddSucursalBtn" onclick="addSucursal()"><i class="fas fa-save"></i> Agregar Sucursal</button>
+            <form id="addSucursalForm">
+                <label for="sucursalName">Nombre de la Sucursal <span class="required">*</span></label>
+                <input type="text" id="sucursalName" placeholder="Nombre de la Sucursal" required pattern="^[A-Za-z0-9\s]+$" title="El nombre solo puede contener letras, números y espacios.">
+
+                <label for="sucursalAddress">Dirección <span class="required">*</span></label>
+                <input type="text" id="sucursalAddress" placeholder="Dirección" required>
+
+                <label for="sucursalPhone">Teléfono <span class="required">*</span></label>
+                <input type="tel" id="sucursalPhone" placeholder="Teléfono (8 dígitos)" required pattern="^\d{8}$" title="El teléfono debe tener exactamente 8 dígitos.">
+
+                <label for="sucursalEmail">Correo Electrónico <span class="required">*</span></label>
+                <input type="email" id="sucursalEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
+
+                <label for="sucursalTipo">Tipo de Sucursal <span class="required">*</span></label>
+                <select id="sucursalTipo" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="CE1">CE1 (Capital)</option>
+                    <option value="CE2">CE2 (Departamento)</option>
+                </select>
+
+                <label for="sucursalDescription">Descripción</label>
+                <input type="text" id="sucursalDescription" placeholder="Descripción">
+
+                <!-- Campo de Estado: Activo por defecto, oculto -->
+                <input type="hidden" id="sucursalStatus" value="activo">
+
+                <label for="empresaSelect">Empresa <span class="required">*</span></label>
+                <select id="empresaSelect" required>
+                    <option value="">Selecciona una empresa</option>
+                    <!-- Opciones de empresas se cargarán dinámicamente -->
+                </select>
+
+                <button type="button" onclick="addSucursal()"><i class="fas fa-save"></i> Agregar Sucursal</button>
+            </form>
         </div>
     </div>
 
+    <!-- Editar Sucursal Modal -->
     <div id="editSucursalModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('editSucursalModal')">&times;</span>
             <h2><i class="fas fa-edit"></i> Editar Sucursal</h2>
-            <input type="hidden" id="editSucursalId">
-            <input type="text" id="editSucursalName" placeholder="Nombre de la Sucursal">
-            <input type="text" id="editSucursalAddress" placeholder="Dirección">
-            <input type="tel" id="editSucursalPhone" placeholder="Teléfono">
-            <input type="email" id="editSucursalEmail" placeholder="Correo Electrónico">
-            <input type="date" id="editSucursalCreationDate" placeholder="Fecha de Creación">
-            <input type="text" id="editSucursalEncargado" placeholder="Encargado">
-            <input type="text" id="editSucursalDescription" placeholder="Descripción">
-            <select id="editSucursalStatus">
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-            </select>
-            <select id="editEmpresaSelect"></select>
-            <button id="saveEditSucursalBtn" onclick="updateSucursal()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            <form id="editSucursalForm">
+                <input type="hidden" id="editSucursalId">
+
+                <label for="editSucursalName">Nombre de la Sucursal <span class="required">*</span></label>
+                <input type="text" id="editSucursalName" placeholder="Nombre de la Sucursal" required pattern="^[A-Za-z0-9\s]+$" title="El nombre solo puede contener letras, números y espacios.">
+
+                <label for="editSucursalAddress">Dirección <span class="required">*</span></label>
+                <input type="text" id="editSucursalAddress" placeholder="Dirección" required>
+
+                <label for="editSucursalPhone">Teléfono <span class="required">*</span></label>
+                <input type="tel" id="editSucursalPhone" placeholder="Teléfono (8 dígitos)" required pattern="^\d{8}$" title="El teléfono debe tener exactamente 8 dígitos.">
+
+                <label for="editSucursalEmail">Correo Electrónico <span class="required">*</span></label>
+                <input type="email" id="editSucursalEmail" placeholder="Correo Electrónico" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|es|net|org|edu)$" title="Ingresa un correo válido (ej. usuario@dominio.com).">
+
+                <label for="editSucursalTipo">Tipo de Sucursal <span class="required">*</span></label>
+                <select id="editSucursalTipo" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="CE1">CE1 (Capital)</option>
+                    <option value="CE2">CE2 (Departamento)</option>
+                </select>
+
+                <label for="editSucursalDescription">Descripción</label>
+                <input type="text" id="editSucursalDescription" placeholder="Descripción">
+
+                <!-- Campo de Estado: Solo modificable internamente, oculto -->
+                <select id="editSucursalStatus" style="display:none;">
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                </select>
+
+                <label for="editEmpresaSelect">Empresa <span class="required">*</span></label>
+                <select id="editEmpresaSelect" required>
+                    <option value="">Selecciona una empresa</option>
+                    <!-- Opciones de empresas se cargarán dinámicamente -->
+                </select>
+
+                <button type="button" onclick="updateSucursal()"><i class="fas fa-save"></i> Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Historial de Cambios de Empresa -->
+    <div id="historialEmpresaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('historialEmpresaModal')">&times;</span>
+            <h2><i class="fas fa-history"></i> Historial de Cambios de la Empresa</h2>
+            <table id="historialEmpresaTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Motivo de Cambio</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para Historial de Cambios de Sucursal -->
+    <div id="historialSucursalModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('historialSucursalModal')">&times;</span>
+            <h2><i class="fas fa-history"></i> Historial de Cambios de la Sucursal</h2>
+            <table id="historialSucursalTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Motivo de Cambio</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 </body>

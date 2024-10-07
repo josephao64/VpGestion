@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -16,7 +16,10 @@
   <div class="container">
     <header>
       <h2>Página Principal</h2>
+      <!-- Nuevo elemento para mostrar el nombre del usuario -->
+      <p id="user-info">Bienvenido, <span id="username">Usuario</span></p>
     </header>
+    
     <div class="navigation">
       <button id="paginaBtn" class="nav-btn" disabled>
         <i class="fas fa-home"></i> Página
@@ -35,6 +38,14 @@
       </button>
       <button id="pedidosBtn" class="nav-btn">
         <i class="fas fa-shopping-cart"></i> Pedidos
+      </button>
+      <!-- Nuevo botón para Mantenimientos -->
+      <button id="mantenimientosBtn" class="nav-btn">
+        <i class="fas fa-tools"></i> Mantenimientos
+      </button>
+      <!-- Nuevo botón para Recursos Humanos -->
+      <button id="recursosHumanosBtn" class="nav-btn">
+        <i class="fas fa-users"></i> Recursos Humanos
       </button>
       <button id="logoutBtn" class="nav-btn">
         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión

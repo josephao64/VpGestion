@@ -7,11 +7,18 @@ document.addEventListener("DOMContentLoaded", function() {
         return; // Detener la ejecución del resto del código
     }
 
+    // Inicializar Firestore (asegúrate de que Firebase esté correctamente configurado en FirebaseConfig.js)
+    const db = firebase.firestore();
+
     // Obtener los datos del usuario desde Firestore
     db.collection("usuarios").doc(userId).get().then((doc) => {
         if (doc.exists) {
             const role = doc.data().role;
             const permissions = doc.data().permissions || [];
+            const username = doc.data().username; // Obtener el nombre del usuario
+
+            // Mostrar el nombre del usuario en la página
+            document.getElementById("username").textContent = username;
 
             if (role === "admin_general") {
                 // Si es Administrador General, habilitar todos los botones
@@ -21,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("gestionFacturasBtn").disabled = false;
                 document.getElementById("inventarioBtn").disabled = false;
                 document.getElementById("pedidosBtn").disabled = false;
+                document.getElementById("mantenimientosBtn").disabled = false; // Nuevo botón
+                document.getElementById("recursosHumanosBtn").disabled = false; // Nuevo botón
             } else {
                 // Habilitar los botones según los permisos
                 if (permissions.includes("accessPagina")) {
@@ -40,10 +49,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
                 // Permitir acceso a la página de empresa a todos los usuarios
                 document.getElementById("empresaBtn").disabled = false;
+
+                // Habilitar nuevos botones según permisos
+                if (permissions.includes("accessMantenimientos")) {
+                    document.getElementById("mantenimientosBtn").disabled = false;
+                }
+                if (permissions.includes("accessRecursosHumanos")) {
+                    document.getElementById("recursosHumanosBtn").disabled = false;
+                }
             }
 
             // Estilizar los botones habilitados y deshabilitados
-            const buttons = document.querySelectorAll("button");
+            const buttons = document.querySelectorAll(".nav-btn");
             buttons.forEach(button => {
                 if (button.disabled) {
                     button.style.backgroundColor = "#ccc";
@@ -54,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
-            // Agregar eventos a los botones
+            // Agregar eventos a los botones existentes
             document.getElementById("paginaBtn").addEventListener("click", function() {
                 if (!this.disabled) {
                     window.location.href = "../Pagina/Pagina.html";
@@ -83,6 +100,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
             document.getElementById("pedidosBtn").addEventListener("click", function() {
                 window.location.href = "../Pedidos/pedidos.html";
+            });
+
+            // Agregar eventos a los nuevos botones
+            document.getElementById("mantenimientosBtn").addEventListener("click", function() {
+                if (!this.disabled) {
+                    window.location.href = "../mantenimiento/Mantenimientos.html";
+                }
+            });
+
+            document.getElementById("recursosHumanosBtn").addEventListener("click", function() {
+                if (!this.disabled) {
+                    window.location.href = "../RRHH/RecursosHumanos.html";
+                }
             });
 
             // Manejar el cierre de sesión
