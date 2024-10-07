@@ -10,6 +10,15 @@ body {
     margin-top: 20px;
 }
 
+/* Ajuste para el contenedor principal cuando hay un elemento fixed-top */
+.mt-5 {
+    margin-top: 5rem !important;
+}
+
+.pt-5 {
+    padding-top: 5rem !important;
+}
+
 /* Títulos */
 h2 {
     margin-bottom: 20px;
@@ -17,14 +26,64 @@ h2 {
 }
 
 /* Botones */
+.btn {
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.btn i {
+    margin-right: 5px;
+}
+
 .btn-primary,
 .btn-secondary,
 .btn-success,
 .btn-warning,
 .btn-danger,
 .btn-info {
-    margin-right: 10px;
-    margin-bottom: 5px;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+/* Estilos para el área de botones fijos */
+#actionButtons {
+    border-bottom: 1px solid #dee2e6;
+}
+
+#actionButtons .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 /* Formularios */
@@ -35,6 +94,11 @@ form .form-group label {
 form .form-control {
     border-radius: 4px;
     transition: border-color 0.3s;
+}
+
+form .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: none;
 }
 
 /* Estilos para el modal */
@@ -88,6 +152,17 @@ table.dataTable tbody tr:hover {
     .form-row .form-group {
         width: 100%;
     }
+
+    /* Ajustes para los botones en móviles */
+    #actionButtons .container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #actionButtons .btn {
+        margin-bottom: 10px;
+        width: 100%;
+    }
 }
 
 /* Estilos para los botones de acción */
@@ -135,26 +210,176 @@ table.dataTable tbody tr:hover {
 
 /* Hover effect for action buttons */
 .btn-info:hover {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
+    background-color: #138496;
+    border-color: #117a8b;
 }
 
 .btn-warning:hover {
-    background-color: #ffc107;
-    border-color: #ffc107;
+    background-color: #e0a800;
+    border-color: #d39e00;
 }
 
 .btn-danger:hover {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: #c82333;
+    border-color: #bd2130;
 }
 
 .btn-success:hover {
-    background-color: #28a745;
-    border-color: #28a745;
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 
 .btn-primary:hover {
     background-color: #0069d9;
     border-color: #0062cc;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Estilos para los modales de detalles */
+#modalDetallesEmpleado .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#modalDetallesEmpleado h5 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+#modalDetallesEmpleado p {
+    margin-bottom: 5px;
+}
+
+#modalDetallesEmpleado strong {
+    font-weight: 600;
+}
+
+/* Estilos para los filtros */
+#filtrosEmpleados .form-group {
+    margin-bottom: 0;
+}
+
+/* Estilos para los botones del modal */
+.modal-footer .btn {
+    margin-left: 10px;
+}
+
+/* Estilos para los labels y inputs ocultos */
+#extraEncargado,
+label[for='extraEncargado'] {
+    display: none;
+}
+
+/* Estilos para el checkbox */
+.form-check-label {
+    margin-left: 5px;
+}
+
+/* Estilos para los mensajes de Swal */
+.swal2-popup {
+    font-size: 1rem !important;
+}
+
+/* Estilos para los inputs en los modales */
+.modal-body .form-control {
+    margin-bottom: 10px;
+}
+
+/* Estilos para la tabla de empleados */
+#empleadosTable_wrapper .dataTables_filter input {
+    border-radius: 4px;
+}
+
+/* Estilos para los inputs numéricos */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Estilos para campos requeridos */
+.form-group label::after {
+    content: '*';
+    color: red;
+    margin-left: 5px;
+}
+
+.form-group label.required::after {
+    content: '*';
+    color: red;
+    margin-left: 5px;
+}
+
+.form-control:invalid {
+    border-color: #dc3545;
+}
+
+.form-control:invalid:focus {
+    box-shadow: none;
+}
+
+/* Estilos para mejorar la visualización de los detalles al exportar */
+#detallesEmpleadoBody {
+    padding: 20px;
+    font-size: 1rem;
+    color: #212529;
+}
+
+#detallesEmpleadoBody h5 {
+    color: #343a40;
+}
+
+#detallesEmpleadoBody p {
+    margin-bottom: 10px;
+}
+
+/* Estilos para alinear el texto a la izquierda en los detalles */
+#detallesEmpleadoBody p {
+    text-align: left;
+}
+
+/* Estilos para los campos ocultos y condicionales */
+#fechaFinContratoContainer,
+#duracionContratoContainer {
+    display: none;
+}
+
+/* Estilos para ajustar los labels y campos en el formulario */
+.form-row .form-group {
+    margin-bottom: 15px;
+}
+
+/* Estilos para alinear los labels y campos */
+.form-group label {
+    display: block;
+}
+
+/* Estilos para el checkbox */
+.form-check {
+    margin-bottom: 10px;
+}
+
+/* Estilos para los campos de fecha */
+input[type="date"] {
+    padding-right: 0;
+}
+
+/* Estilos para mejorar la visualización en dispositivos móviles */
+@media (max-width: 576px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row .form-group {
+        width: 100%;
+    }
 }

@@ -11,7 +11,7 @@ var salariosMinimos = {
 };
 var extraEncargado = 0; // Valor predeterminado para extra encargado
 
-// Variable para almacenar detalles del empleado para exportar (si es necesario)
+// Variable para almacenar detalles del empleado para exportar
 var empleadoDetallesParaExportar = {};
 
 // Inicializar DataTable para Empleados
@@ -827,7 +827,7 @@ async function verDetallesEmpleado() {
 
             $('#modalDetallesEmpleado').modal('show');
 
-            // Guardar los detalles para exportar (si es necesario)
+            // Guardar los detalles para exportar
             empleadoDetallesParaExportar = {
                 nombre: empleado.nombre || 'N/A',
                 detallesHTML: detallesHTML
@@ -847,7 +847,81 @@ function cerrarModalDetalles() {
     $('#modalDetallesEmpleado').modal('hide');
 }
 
-// Función para exportar los detalles del empleado a PDF (opcional)
+// Función para exportar los detalles del empleado
 function exportarDetallesEmpleado() {
-    // Implementación de la exportación a PDF si es necesaria
+    Swal.fire({
+        title: 'Exportar Detalles',
+        text: '¿En qué formato deseas exportar los detalles?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Imagen',
+        cancelButtonText: 'PDF',
+        reverseButtons: true
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            // Exportar como imagen
+            exportarDetallesComoImagen();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Exportar como PDF
+            exportarDetallesComoPDF();
+        }
+    });
+}
+
+// Función para exportar los detalles como imagen
+function exportarDetallesComoImagen() {
+    const detallesBody = document.getElementById('detallesEmpleadoBody');
+    if (!detallesBody) {
+        Swal.fire('Error', 'No se pudo encontrar el contenido para exportar.', 'error');
+        return;
+    }
+
+    html2canvas(detallesBody).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `${empleadoDetallesParaExportar.nombre || 'Empleado'}_detalles.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }).catch(error => {
+        console.error('Error al exportar como imagen:', error);
+        Swal.fire('Error', 'Ocurrió un error al exportar como imagen.', 'error');
+    });
+}
+
+// Función para exportar los detalles como PDF
+function exportarDetallesComoPDF() {
+    const detallesBody = document.getElementById('detallesEmpleadoBody');
+    if (!detallesBody) {
+        Swal.fire('Error', 'No se pudo encontrar el contenido para exportar.', 'error');
+        return;
+    }
+
+    // Usamos html2canvas para capturar el contenido como imagen
+    html2canvas(detallesBody).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        // Calculamos las dimensiones de la imagen para ajustarla al PDF
+        const imgWidth = 210; // Ancho de una hoja A4 en mm
+        const pageHeight = 295; // Altura de una hoja A4 en mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save(`${empleadoDetallesParaExportar.nombre || 'Empleado'}_detalles.pdf`);
+    }).catch(error => {
+        console.error('Error al exportar como PDF:', error);
+        Swal.fire('Error', 'Ocurrió un error al exportar como PDF.', 'error');
+    });
 }
