@@ -104,8 +104,8 @@
 
         <!-- Contenido principal -->
         <div class="container mt-5 pt-5">
-            <br>
-<br><br><br>
+            <h2 class="mt-4">Gestión de Empleados</h2>
+
             <!-- Tabla de empleados -->
             <table id="empleadosTable" class="display" style="width:100%">
                 <thead>
@@ -215,10 +215,18 @@
                                 <label for="puestoContrato">Puesto</label>
                                 <select class="form-control" id="puestoContrato" required>
                                     <option value="">Selecciona un puesto</option>
+                                    <option value="Administración">Administración</option>
                                     <option value="Encargado">Encargado</option>
-                                    <option value="Vendedor">Vendedor</option>
-                                    <!-- Agrega más opciones según sea necesario -->
+                                    <option value="Repartidor">Repartidor</option>
+                                    <option value="Cocinero">Cocinero</option>
+                                    <option value="Cajero">Cajero</option>
+                                    <option value="Otro">Otro (Especificar)</option>
                                 </select>
+                            </div>
+                            <!-- Campo adicional para puesto personalizado -->
+                            <div class="form-group" id="puestoPersonalizadoContainer" style="display: none;">
+                                <label for="puestoPersonalizado">Especificar Puesto</label>
+                                <input type="text" class="form-control" id="puestoPersonalizado">
                             </div>
                             <div class="form-group">
                                 <label for="sucursalContrato">Sucursal</label>
@@ -318,5 +326,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Script para manejar el campo de puesto personalizado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puestoContratoSelect = document.getElementById('puestoContrato');
+            const puestoPersonalizadoContainer = document.getElementById('puestoPersonalizadoContainer');
+            const puestoPersonalizadoInput = document.getElementById('puestoPersonalizado');
+
+            puestoContratoSelect.addEventListener('change', function() {
+                if (puestoContratoSelect.value === 'Otro') {
+                    puestoPersonalizadoContainer.style.display = 'block';
+                    puestoPersonalizadoInput.required = true;
+                } else {
+                    puestoPersonalizadoContainer.style.display = 'none';
+                    puestoPersonalizadoInput.required = false;
+                    puestoPersonalizadoInput.value = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
