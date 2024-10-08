@@ -1,183 +1,160 @@
-/* Estilos generales */
+/* Estilos básicos */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+    margin: 20px;
+  }
+  
+  h1, h2 {
     color: #333;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 2em;
-}
-
-/* Estilos para los botones */
-.buttons {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.buttons button {
-    margin: 0 10px;
-    padding: 15px 25px;
-    font-size: 16px;
-    cursor: pointer;
+  }
+  
+  .buttons button, .export-buttons button {
+    margin: 5px;
+    padding: 10px 15px;
     border: none;
+    color: #fff;
+    cursor: pointer;
     border-radius: 5px;
-    background-color: #007BFF;
-    color: white;
-    transition: background-color 0.3s;
-}
-
-.buttons button:hover {
-    background-color: #0056b3;
-}
-
-/* Estilos para formularios y contenedores */
-.container {
-    display: none;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    max-width: 90%;
-}
-
-/* Estilos para los modales */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
+    font-size: 14px;
+  }
+  
+  .buttons button:hover, .export-buttons button:hover {
+    opacity: 0.9;
+  }
+  
+  /* Botones específicos */
+  #providersBtn { background-color: #28a745; }
+  #productsBtn { background-color: #17a2b8; }
+  #generateReportBtn { background-color: #6f42c1; }
+  
+  .export-buttons button:nth-child(1) { background-color: #17a2b8; }
+  .export-buttons button:nth-child(2) { background-color: #dc3545; }
+  .export-buttons button:nth-child(3) { background-color: #28a745; }
+  
+  /* Tablas */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Botones de acción en tablas */
+  table button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+  }
+  
+  .delete-btn { background-color: #dc3545; color: #fff; }
+  .delete-btn:hover { background-color: #c82333; }
+  
+  /* Modales */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    margin: 15% auto;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
     max-width: 600px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-}
-
-.close {
+    position: relative;
+  }
+  
+  .close {
     color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Estilos para formularios dentro de los modales */
-.modal-content input[type="text"],
-.modal-content input[type="email"],
-.modal-content input[type="number"],
-.modal-content select,
-.modal-content textarea {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.modal-content button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.modal-content button:hover {
-    background-color: #218838;
-}
-
-/* Estilos para tablas */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 15px;
-    text-align: left;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-/* Estilos adicionales */
-h2 {
-    margin-bottom: 20px;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="date"],
-input[type="email"],
-select,
-textarea {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-button {
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #ddd;
-}
-/* Estilo para el botón de regresar */
-.top-right {
     position: absolute;
     top: 10px;
-    right: 10px;
-}
-
-.top-right button {
-    padding: 10px 20px;
-    font-size: 16px;
+    right: 25px;
+    font-size: 28px;
+    font-weight: bold;
     cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: #28a745;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+  }
+  
+  /* Formularios en los modales */
+  .modal-content input[type="text"],
+  .modal-content input[type="email"],
+  .modal-content input[type="number"],
+  .modal-content textarea,
+  .modal-content select {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 15px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .modal-content button {
+    background-color: #007BFF;
     color: white;
-}
-
-.top-right button:hover {
-    background-color: #218838;
-}
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .modal-content button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Estilos para el reporte */
+  #reportContainer {
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  #reportTable th, #reportTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #reportTable th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Ajustes para evitar que el contenido se corte en la imagen exportada */
+  @media print {
+    #reportContainer {
+      box-shadow: none;
+      border: none;
+    }
+  }
+  

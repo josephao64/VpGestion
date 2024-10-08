@@ -775,11 +775,31 @@ async function verDetallesEmpleado() {
             const sucursalDoc = await db.collection('sucursales').doc(empleado.sucursalId).get();
             const sucursalName = sucursalDoc.exists ? sucursalDoc.data().name : 'N/A';
 
+            // Función para formatear fechas
+            function formatFecha(fecha) {
+                if (fecha) {
+                    if (fecha.toDate) {
+                        return moment(fecha.toDate()).format('DD/MM/YYYY');
+                    } else if (fecha instanceof Date) {
+                        return moment(fecha).format('DD/MM/YYYY');
+                    } else if (typeof fecha === 'string') {
+                        return moment(fecha).format('DD/MM/YYYY');
+                    } else if (fecha.seconds) {
+                        // Es un Timestamp de Firestore
+                        return moment(new Date(fecha.seconds * 1000)).format('DD/MM/YYYY');
+                    } else {
+                        return 'N/A';
+                    }
+                } else {
+                    return 'N/A';
+                }
+            }
+
             // Formatear fechas
-            const fechaNacimiento = empleado.fechaNacimiento ? moment(empleado.fechaNacimiento.toDate()).format('DD/MM/YYYY') : 'N/A';
-            const fechaInicioRelacion = empleado.fechaInicioRelacion ? moment(empleado.fechaInicioRelacion.toDate()).format('DD/MM/YYYY') : 'N/A';
-            const fechaFinContrato = empleado.fechaFinContrato ? moment(empleado.fechaFinContrato.toDate()).format('DD/MM/YYYY') : 'N/A';
-            const fechaFirmaContrato = empleado.fechaFirmaContrato ? moment(empleado.fechaFirmaContrato.toDate()).format('DD/MM/YYYY') : 'N/A';
+            const fechaNacimiento = formatFecha(empleado.fechaNacimiento);
+            const fechaInicioRelacion = formatFecha(empleado.fechaInicioRelacion);
+            const fechaFinContrato = formatFecha(empleado.fechaFinContrato);
+            const fechaFirmaContrato = formatFecha(empleado.fechaFirmaContrato);
 
             // Construir el contenido HTML para mostrar los detalles
             const detallesHTML = `
