@@ -1,168 +1,65 @@
-/* styles.css */
-
-/* Estilos Básicos */
-body {
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
-    margin: 20px;
+}
+
+body {
     background-color: #f4f4f4;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 80%;
     background: #fff;
     padding: 20px;
     border-radius: 5px;
-  }
-  
-  /* Títulos */
-  h1, h2, h3 {
-    color: #333;
-  }
-  
-  /* Pestañas de Navegación */
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-  
-  .tab-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    margin-right: 5px;
-    border-radius: 3px;
-    margin-bottom: 5px;
-    transition: background-color 0.3s;
-  }
-  
-  .tab-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .tab-button.active {
-    background-color: #0056b3;
-  }
-  
-  /* Contenido de las Pestañas */
-  .tab-content {
-    display: none;
-  }
-  
-  .tab-content.active {
-    display: block;
-  }
-  
-  /* Formularios */
-  form {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
-  
-  label {
-    display: block;
-    margin: 10px 0 5px;
-    font-weight: bold;
-  }
-  
-  input[type="text"], input[type="number"], select {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-  }
-  
-  button {
-    padding: 10px 15px;
-    background: #28a745;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-    border-radius: 3px;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background: #218838;
-  }
-  
-  button.delete {
-    background: #dc3545;
-  }
-  
-  button.delete:hover {
-    background: #c82333;
-  }
-  
-  button.edit {
-    background: #ffc107;
-  }
-  
-  button.edit:hover {
-    background: #e0a800;
-  }
-  
-  /* Tablas */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-  }
-  
-  th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
     text-align: center;
-  }
-  
-  th {
-    background: #f8f9fa;
-  }
-  
-  .action-buttons button {
-    margin: 0 5px;
-    padding: 5px 10px;
-    font-size: 0.9em;
-  }
-  
-  /* Sección de Resumen */
-  .summary-section {
-    overflow-x: auto;
-  }
-  
-  /* Gestión por Sucursal */
-  .branch-management {
+    margin-bottom: 20px;
+}
+
+.form-container {
+    margin-bottom: 30px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.list-container {
     margin-top: 20px;
-  }
-  
-  .branch-management select {
-    margin-bottom: 20px;
-  }
-  
-  .management-section {
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .management-section h3 {
+}
+
+.provider {
     margin-bottom: 10px;
-  }
-  
-  /* Responsividad */
-  @media (max-width: 768px) {
-    .tabs {
-      flex-direction: column;
-    }
-  
-    .tab-button {
-      width: 100%;
-      margin-bottom: 5px;
-    }
-  }
-  
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}

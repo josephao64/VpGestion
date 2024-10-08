@@ -2,31 +2,211 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gestión de Proveedores y Productos</title>
 
-  <!-- Incluye Font Awesome -->
+  <!-- Incluye Font Awesome para íconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Incluye html2canvas para capturar el reporte como imagen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Incluye jsPDF para generar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Incluye SheetJS para generar Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <!-- Incluye las bibliotecas de Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+  <!-- Enlace a tu archivo CSS -->
   <link rel="stylesheet" href="stylesgestionar.css">
+
+  <!-- Incluye el script defer para asegurar que el DOM esté cargado antes de ejecutar el JS -->
   <script defer src="gestionar.js"></script>
+
+  <!-- Estilos específicos para el reporte y mejorar la exportación -->
+  <style>
+    /* Estilos básicos */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    .buttons button, .export-buttons button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .buttons button:hover, .export-buttons button:hover {
+      opacity: 0.9;
+    }
+
+    /* Botones específicos */
+    #providersBtn { background-color: #28a745; }
+    #productsBtn { background-color: #17a2b8; }
+    #generateReportBtn { background-color: #6f42c1; }
+
+    .export-buttons button:nth-child(1) { background-color: #17a2b8; }
+    .export-buttons button:nth-child(2) { background-color: #dc3545; }
+    .export-buttons button:nth-child(3) { background-color: #28a745; }
+
+    /* Tablas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    /* Botones de acción en tablas */
+    table button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .delete-btn { background-color: #dc3545; color: #fff; }
+    .delete-btn:hover { background-color: #c82333; }
+
+    /* Modales */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 25px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+
+    /* Formularios en los modales */
+    .modal-content input[type="text"],
+    .modal-content input[type="email"],
+    .modal-content input[type="number"],
+    .modal-content textarea,
+    .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 15px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .modal-content button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .modal-content button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Estilos para el reporte */
+    #reportContainer {
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #reportTable th, #reportTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    #reportTable th {
+      background-color: #f2f2f2;
+    }
+
+    /* Ajustes para evitar que el contenido se corte en la imagen exportada */
+    @media print {
+      #reportContainer {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Botón de regresar en la esquina superior derecha (Reemplazado) -->
   <div class="top-right">
-    <button onclick="location.href='empresaConfig.html'"><i class="fas fa-arrow-left"></i> Regresar</button>
+    <button onclick="window.location.href='../EmpresaMain/EmpresaMain.html'"><i class="fas fa-arrow-left"></i> Volver a Principal</button>
   </div>
-  
+
+  <!-- Título Principal -->
   <h1><i class="fas fa-boxes"></i> Gestión de Proveedores y Productos</h1>
 
+  <!-- Botones principales para navegar entre secciones -->
   <div class="buttons">
     <button id="providersBtn" onclick="showProviders()"><i class="fas fa-truck"></i> Proveedores</button>
     <button id="productsBtn" onclick="showProducts()"><i class="fas fa-cube"></i> Productos</button>
+    <button id="generateReportBtn" onclick="generateReport()"><i class="fas fa-file-alt"></i> Generar Reporte</button>
   </div>
 
-  <!-- Proveedores -->
+  <!-- Sección de Proveedores -->
   <div id="providersContainer" class="container" style="display:none;">
     <h2><i class="fas fa-truck"></i> Proveedores</h2>
     <button id="addProviderBtn" onclick="showAddProviderForm()"><i class="fas fa-plus-circle"></i> Agregar Proveedor</button>
@@ -42,7 +222,7 @@
     </table>
   </div>
 
-  <!-- Productos -->
+  <!-- Sección de Productos -->
   <div id="productsContainer" class="container" style="display:none;">
     <h2><i class="fas fa-cube"></i> Productos</h2>
     <button id="addProductBtn" onclick="showAddProductForm()"><i class="fas fa-plus-circle"></i> Agregar Producto</button>
@@ -56,8 +236,9 @@
           <th>Nombre</th>
           <th>Presentación</th>
           <th>Proveedor</th>
-          <th>Precio</th> <!-- Nueva columna para el precio -->
-          <th>Descripción</th> <!-- Nueva columna para la descripción -->
+          <th>Medida de Compra</th>
+          <th>Precio</th>
+          <th>Descripción</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -65,12 +246,44 @@
     </table>
   </div>
 
+  <!-- Sección de Reporte -->
+  <div id="reportContainer" class="container" style="display:none;">
+    <h2><i class="fas fa-file-alt"></i> Reporte de Proveedores y Productos</h2>
+    <table id="reportTable">
+      <colgroup>
+        <col style="width: 20%;">
+        <col style="width: 15%;">
+        <col style="width: 25%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Proveedor</th>
+          <th>Número de Contacto</th>
+          <th>Producto</th>
+          <th>Medida de Compra</th>
+          <th>Precio</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <!-- Botones para exportar el reporte -->
+    <div class="export-buttons">
+      <button onclick="exportReportAsImage()"><i class="fas fa-image"></i> Exportar como Imagen</button>
+      <button onclick="exportReportAsPDF()"><i class="fas fa-file-pdf"></i> Exportar como PDF</button>
+      <button onclick="exportReportAsExcel()"><i class="fas fa-file-excel"></i> Exportar como Excel</button>
+    </div>
+  </div>
+
   <!-- Modal para agregar proveedor -->
   <div id="addProviderModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal('addProviderModal')">&times;</span>
       <h2><i class="fas fa-plus-circle"></i> Agregar Proveedor</h2>
-      <input type="text" id="providerName" placeholder="Nombre del Proveedor">
+      <input type="text" id="providerName" placeholder="Nombre del Proveedor" required>
+      <input type="text" id="providerContactNumber" placeholder="Número de Contacto">
       <input type="text" id="providerAddress" placeholder="Dirección">
       <input type="text" id="providerPhone" placeholder="Teléfono">
       <input type="email" id="providerEmail" placeholder="Correo Electrónico">
@@ -95,7 +308,8 @@
       <span class="close" onclick="closeModal('editProviderModal')">&times;</span>
       <h2><i class="fas fa-edit"></i> Editar Proveedor</h2>
       <input type="hidden" id="editProviderId">
-      <input type="text" id="editProviderName" placeholder="Nombre del Proveedor">
+      <input type="text" id="editProviderName" placeholder="Nombre del Proveedor" required>
+      <input type="text" id="editProviderContactNumber" placeholder="Número de Contacto">
       <input type="text" id="editProviderAddress" placeholder="Dirección">
       <input type="text" id="editProviderPhone" placeholder="Teléfono">
       <input type="email" id="editProviderEmail" placeholder="Correo Electrónico">
@@ -128,12 +342,13 @@
     <div class="modal-content">
       <span class="close" onclick="closeModal('addProductModal')">&times;</span>
       <h2><i class="fas fa-plus-circle"></i> Agregar Producto</h2>
-      <input type="text" id="productName" placeholder="Nombre del Producto">
-      <input type="text" id="productPresentation" placeholder="Presentación del Producto">
-      <select id="providerSelect"></select>
-      <!-- Nuevo campo para el precio -->
-      <input type="number" id="productPrice" placeholder="Precio" min="0" step="0.01">
-      <!-- Nuevo campo para la descripción -->
+      <input type="text" id="productName" placeholder="Nombre del Producto" required>
+      <input type="text" id="productPresentation" placeholder="Presentación del Producto" required>
+      <select id="providerSelect" required>
+        <option value="">Selecciona un Proveedor</option>
+      </select>
+      <input type="text" id="productPurchaseMeasure" placeholder="Medida de Compra">
+      <input type="number" id="productPrice" placeholder="Precio" min="0" step="0.01" required>
       <textarea id="productDescription" placeholder="Descripción del Producto"></textarea>
       <button id="saveAddProductBtn" onclick="addProduct()"><i class="fas fa-save"></i> Agregar Producto</button>
     </div>
@@ -145,11 +360,10 @@
       <span class="close" onclick="closeModal('editProductModal')">&times;</span>
       <h2><i class="fas fa-edit"></i> Editar Producto</h2>
       <input type="hidden" id="editProductId">
-      <input type="text" id="editProductName" placeholder="Nombre del Producto">
-      <input type="text" id="editProductPresentation" placeholder="Presentación del Producto">
-      <!-- Nuevo campo para el precio -->
-      <input type="number" id="editProductPrice" placeholder="Precio" min="0" step="0.01">
-      <!-- Nuevo campo para la descripción -->
+      <input type="text" id="editProductName" placeholder="Nombre del Producto" required>
+      <input type="text" id="editProductPresentation" placeholder="Presentación del Producto" required>
+      <input type="text" id="editProductPurchaseMeasure" placeholder="Medida de Compra">
+      <input type="number" id="editProductPrice" placeholder="Precio" min="0" step="0.01" required>
       <textarea id="editProductDescription" placeholder="Descripción del Producto"></textarea>
       <button id="saveEditProductBtn" onclick="updateProduct()"><i class="fas fa-save"></i> Guardar Cambios</button>
     </div>
@@ -163,7 +377,5 @@
       <p id="productDetails"></p>
     </div>
   </div>
-
-  <script src="gestionar.js"></script>
 </body>
 </html>

@@ -1,175 +1,39 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Sistema de Gestión de Productos y Pagos</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proveedores y Productos</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Gestión de Proveedores y Productos</h1>
+        <div class="form-container">
+            <h2>Agregar Proveedor</h2>
+            <form id="provider-form">
+                <input type="text" id="provider-name" placeholder="Nombre del Proveedor" required>
+                <input type="text" id="provider-contact" placeholder="Número de Contacto" required>
+                <button type="submit">Agregar Proveedor</button>
+            </form>
 
-  <div class="container">
-    <h1>Sistema de Gestión de Productos y Pagos</h1>
-
-    <!-- Pestañas de Navegación -->
-    <div class="tabs">
-      <button class="tab-button active" data-tab="dashboard">Dashboard</button>
-      <button class="tab-button" data-tab="Jalapa">Jalapa</button>
-      <button class="tab-button" data-tab="Pinula">Pinula</button>
-      <button class="tab-button" data-tab="Zacapa">Zacapa</button>
-      <button class="tab-button" data-tab="Eskala">Eskala</button>
-      <button class="tab-button" data-tab="Poptun">Poptun</button>
-      <button class="tab-button" data-tab="Santa Elena">Santa Elena</button>
-    </div>
-
-    <!-- Contenido de las Pestañas -->
-
-    <!-- Dashboard -->
-    <div class="tab-content active" id="dashboard">
-      <h2>Dashboard</h2>
-      <!-- Resumen de Pedidos y Pagos -->
-      <div class="summary-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Sucursal</th>
-              <th>Total Pedidos</th>
-              <th>Total Pagos</th>
-              <th>Saldo Pendiente</th>
-            </tr>
-          </thead>
-          <tbody id="summary-table-body">
-            <!-- Filas generadas dinámicamente -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Gestión de Productos -->
-      <div class="product-management">
-        <h2>Gestión de Productos</h2>
-        <form id="product-form">
-          <input type="hidden" id="product-id">
-          
-          <label for="product-name">Nombre del Producto:</label>
-          <input type="text" id="product-name" required placeholder="Ingrese el nombre del producto">
-          
-          <label for="product-price">Precio por Unidad:</label>
-          <input type="number" id="product-price" min="0" step="0.01" required placeholder="Ingrese el precio por unidad">
-          
-          <button type="submit" id="product-submit">Agregar Producto</button>
-        </form>
-        
-        <!-- Tabla de Productos -->
-        <h3>Lista de Productos</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Precio por Unidad</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="product-table-body">
-            <!-- Filas de productos se generarán dinámicamente -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Secciones para Cada Sucursal -->
-    <div class="tab-content" id="Jalapa">
-      <h2>Sucursal: Jalapa</h2>
-      <div class="branch-management">
-        <label for="select-product-Jalapa">Seleccionar Producto:</label>
-        <select id="select-product-Jalapa">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Jalapa">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
+            <h2>Agregar Producto</h2>
+            <form id="product-form">
+                <select id="provider-select">
+                    <option value="">Seleccione un Proveedor</option>
+                </select>
+                <input type="text" id="product-name" placeholder="Nombre del Producto" required>
+                <button type="submit">Agregar Producto</button>
+            </form>
         </div>
-      </div>
-    </div>
 
-    <div class="tab-content" id="Pinula">
-      <h2>Sucursal: Pinula</h2>
-      <div class="branch-management">
-        <label for="select-product-Pinula">Seleccionar Producto:</label>
-        <select id="select-product-Pinula">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Pinula">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
+        <div class="list-container">
+            <h2>Lista de Proveedores y Productos</h2>
+            <div id="providers-list">
+                <!-- Aquí se mostrarán los proveedores y productos -->
+            </div>
         </div>
-      </div>
     </div>
-
-    <div class="tab-content" id="Zacapa">
-      <h2>Sucursal: Zacapa</h2>
-      <div class="branch-management">
-        <label for="select-product-Zacapa">Seleccionar Producto:</label>
-        <select id="select-product-Zacapa">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Zacapa">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-content" id="Eskala">
-      <h2>Sucursal: Eskala</h2>
-      <div class="branch-management">
-        <label for="select-product-Eskala">Seleccionar Producto:</label>
-        <select id="select-product-Eskala">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Eskala">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-content" id="Poptun">
-      <h2>Sucursal: Poptun</h2>
-      <div class="branch-management">
-        <label for="select-product-Poptun">Seleccionar Producto:</label>
-        <select id="select-product-Poptun">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Poptun">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
-        </div>
-      </div>
-    </div>
-
-    <div class="tab-content" id="Santa Elena">
-      <h2>Sucursal: Santa Elena</h2>
-      <div class="branch-management">
-        <label for="select-product-Santa Elena">Seleccionar Producto:</label>
-        <select id="select-product-Santa Elena">
-          <option value="">-- Seleccione un Producto --</option>
-          <!-- Opciones generadas dinámicamente -->
-        </select>
-
-        <div id="management-Santa Elena">
-          <!-- Gestión de Pedidos y Pagos se generará dinámicamente -->
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script src="app.js"></script>
+    <script src="scripts.js"></script>
 </body>
 </html>

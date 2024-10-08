@@ -8,17 +8,24 @@ var firebaseConfig = {
     appId: "1:917523682093:web:6b03fcce4dd509ecbe79a4"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Inicializa Firebase solo si no está inicializado previamente
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 var db = firebase.firestore();
 
+// Evento que se ejecuta al cargar el DOM
 document.addEventListener("DOMContentLoaded", function() {
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
+        // Redirige al usuario a la página de login si no está autenticado
         window.location.href = "../../Login/Login.html";
         return;
     }
 
+    // Obtiene los detalles del usuario para determinar permisos
     db.collection("usuarios").doc(userId).get().then((doc) => {
         if (doc.exists) {
             const role = doc.data().role;
@@ -41,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+// Función para habilitar todos los botones (usuario admin_general)
 function habilitarTodosLosBotones() {
     document.getElementById("providersBtn").disabled = false;
     document.getElementById("productsBtn").disabled = false;
@@ -50,8 +58,10 @@ function habilitarTodosLosBotones() {
     document.getElementById("addProductBtn").disabled = false;
     document.getElementById("saveAddProductBtn").disabled = false;
     document.getElementById("saveEditProductBtn").disabled = false;
+    document.getElementById("generateReportBtn").disabled = false;
 }
 
+// Función para aplicar permisos según el usuario
 function aplicarPermisos(permissions) {
     if (permissions.includes("verProveedores")) {
         document.getElementById("providersBtn").disabled = false;
@@ -65,8 +75,12 @@ function aplicarPermisos(permissions) {
         document.getElementById("saveAddProductBtn").disabled = !permissions.includes("agregarProductos");
         document.getElementById("saveEditProductBtn").disabled = !permissions.includes("editarProductos");
     }
+    if (permissions.includes("generarReporte")) {
+        document.getElementById("generateReportBtn").disabled = false;
+    }
 }
 
+// Función para estilizar los botones según su estado (habilitado/deshabilitado)
 function estilizarBotones() {
     const buttons = document.querySelectorAll("button");
     buttons.forEach(button => {
@@ -74,21 +88,32 @@ function estilizarBotones() {
             button.style.backgroundColor = "#ccc";
             button.style.cursor = "not-allowed";
         } else {
-            button.style.backgroundColor = "#007BFF";
+            // Define colores específicos si se requiere, de lo contrario mantiene el color definido en CSS
+            if (button.id === "generateReportBtn") {
+                button.style.backgroundColor = "#6f42c1"; // Color específico para Generar Reporte
+            } else if (button.classList.contains("delete-btn")) {
+                // Mantener el color rojo para botones de eliminar
+                button.style.backgroundColor = "#dc3545";
+            } else {
+                button.style.backgroundColor = "#007BFF"; // Azul para otros botones
+            }
             button.style.cursor = "pointer";
         }
     });
 }
 
+// Funciones para mostrar y ocultar secciones
 function showProviders() {
     document.getElementById('providersContainer').style.display = 'block';
     document.getElementById('productsContainer').style.display = 'none';
+    document.getElementById('reportContainer').style.display = 'none';
     loadProviders();
 }
 
 function showProducts() {
     document.getElementById('providersContainer').style.display = 'none';
     document.getElementById('productsContainer').style.display = 'block';
+    document.getElementById('reportContainer').style.display = 'none';
     loadProviderOptions(); // Cargar proveedores para filtro en productos
     loadProducts(); // Cargar productos
 }
@@ -102,45 +127,48 @@ function showAddProductForm() {
     loadProviderOptions(); // Cargar proveedores en el dropdown
 }
 
+// Función para cerrar modales
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
+// Función para verificar si un valor es un entero no negativo
 function isInteger(value) {
     return Number.isInteger(parseFloat(value)) && Number(value) >= 0;
 }
 
+// Funciones para agregar, editar y eliminar proveedores
 async function addProvider() {
     try {
-        var providerName = document.getElementById('providerName').value;
-        var providerAddress = document.getElementById('providerAddress').value;
-        var providerPhone = document.getElementById('providerPhone').value;
-        var providerEmail = document.getElementById('providerEmail').value;
-        var providerCreditDays = document.getElementById('providerCreditDays').value; // Días de crédito
-        var providerPaymentTerms = document.getElementById('providerPaymentTerms').value;
-        var sellerName = document.getElementById('sellerName').value;
-        var sellerPhone = document.getElementById('sellerPhone').value;
-        var chiefSellerName = document.getElementById('chiefSellerName').value;
-        var chiefSellerPhone = document.getElementById('chiefSellerPhone').value;
-        var creditPersonName = document.getElementById('creditPersonName').value;
-        var creditPersonPhone = document.getElementById('creditPersonPhone').value;
-        var providerType = document.getElementById('providerType').value;
-        var preferredPaymentMethod = document.getElementById('preferredPaymentMethod').value;
-        var additionalNotes = document.getElementById('additionalNotes').value;
+        var providerName = document.getElementById('providerName').value.trim();
+        var providerContactNumber = document.getElementById('providerContactNumber').value.trim();
+        var providerAddress = document.getElementById('providerAddress').value.trim();
+        var providerPhone = document.getElementById('providerPhone').value.trim();
+        var providerEmail = document.getElementById('providerEmail').value.trim();
+        var providerCreditDays = document.getElementById('providerCreditDays').value.trim();
+        var providerPaymentTerms = document.getElementById('providerPaymentTerms').value.trim();
+        var sellerName = document.getElementById('sellerName').value.trim();
+        var sellerPhone = document.getElementById('sellerPhone').value.trim();
+        var chiefSellerName = document.getElementById('chiefSellerName').value.trim();
+        var chiefSellerPhone = document.getElementById('chiefSellerPhone').value.trim();
+        var creditPersonName = document.getElementById('creditPersonName').value.trim();
+        var creditPersonPhone = document.getElementById('creditPersonPhone').value.trim();
+        var providerType = document.getElementById('providerType').value.trim();
+        var preferredPaymentMethod = document.getElementById('preferredPaymentMethod').value.trim();
+        var additionalNotes = document.getElementById('additionalNotes').value.trim();
 
-        // Validación de que los días de crédito sean un entero positivo
-        if (!isInteger(providerCreditDays)) {
-            throw new Error('Los días de crédito deben ser un número entero no negativo');
-        }
-
+        // Validaciones
         if (!providerName) throw new Error('El nombre del proveedor no puede estar vacío');
+        if (providerCreditDays && !isInteger(providerCreditDays)) throw new Error('Los días de crédito deben ser un número entero no negativo');
+        // Puedes agregar más validaciones según sea necesario
 
         await db.collection('providers').add({
             name: providerName,
+            contactNumber: providerContactNumber,
             address: providerAddress,
             phone: providerPhone,
             email: providerEmail,
-            creditDays: providerCreditDays, // Guardar los días de crédito
+            creditDays: providerCreditDays ? parseInt(providerCreditDays) : 0,
             paymentTerms: providerPaymentTerms,
             sellerName: sellerName,
             sellerPhone: sellerPhone,
@@ -155,6 +183,8 @@ async function addProvider() {
 
         closeModal('addProviderModal');
         loadProviders();
+        // Limpiar el formulario
+        document.getElementById('addProviderModal').querySelectorAll('input, textarea').forEach(input => input.value = '');
     } catch (error) {
         console.error('Error al agregar proveedor:', error);
         alert('Error al agregar proveedor: ' + error.message);
@@ -177,7 +207,7 @@ async function loadProviders() {
             cell2.innerHTML = `
                 <button onclick="viewProviderDetails('${doc.id}')">Ver Detalles</button>
                 <button onclick="showEditProviderForm('${doc.id}')">Editar</button>
-                <button onclick="deleteProvider('${doc.id}')">Eliminar</button>`;
+                <button class="delete-btn" onclick="deleteProvider('${doc.id}')">Eliminar</button>`;
         });
     } catch (error) {
         console.error('Error al cargar proveedores:', error);
@@ -191,21 +221,22 @@ async function viewProviderDetails(id) {
         if (doc.exists) {
             var provider = doc.data();
             var details = `
-                Nombre: ${provider.name}<br>
-                Dirección: ${provider.address}<br>
-                Teléfono: ${provider.phone}<br>
-                Correo Electrónico: ${provider.email}<br>
-                Días de Crédito: ${provider.creditDays}<br> <!-- Mostrar días de crédito -->
-                Términos de Pago: ${provider.paymentTerms}<br>
-                Nombre del Vendedor: ${provider.sellerName}<br>
-                Teléfono del Vendedor: ${provider.sellerPhone}<br>
-                Nombre del Jefe del Vendedor: ${provider.chiefSellerName}<br>
-                Teléfono del Jefe del Vendedor: ${provider.chiefSellerPhone}<br>
-                Nombre de la Persona de Créditos: ${provider.creditPersonName}<br>
-                Teléfono de la Persona de Créditos: ${provider.creditPersonPhone}<br>
-                Tipo de Proveedor: ${provider.type}<br>
-                Método de Pago Preferido: ${provider.preferredPaymentMethod}<br>
-                Notas Adicionales: ${provider.additionalNotes}<br>`;
+                <strong>Nombre:</strong> ${provider.name}<br>
+                <strong>Número de Contacto:</strong> ${provider.contactNumber || 'No disponible'}<br>
+                <strong>Dirección:</strong> ${provider.address || 'No disponible'}<br>
+                <strong>Teléfono:</strong> ${provider.phone || 'No disponible'}<br>
+                <strong>Correo Electrónico:</strong> ${provider.email || 'No disponible'}<br>
+                <strong>Días de Crédito:</strong> ${provider.creditDays || 'No disponible'}<br>
+                <strong>Términos de Pago:</strong> ${provider.paymentTerms || 'No disponible'}<br>
+                <strong>Nombre del Vendedor:</strong> ${provider.sellerName || 'No disponible'}<br>
+                <strong>Teléfono del Vendedor:</strong> ${provider.sellerPhone || 'No disponible'}<br>
+                <strong>Nombre del Jefe del Vendedor:</strong> ${provider.chiefSellerName || 'No disponible'}<br>
+                <strong>Teléfono del Jefe del Vendedor:</strong> ${provider.chiefSellerPhone || 'No disponible'}<br>
+                <strong>Nombre de la Persona de Créditos:</strong> ${provider.creditPersonName || 'No disponible'}<br>
+                <strong>Teléfono de la Persona de Créditos:</strong> ${provider.creditPersonPhone || 'No disponible'}<br>
+                <strong>Tipo de Proveedor:</strong> ${provider.type || 'No disponible'}<br>
+                <strong>Método de Pago Preferido:</strong> ${provider.preferredPaymentMethod || 'No disponible'}<br>
+                <strong>Notas Adicionales:</strong> ${provider.additionalNotes || 'No disponible'}<br>`;
             document.getElementById('providerDetails').innerHTML = details;
             document.getElementById('providerDetailsModal').style.display = 'block';
         } else {
@@ -224,20 +255,21 @@ async function showEditProviderForm(id) {
             var provider = doc.data();
             document.getElementById('editProviderId').value = id;
             document.getElementById('editProviderName').value = provider.name;
-            document.getElementById('editProviderAddress').value = provider.address;
-            document.getElementById('editProviderPhone').value = provider.phone;
-            document.getElementById('editProviderEmail').value = provider.email;
-            document.getElementById('editProviderCreditDays').value = provider.creditDays; // Prellenar días de crédito
-            document.getElementById('editProviderPaymentTerms').value = provider.paymentTerms;
-            document.getElementById('editSellerName').value = provider.sellerName;
-            document.getElementById('editSellerPhone').value = provider.sellerPhone;
-            document.getElementById('editChiefSellerName').value = provider.chiefSellerName;
-            document.getElementById('editChiefSellerPhone').value = provider.chiefSellerPhone;
-            document.getElementById('editCreditPersonName').value = provider.creditPersonName;
-            document.getElementById('editCreditPersonPhone').value = provider.creditPersonPhone;
-            document.getElementById('editProviderType').value = provider.type;
-            document.getElementById('editPreferredPaymentMethod').value = provider.preferredPaymentMethod;
-            document.getElementById('editAdditionalNotes').value = provider.additionalNotes;
+            document.getElementById('editProviderContactNumber').value = provider.contactNumber || '';
+            document.getElementById('editProviderAddress').value = provider.address || '';
+            document.getElementById('editProviderPhone').value = provider.phone || '';
+            document.getElementById('editProviderEmail').value = provider.email || '';
+            document.getElementById('editProviderCreditDays').value = provider.creditDays || '';
+            document.getElementById('editProviderPaymentTerms').value = provider.paymentTerms || '';
+            document.getElementById('editSellerName').value = provider.sellerName || '';
+            document.getElementById('editSellerPhone').value = provider.sellerPhone || '';
+            document.getElementById('editChiefSellerName').value = provider.chiefSellerName || '';
+            document.getElementById('editChiefSellerPhone').value = provider.chiefSellerPhone || '';
+            document.getElementById('editCreditPersonName').value = provider.creditPersonName || '';
+            document.getElementById('editCreditPersonPhone').value = provider.creditPersonPhone || '';
+            document.getElementById('editProviderType').value = provider.type || '';
+            document.getElementById('editPreferredPaymentMethod').value = provider.preferredPaymentMethod || '';
+            document.getElementById('editAdditionalNotes').value = provider.additionalNotes || '';
             document.getElementById('editProviderModal').style.display = 'block';
         } else {
             alert('Proveedor no encontrado.');
@@ -251,28 +283,48 @@ async function showEditProviderForm(id) {
 async function updateProvider() {
     try {
         var id = document.getElementById('editProviderId').value;
-        var updatedProvider = {
-            name: document.getElementById('editProviderName').value,
-            address: document.getElementById('editProviderAddress').value,
-            phone: document.getElementById('editProviderPhone').value,
-            email: document.getElementById('editProviderEmail').value,
-            creditDays: document.getElementById('editProviderCreditDays').value, // Actualizar días de crédito
-            paymentTerms: document.getElementById('editProviderPaymentTerms').value,
-            sellerName: document.getElementById('editSellerName').value,
-            sellerPhone: document.getElementById('editSellerPhone').value,
-            chiefSellerName: document.getElementById('editChiefSellerName').value,
-            chiefSellerPhone: document.getElementById('editChiefSellerPhone').value,
-            creditPersonName: document.getElementById('editCreditPersonName').value,
-            creditPersonPhone: document.getElementById('editCreditPersonPhone').value,
-            type: document.getElementById('editProviderType').value,
-            preferredPaymentMethod: document.getElementById('editPreferredPaymentMethod').value,
-            additionalNotes: document.getElementById('editAdditionalNotes').value
-        };
+        var providerName = document.getElementById('editProviderName').value.trim();
+        var providerContactNumber = document.getElementById('editProviderContactNumber').value.trim();
+        var providerAddress = document.getElementById('editProviderAddress').value.trim();
+        var providerPhone = document.getElementById('editProviderPhone').value.trim();
+        var providerEmail = document.getElementById('editProviderEmail').value.trim();
+        var providerCreditDays = document.getElementById('editProviderCreditDays').value.trim();
+        var providerPaymentTerms = document.getElementById('editProviderPaymentTerms').value.trim();
+        var sellerName = document.getElementById('editSellerName').value.trim();
+        var sellerPhone = document.getElementById('editSellerPhone').value.trim();
+        var chiefSellerName = document.getElementById('editChiefSellerName').value.trim();
+        var chiefSellerPhone = document.getElementById('editChiefSellerPhone').value.trim();
+        var creditPersonName = document.getElementById('editCreditPersonName').value.trim();
+        var creditPersonPhone = document.getElementById('editCreditPersonPhone').value.trim();
+        var providerType = document.getElementById('editProviderType').value.trim();
+        var preferredPaymentMethod = document.getElementById('editPreferredPaymentMethod').value.trim();
+        var additionalNotes = document.getElementById('editAdditionalNotes').value.trim();
 
-        // Validación de que los días de crédito sean un entero positivo
-        if (!isInteger(updatedProvider.creditDays)) {
-            throw new Error('Los días de crédito deben ser un número entero no negativo');
-        }
+        // Validaciones
+        if (!providerName) throw new Error('El nombre del proveedor no puede estar vacío');
+        if (providerCreditDays && !isInteger(providerCreditDays)) throw new Error('Los días de crédito deben ser un número entero no negativo');
+
+        // Convertir creditDays a entero si no está vacío
+        var creditDaysValue = providerCreditDays ? parseInt(providerCreditDays) : 0;
+
+        var updatedProvider = {
+            name: providerName,
+            contactNumber: providerContactNumber,
+            address: providerAddress,
+            phone: providerPhone,
+            email: providerEmail,
+            creditDays: creditDaysValue,
+            paymentTerms: providerPaymentTerms,
+            sellerName: sellerName,
+            sellerPhone: sellerPhone,
+            chiefSellerName: chiefSellerName,
+            chiefSellerPhone: chiefSellerPhone,
+            creditPersonName: creditPersonName,
+            creditPersonPhone: creditPersonPhone,
+            type: providerType,
+            preferredPaymentMethod: preferredPaymentMethod,
+            additionalNotes: additionalNotes
+        };
 
         await db.collection('providers').doc(id).update(updatedProvider);
 
@@ -287,6 +339,12 @@ async function updateProvider() {
 async function deleteProvider(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {
         try {
+            // Verificar si el proveedor tiene productos asociados antes de eliminar
+            var productsSnapshot = await db.collection('products').where('providerId', '==', id).get();
+            if (!productsSnapshot.empty) {
+                throw new Error('Este proveedor tiene productos asociados y no puede ser eliminado.');
+            }
+
             await db.collection('providers').doc(id).delete();
             loadProviders();
         } catch (error) {
@@ -296,52 +354,37 @@ async function deleteProvider(id) {
     }
 }
 
-async function loadProviderOptions() {
-    try {
-        var providerSelect = document.getElementById('providerSelect');
-        var providerFilterSelect = document.getElementById('productProviderFilter');
-        providerSelect.innerHTML = ''; // Limpiar el dropdown antes de cargar los proveedores
-        providerFilterSelect.innerHTML = '<option value="">Todos los Proveedores</option>'; // Limpiar y resetear el filtro de proveedor
-
-        var providersSnapshot = await db.collection('providers').get();
-        providersSnapshot.forEach(function(doc) {
-            var provider = doc.data();
-            var option = document.createElement('option');
-            option.value = doc.id;
-            option.textContent = provider.name;
-            providerSelect.appendChild(option);
-            providerFilterSelect.appendChild(option.cloneNode(true));
-        });
-    } catch (error) {
-        console.error('Error al cargar proveedores en el dropdown:', error);
-        alert('Error al cargar proveedores en el dropdown: ' + error.message);
-    }
-}
-
+// Funciones para agregar, editar y eliminar productos
 async function addProduct() {
     try {
-        var productName = document.getElementById('productName').value;
-        var productPresentation = document.getElementById('productPresentation').value;
+        var productName = document.getElementById('productName').value.trim();
+        var productPresentation = document.getElementById('productPresentation').value.trim();
         var providerSelect = document.getElementById('providerSelect');
         var providerId = providerSelect.value;
-        var productPrice = document.getElementById('productPrice').value; // Nuevo
-        var productDescription = document.getElementById('productDescription').value; // Nuevo
+        var productPurchaseMeasure = document.getElementById('productPurchaseMeasure').value.trim();
+        var productPrice = document.getElementById('productPrice').value.trim();
+        var productDescription = document.getElementById('productDescription').value.trim();
 
+        // Validaciones
         if (!productName) throw new Error('El nombre del producto no puede estar vacío');
         if (!productPresentation) throw new Error('La presentación del producto no puede estar vacía');
         if (!providerId) throw new Error('Debes seleccionar un proveedor');
-        if (!productPrice) throw new Error('El precio del producto no puede estar vacío');
+        if (productPrice === '') throw new Error('El precio del producto no puede estar vacío');
+        if (isNaN(productPrice) || Number(productPrice) < 0) throw new Error('El precio del producto debe ser un número positivo');
 
         await db.collection('products').add({
             name: productName,
             presentation: productPresentation,
             providerId: providerId,
-            price: parseFloat(productPrice), // Nuevo
-            description: productDescription // Nuevo
+            purchaseMeasure: productPurchaseMeasure,
+            price: parseFloat(productPrice),
+            description: productDescription
         });
 
         closeModal('addProductModal');
-        loadProducts(); // Cargar la lista de productos inmediatamente después de agregar uno nuevo
+        loadProducts();
+        // Limpiar el formulario
+        document.getElementById('addProductModal').querySelectorAll('input, textarea').forEach(input => input.value = '');
     } catch (error) {
         console.error('Error al agregar producto:', error);
         alert('Error al agregar producto: ' + error.message);
@@ -365,19 +408,21 @@ async function loadProducts() {
             let cell1 = row.insertCell(0);
             let cell2 = row.insertCell(1);
             let cell3 = row.insertCell(2);
-            let cell4 = row.insertCell(3); // Nueva celda para el precio
-            let cell5 = row.insertCell(4); // Nueva celda para la descripción
+            let cell4 = row.insertCell(3);
+            let cell5 = row.insertCell(4);
             let cell6 = row.insertCell(5);
+            let cell7 = row.insertCell(6);
 
             cell1.textContent = product.name;
             cell2.textContent = product.presentation;
             cell3.textContent = providerName;
-            cell4.textContent = product.price ? `Q${product.price.toFixed(2)}` : ''; // Mostrar el precio con el signo de quetzales
-            cell5.textContent = product.description || ''; // Mostrar la descripción
-            cell6.innerHTML = `
+            cell4.textContent = product.purchaseMeasure || '';
+            cell5.textContent = product.price ? `Q${product.price.toFixed(2)}` : '';
+            cell6.textContent = product.description || '';
+            cell7.innerHTML = `
                 <button onclick="viewProductDetails('${doc.id}')">Ver Detalles</button>
                 <button onclick="showEditProductForm('${doc.id}')">Editar</button>
-                <button onclick="deleteProduct('${doc.id}')">Eliminar</button>`;
+                <button class="delete-btn" onclick="deleteProduct('${doc.id}')">Eliminar</button>`;
         }
     } catch (error) {
         console.error('Error al cargar productos:', error);
@@ -394,11 +439,12 @@ async function viewProductDetails(id) {
             var providerName = providerDoc.exists ? providerDoc.data().name : 'Proveedor no encontrado';
 
             var details = `
-                Nombre: ${product.name}<br>
-                Presentación: ${product.presentation}<br>
-                Proveedor: ${providerName}<br>
-                Precio: Q${product.price ? product.price.toFixed(2) : 'No disponible'}<br>
-                Descripción: ${product.description || 'No disponible'}<br>`;
+                <strong>Nombre:</strong> ${product.name}<br>
+                <strong>Presentación:</strong> ${product.presentation}<br>
+                <strong>Proveedor:</strong> ${providerName}<br>
+                <strong>Medida de Compra:</strong> ${product.purchaseMeasure || 'No disponible'}<br>
+                <strong>Precio:</strong> Q${product.price ? product.price.toFixed(2) : 'No disponible'}<br>
+                <strong>Descripción:</strong> ${product.description || 'No disponible'}<br>`;
             document.getElementById('productDetails').innerHTML = details;
             document.getElementById('productDetailsModal').style.display = 'block';
         } else {
@@ -418,8 +464,9 @@ async function showEditProductForm(id) {
             document.getElementById('editProductId').value = id;
             document.getElementById('editProductName').value = product.name;
             document.getElementById('editProductPresentation').value = product.presentation;
-            document.getElementById('editProductPrice').value = product.price; // Nuevo
-            document.getElementById('editProductDescription').value = product.description; // Nuevo
+            document.getElementById('editProductPurchaseMeasure').value = product.purchaseMeasure || '';
+            document.getElementById('editProductPrice').value = product.price !== undefined ? product.price : '';
+            document.getElementById('editProductDescription').value = product.description || '';
             document.getElementById('editProductModal').style.display = 'block';
         } else {
             alert('Producto no encontrado.');
@@ -433,11 +480,24 @@ async function showEditProductForm(id) {
 async function updateProduct() {
     try {
         var id = document.getElementById('editProductId').value;
+        var productName = document.getElementById('editProductName').value.trim();
+        var productPresentation = document.getElementById('editProductPresentation').value.trim();
+        var productPurchaseMeasure = document.getElementById('editProductPurchaseMeasure').value.trim();
+        var productPrice = document.getElementById('editProductPrice').value.trim();
+        var productDescription = document.getElementById('editProductDescription').value.trim();
+
+        // Validaciones
+        if (!productName) throw new Error('El nombre del producto no puede estar vacío');
+        if (!productPresentation) throw new Error('La presentación del producto no puede estar vacía');
+        if (productPrice === '') throw new Error('El precio del producto no puede estar vacío');
+        if (isNaN(productPrice) || Number(productPrice) < 0) throw new Error('El precio del producto debe ser un número positivo');
+
         var updatedProduct = {
-            name: document.getElementById('editProductName').value,
-            presentation: document.getElementById('editProductPresentation').value,
-            price: parseFloat(document.getElementById('editProductPrice').value), // Nuevo
-            description: document.getElementById('editProductDescription').value // Nuevo
+            name: productName,
+            presentation: productPresentation,
+            purchaseMeasure: productPurchaseMeasure,
+            price: parseFloat(productPrice),
+            description: productDescription
         };
 
         await db.collection('products').doc(id).update(updatedProduct);
@@ -462,17 +522,40 @@ async function deleteProduct(id) {
     }
 }
 
-function filterProviders() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById('providerSearchInput');
-    filter = input.value.toUpperCase();
-    table = document.getElementById('providersTable');
-    tr = table.getElementsByTagName('tr');
+// Funciones para cargar opciones de proveedores en los formularios de productos
+async function loadProviderOptions() {
+    try {
+        var providerSelect = document.getElementById('providerSelect');
+        var providerFilterSelect = document.getElementById('productProviderFilter');
+        providerSelect.innerHTML = '<option value="">Selecciona un Proveedor</option>'; // Agrega una opción por defecto
+        providerFilterSelect.innerHTML = '<option value="">Todos los Proveedores</option>'; // Limpiar y resetear el filtro de proveedor
 
-    for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
-        td = tr[i].getElementsByTagName('td')[0];
+        var providersSnapshot = await db.collection('providers').get();
+        providersSnapshot.forEach(function(doc) {
+            var provider = doc.data();
+            var option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = provider.name;
+            providerSelect.appendChild(option);
+            providerFilterSelect.appendChild(option.cloneNode(true));
+        });
+    } catch (error) {
+        console.error('Error al cargar proveedores en el dropdown:', error);
+        alert('Error al cargar proveedores en el dropdown: ' + error.message);
+    }
+}
+
+// Funciones de filtrado
+function filterProviders() {
+    var input = document.getElementById('providerSearchInput');
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById('providersTable');
+    var tr = table.getElementsByTagName('tr');
+
+    for (var i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
+        var td = tr[i].getElementsByTagName('td')[0];
         if (td) {
-            txtValue = td.textContent || td.innerText;
+            var txtValue = td.textContent || td.innerText;
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
                 tr[i].style.display = '';
             } else {
@@ -483,16 +566,15 @@ function filterProviders() {
 }
 
 function filterProductsByName() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById('productSearchInput');
-    filter = input.value.toUpperCase();
-    table = document.getElementById('productsTable');
-    tr = table.getElementsByTagName('tr');
+    var input = document.getElementById('productSearchInput');
+    var filter = input.value.toUpperCase();
+    var table = document.getElementById('productsTable');
+    var tr = table.getElementsByTagName('tr');
 
-    for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
-        td = tr[i].getElementsByTagName('td')[0];
+    for (var i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
+        var td = tr[i].getElementsByTagName('td')[0];
         if (td) {
-            txtValue = td.textContent || td.innerText;
+            var txtValue = td.textContent || td.innerText;
             if (txtValue.toUpperCase().indexOf(filter) > -1) {
                 tr[i].style.display = '';
             } else {
@@ -503,18 +585,183 @@ function filterProductsByName() {
 }
 
 function filterProductsByProvider() {
-    var select, filter, table, tr, i, txtValue;
-    select = document.getElementById('productProviderFilter');
-    filter = select.value;
-    table = document.getElementById('productsTable');
-    tr = table.getElementsByTagName('tr');
+    var select = document.getElementById('productProviderFilter');
+    var filter = select.value;
+    var table = document.getElementById('productsTable');
+    var tr = table.getElementsByTagName('tr');
 
-    for (i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
-        txtValue = tr[i].getAttribute('data-provider-id');
-        if (filter === '' || txtValue === filter) {
+    for (var i = 1; i < tr.length; i++) { // Empieza en 1 para omitir el encabezado
+        var providerId = tr[i].getAttribute('data-provider-id');
+        if (filter === '' || providerId === filter) {
             tr[i].style.display = '';
         } else {
             tr[i].style.display = 'none';
         }
+    }
+}
+
+// Función para generar el reporte con filas unidas usando rowspan
+async function generateReport() {
+    try {
+        // Mostrar el contenedor del reporte y ocultar otros contenedores
+        document.getElementById('reportContainer').style.display = 'block';
+        document.getElementById('providersContainer').style.display = 'none';
+        document.getElementById('productsContainer').style.display = 'none';
+
+        var reportTableBody = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+        reportTableBody.innerHTML = '';
+
+        // Obtener proveedores y productos
+        var providersSnapshot = await db.collection('providers').get();
+        var productsSnapshot = await db.collection('products').get();
+
+        var providers = {};
+        providersSnapshot.forEach((doc) => {
+            providers[doc.id] = doc.data();
+        });
+
+        var reportData = {};
+
+        productsSnapshot.forEach((doc) => {
+            var product = doc.data();
+            var providerId = product.providerId;
+
+            if (!reportData[providerId]) {
+                reportData[providerId] = {
+                    provider: providers[providerId],
+                    products: []
+                };
+            }
+
+            reportData[providerId].products.push(product);
+        });
+
+        // Generar las filas del reporte con rowspan
+        for (let providerId in reportData) {
+            let providerData = reportData[providerId];
+            let products = providerData.products;
+            let provider = providerData.provider;
+
+            // Manejar caso donde el proveedor no tiene productos
+            if (products.length === 0) {
+                let row = reportTableBody.insertRow();
+
+                let cell1 = row.insertCell();
+                cell1.textContent = provider.name;
+
+                let cell2 = row.insertCell();
+                cell2.textContent = provider.contactNumber || 'No disponible';
+
+                let cell3 = row.insertCell();
+                cell3.textContent = 'No hay productos asociados';
+
+                let cell4 = row.insertCell();
+                cell4.textContent = 'No disponible';
+
+                let cell5 = row.insertCell();
+                cell5.textContent = 'No disponible';
+
+                continue; // Salta al siguiente proveedor
+            }
+
+            products.forEach((product, index) => {
+                let row = reportTableBody.insertRow();
+
+                if (index === 0) {
+                    // Insertar celdas para Proveedor y Número de Contacto con rowspan
+                    let cell1 = document.createElement('td');
+                    cell1.textContent = provider.name;
+                    cell1.rowSpan = products.length; // Establece el rowspan
+                    row.appendChild(cell1);
+
+                    let cell2 = document.createElement('td');
+                    cell2.textContent = provider.contactNumber || 'No disponible';
+                    cell2.rowSpan = products.length; // Establece el rowspan
+                    row.appendChild(cell2);
+                }
+
+                // Insertar celdas para Producto, Medida de Compra y Precio
+                let cell3 = row.insertCell();
+                cell3.textContent = product.name;
+
+                let cell4 = row.insertCell();
+                cell4.textContent = product.purchaseMeasure || 'No disponible';
+
+                let cell5 = row.insertCell();
+                cell5.textContent = product.price ? `Q${product.price.toFixed(2)}` : 'No disponible';
+            });
+        }
+
+    } catch (error) {
+        console.error('Error al generar el reporte:', error);
+        alert('Error al generar el reporte: ' + error.message);
+    }
+}
+
+// Función para exportar el reporte como Imagen
+async function exportReportAsImage() {
+    try {
+        const report = document.getElementById('reportContainer');
+
+        // Guardar el estilo actual del reporte
+        const originalBorder = report.style.border;
+
+        // Ocultar bordes durante la captura
+        report.style.border = 'none';
+
+        // Opciones para html2canvas
+        const options = {
+            scale: 3, // Aumenta la escala para mejorar la calidad
+            useCORS: true, // Habilita CORS para imágenes externas
+            backgroundColor: '#fff' // Establece un fondo blanco
+        };
+
+        // Captura del reporte
+        const canvas = await html2canvas(report, options);
+        const imgData = canvas.toDataURL('image/png');
+
+        // Restaurar el estilo original del reporte
+        report.style.border = originalBorder;
+
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'reporte.png';
+        link.click();
+    } catch (error) {
+        console.error('Error al exportar como imagen:', error);
+        alert('Error al exportar como imagen: ' + error.message);
+    }
+}
+
+// Función para exportar el reporte como PDF
+async function exportReportAsPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const report = document.getElementById('reportContainer');
+        const canvas = await html2canvas(report, { scale: 3, useCORS: true, backgroundColor: '#fff' });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('reporte.pdf');
+    } catch (error) {
+        console.error('Error al exportar como PDF:', error);
+        alert('Error al exportar como PDF: ' + error.message);
+    }
+}
+
+// Función para exportar el reporte como Excel
+async function exportReportAsExcel() {
+    try {
+        const reportTable = document.getElementById('reportTable');
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.table_to_sheet(reportTable);
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Reporte');
+        XLSX.writeFile(workbook, 'reporte.xlsx');
+    } catch (error) {
+        console.error('Error al exportar como Excel:', error);
+        alert('Error al exportar como Excel: ' + error.message);
     }
 }

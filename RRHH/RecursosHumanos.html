@@ -39,72 +39,63 @@
 </head>
 <body>
     <div class="container-fluid">
-        <!-- Barra de botones fija al principio -->
-        <div class="fixed-top" id="actionBar">
-            <div class="bg-light p-2" id="actionButtons">
-                <div class="container">
-                    <button class="btn btn-primary" onclick="abrirModalAgregarEmpleado()">
-                        <i class="fas fa-plus"></i> Agregar Empleado
-                    </button>
-                    <button class="btn btn-info" id="btnVerDetalles" onclick="verDetallesEmpleado()" disabled>
-                        <i class="fas fa-eye"></i> Ver Detalles
-                    </button>
-                    <button class="btn btn-warning" id="btnEditarEmpleado" onclick="editarEmpleado()" disabled>
-                        <i class="fas fa-edit"></i> Editar Empleado
-                    </button>
-                    <button class="btn btn-danger" id="btnEliminarEmpleado" onclick="eliminarEmpleado()" disabled>
-                        <i class="fas fa-trash-alt"></i> Eliminar Empleado
-                    </button>
-                    <button class="btn btn-secondary" onclick="window.location.href='/index.HTML'">
-                        <i class="fas fa-home"></i> Volver al Inicio
-                    </button>
-                    <button class="btn btn-dark" onclick="window.location.href='Configuracion/Configuracion.html'">
-                        <i class="fas fa-cogs"></i> Configuración
-                    </button>
-                </div>
-            </div>
-            <!-- Filtros debajo de los botones -->
-            <div class="bg-white p-2" id="filterBar">
-                <div class="container">
-                    <div class="row" id="filtrosEmpleados">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="sucursalFiltro">Sucursal</label>
-                                <select class="form-control" id="sucursalFiltro">
-                                    <option value="">Todas las sucursales</option>
-                                    <!-- Las opciones se cargarán dinámicamente -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="estadoFiltro">Estado</label>
-                                <select class="form-control" id="estadoFiltro">
-                                    <option value="">Todos los estados</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="tipoContratoFiltro">Tipo de Contrato</label>
-                                <select class="form-control" id="tipoContratoFiltro">
-                                    <option value="">Todos los tipos</option>
-                                    <option value="indefinido">Indefinido</option>
-                                    <option value="temporal">Temporal</option>
-                                    <option value="prueba">Prueba</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Botones de acción fijos al principio -->
+        <div class="fixed-top bg-light p-2" id="actionButtons">
+            <div class="container">
+                <button class="btn btn-primary" onclick="abrirModalAgregarEmpleado()">
+                    <i class="fas fa-plus"></i> Agregar Empleado
+                </button>
+                <button class="btn btn-info" id="btnVerDetalles" onclick="verDetallesEmpleado()" disabled>
+                    <i class="fas fa-eye"></i> Ver Detalles
+                </button>
+                <button class="btn btn-warning" id="btnEditarEmpleado" onclick="editarEmpleado()" disabled>
+                    <i class="fas fa-edit"></i> Editar Empleado
+                </button>
+                <button class="btn btn-danger" id="btnEliminarEmpleado" onclick="eliminarEmpleado()" disabled>
+                    <i class="fas fa-trash-alt"></i> Eliminar Empleado
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='/index.HTML'">
+                    <i class="fas fa-home"></i> Volver al Inicio
+                </button>
             </div>
         </div>
 
-        <!-- Contenido principal -->
         <div class="container mt-5 pt-5">
             <h2 class="mt-4">Gestión de Empleados</h2>
+
+            <!-- Filtros -->
+            <div class="row mb-3" id="filtrosEmpleados">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="sucursalFiltro">Sucursal</label>
+                        <select class="form-control" id="sucursalFiltro">
+                            <option value="">Todas las sucursales</option>
+                            <!-- Las opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="estadoFiltro">Estado</label>
+                        <select class="form-control" id="estadoFiltro">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="tipoContratoFiltro">Tipo de Contrato</label>
+                        <select class="form-control" id="tipoContratoFiltro">
+                            <option value="">Todos los tipos</option>
+                            <option value="indefinido">Indefinido</option>
+                            <option value="temporal">Temporal</option>
+                            <option value="prueba">Prueba</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
             <!-- Tabla de empleados -->
             <table id="empleadosTable" class="display" style="width:100%">
@@ -215,18 +206,10 @@
                                 <label for="puestoContrato">Puesto</label>
                                 <select class="form-control" id="puestoContrato" required>
                                     <option value="">Selecciona un puesto</option>
-                                    <option value="Administración">Administración</option>
                                     <option value="Encargado">Encargado</option>
-                                    <option value="Repartidor">Repartidor</option>
-                                    <option value="Cocinero">Cocinero</option>
-                                    <option value="Cajero">Cajero</option>
-                                    <option value="Otro">Otro (Especificar)</option>
+                                    <option value="Vendedor">Vendedor</option>
+                                    <!-- Agrega más opciones según sea necesario -->
                                 </select>
-                            </div>
-                            <!-- Campo adicional para puesto personalizado -->
-                            <div class="form-group" id="puestoPersonalizadoContainer" style="display: none;">
-                                <label for="puestoPersonalizado">Especificar Puesto</label>
-                                <input type="text" class="form-control" id="puestoPersonalizado">
                             </div>
                             <div class="form-group">
                                 <label for="sucursalContrato">Sucursal</label>
@@ -326,25 +309,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Script para manejar el campo de puesto personalizado -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const puestoContratoSelect = document.getElementById('puestoContrato');
-            const puestoPersonalizadoContainer = document.getElementById('puestoPersonalizadoContainer');
-            const puestoPersonalizadoInput = document.getElementById('puestoPersonalizado');
-
-            puestoContratoSelect.addEventListener('change', function() {
-                if (puestoContratoSelect.value === 'Otro') {
-                    puestoPersonalizadoContainer.style.display = 'block';
-                    puestoPersonalizadoInput.required = true;
-                } else {
-                    puestoPersonalizadoContainer.style.display = 'none';
-                    puestoPersonalizadoInput.required = false;
-                    puestoPersonalizadoInput.value = '';
-                }
-            });
-        });
-    </script>
 </body>
 </html>
