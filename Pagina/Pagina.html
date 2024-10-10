@@ -5,20 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Cartas</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Incluir Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Incluir jsPDF desde CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <h1>Generador de Cartas</h1>
-    <form id="letterForm">
-        <!-- Selección del Tipo de Carta -->
-        <label for="letterType">Tipo de Carta:</label>
-        <select id="letterType" name="letterType" required onchange="toggleFields()">
-            <option value="" disabled selected>Seleccione el tipo de carta</option>
-            <option value="vacaciones">Concesión de Vacaciones</option>
-            <option value="despido">Carta de Despido</option>
-        </select><br><br>
+    
+    <!-- Selección del Tipo de Carta mediante botones -->
+    <div id="letterTypeSelection" style="text-align: center; margin-bottom: 20px;">
+        <button type="button" class="letter-type-button" onclick="selectLetterType('vacaciones')">
+            <i class="fas fa-plane-departure fa-2x"></i><br>
+            Concesión de Vacaciones
+        </button>
+        <button type="button" class="letter-type-button" onclick="selectLetterType('despido')">
+            <i class="fas fa-user-times fa-2x"></i><br>
+            Carta de Despido
+        </button>
+    </div>
 
+    <form id="letterForm" style="display: none;">
         <!-- Selección de la Empresa (solo para Vacaciones) -->
         <div id="companySelection" style="display: none;">
             <label for="company">Seleccione la Empresa:</label>
@@ -69,5 +76,27 @@
     <img id="logo2" src="2.png" alt="Logo American Pizza" style="display: none;">
 
     <script src="script.js"></script>
+
+    <script>
+        // Función para manejar la selección de tipo de carta mediante botones
+        function selectLetterType(type) {
+            // Establecer el valor del tipo de carta en un campo oculto o variable
+            document.getElementById('letterType').value = type;
+            
+            // Mostrar el formulario
+            document.getElementById('letterForm').style.display = 'block';
+            
+            // Llamar a la función para mostrar/ocultar campos según el tipo de carta
+            toggleFields();
+        }
+
+        // Añadir un campo oculto para almacenar el tipo de carta seleccionado
+        const form = document.getElementById('letterForm');
+        const letterTypeInput = document.createElement('input');
+        letterTypeInput.type = 'hidden';
+        letterTypeInput.id = 'letterType';
+        letterTypeInput.name = 'letterType';
+        form.prepend(letterTypeInput);
+    </script>
 </body>
 </html>

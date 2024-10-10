@@ -4,11 +4,12 @@ body {
     font-family: Arial, sans-serif;
     padding: 20px;
     background-color: #f4f4f4;
+    color: #000; /* Establecer el color del texto en negro */
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: #000; /* Títulos en negro */
 }
 
 form {
@@ -18,12 +19,14 @@ form {
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     max-width: 600px;
     margin: 0 auto;
+    color: #000; /* Asegurar que el texto del formulario sea negro */
 }
 
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    color: #000; /* Etiquetas en negro */
 }
 
 input[type="text"],
@@ -35,6 +38,12 @@ textarea {
     margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    color: #000; /* Texto de los campos de entrada en negro */
+    background-color: #fff; /* Fondo de los campos de entrada en blanco */
+}
+
+textarea {
+    resize: vertical;
 }
 
 button {
@@ -43,7 +52,7 @@ button {
     border: none;
     border-radius: 4px;
     background-color: #333;
-    color: #fff;
+    color: #fff; /* Texto de los botones en blanco */
     cursor: pointer;
 }
 
@@ -61,18 +70,20 @@ button:hover {
     border: 1px solid #ccc;
     max-width: 800px;
     margin: 0 auto;
+    color: #000; /* Texto de la carta en negro */
 }
 
 header {
     text-align: center;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid #000; /* Línea de borde en negro */
     padding-bottom: 10px;
     margin-bottom: 20px;
+    color: #000; /* Texto del encabezado en negro */
 }
 
 h1, h2 {
     text-align: center;
-    color: #333;
+    color: #000; /* Títulos en negro */
 }
 
 .signature {
@@ -86,6 +97,7 @@ h1, h2 {
     text-align: center;
     border-top: 1px solid black;
     padding-top: 10px;
+    color: #000; /* Texto de las firmas en negro */
 }
 
 /* Estilos específicos para cada empresa */
@@ -105,4 +117,54 @@ h1, h2 {
 .section-separator {
     border-top: 1px solid #ccc;
     margin: 20px 0;
+}
+
+/* Estilos para los botones de selección de tipo de carta */
+#letterTypeSelection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.letter-type-button {
+    background-color: #fff;
+    border: 2px solid #333;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    width: 180px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    display: inline-block;
+    vertical-align: top;
+    color: #000; /* Texto de los botones en negro */
+}
+
+.letter-type-button:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.letter-type-button i {
+    margin-bottom: 10px;
+    color: #333; /* Color de los íconos */
+}
+
+.letter-type-button br {
+    display: none; /* Opcional: ocultar saltos de línea en dispositivos móviles */
+}
+
+@media (max-width: 600px) {
+    .letter-type-button {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .letter-type-button i {
+        display: block;
+        margin: 0 auto 10px auto;
+    }
+
+    .letter-type-button br {
+        display: none; /* Mantener sin saltos de línea */
+    }
 }
