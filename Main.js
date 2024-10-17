@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("pedidosBtn").disabled = false;
                 document.getElementById("mantenimientosBtn").disabled = false; // Nuevo botón
                 document.getElementById("recursosHumanosBtn").disabled = false; // Nuevo botón
+                document.getElementById("cartasBtn").disabled = false; // Nuevo botón
             } else {
                 // Habilitar los botones según los permisos
                 if (permissions.includes("accessPagina")) {
@@ -57,16 +58,25 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (permissions.includes("accessRecursosHumanos")) {
                     document.getElementById("recursosHumanosBtn").disabled = false;
                 }
+                // Habilitar el nuevo botón de Cartas según permisos
+                if (permissions.includes("accessCartas")) {
+                    document.getElementById("cartasBtn").disabled = false;
+                }
             }
 
             // Estilizar los botones habilitados y deshabilitados
             const buttons = document.querySelectorAll(".nav-btn");
             buttons.forEach(button => {
                 if (button.disabled) {
+                    // Obtener el color original para botones deshabilitados si es necesario
+                    // Aquí cambiamos el color a gris claro
                     button.style.backgroundColor = "#ccc";
                     button.style.cursor = "not-allowed";
                 } else {
-                    button.style.backgroundColor = "#007BFF";
+                    // Puedes mantener el color original del botón
+                    // O asignar un color específico si prefieres
+                    // Por ejemplo, aquí se mantiene el color asignado por las clases de Bootstrap
+                    button.style.backgroundColor = "";
                     button.style.cursor = "pointer";
                 }
             });
@@ -112,6 +122,13 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("recursosHumanosBtn").addEventListener("click", function() {
                 if (!this.disabled) {
                     window.location.href = "../RRHH/RecursosHumanos.html";
+                }
+            });
+
+            // **Agregar evento al nuevo botón de Cartas**
+            document.getElementById("cartasBtn").addEventListener("click", function() {
+                if (!this.disabled) {
+                    window.location.href = "../Cartas/Cartas.html"; // Asegúrate de que esta ruta sea correcta
                 }
             });
 

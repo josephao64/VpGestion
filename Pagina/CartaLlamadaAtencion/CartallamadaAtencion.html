@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llamada de Atención Disciplinaria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            border: 2px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-section {
+            margin-bottom: 15px;
+        }
+        .form-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-section input, .form-section textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .checkbox {
+            margin-bottom: 15px;
+        }
+        .checkbox label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .checkbox input {
+            margin-right: 10px;
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 5px;
+        }
+        .note {
+            background-color: #ffe0b2;
+            padding: 10px;
+            border: 1px solid #ff9800;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>LLAMADA DE ATENCIÓN DISCIPLINARIA</h2>
+            <p><strong>Empresa:</strong> [Nombre de la Empresa]</p>
+            <p><strong>Dirección:</strong> [Dirección de la Empresa]</p>
+        </div>
+
+        <div class="form-section">
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha">
+        </div>
+
+        <div class="form-section">
+            <label for="colaborador">Colaborador:</label>
+            <input type="text" id="colaborador" placeholder="Nombre del colaborador">
+        </div>
+
+        <div class="form-section">
+            <label for="dpi">DPI:</label>
+            <input type="text" id="dpi" placeholder="Número de identificación del colaborador">
+        </div>
+
+        <div class="form-section">
+            <label for="puesto">Puesto:</label>
+            <input type="text" id="puesto" placeholder="Puesto del colaborador">
+        </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"> Verbal
+            </label>
+            <label>
+                <input type="checkbox"> 1ra Llamada de Atención Escrita
+            </label>
+            <label>
+                <input type="checkbox"> 2da Llamada de Atención
+            </label>
+            <label>
+                <input type="checkbox"> 3ra Llamada de Atención
+            </label>
+        </div>
+
+        <div class="form-section">
+            <label for="motivo">Motivo de la Llamada de Atención:</label>
+            <textarea id="motivo" rows="4" placeholder="Detalle el motivo aquí"></textarea>
+        </div>
+
+        <div class="form-section">
+            <label for="asunto">Asunto:</label>
+            <input type="text" id="asunto" placeholder="Proceso Disciplinario">
+        </div>
+
+        <h3>Derechos del Colaborador:</h3>
+        <p>El colaborador tiene el derecho a presentar una réplica por escrito a esta notificación en un plazo de 3 días hábiles, la cual será anexada a su expediente laboral, conforme a lo establecido en el <strong>Artículo 77</strong> del Código de Trabajo de Guatemala.</p>
+
+        <h3>Consecuencias de Reincidencia:</h3>
+        <p>Se le notifica que en caso de reincidir en conductas similares, se procederá a emitir la correspondiente medida disciplinaria. A la cuarta llamada de atención, se procederá con la terminación del contrato de trabajo conforme a lo estipulado en el <strong>Artículo 102, literal d)</strong> del Código de Trabajo de Guatemala, que establece la posibilidad de despido por faltas graves a los deberes del trabajador.</p>
+
+        <div class="signatures">
+            <div class="signature-box">
+                Firma de Recibido<br>Colaborador
+            </div>
+            <div class="signature-box">
+                Encargado de Recursos Humanos
+            </div>
+        </div>
+
+        <div class="note">
+            Nota: A la cuarta llamada de atención, se procederá con el despido del colaborador conforme al Código de Trabajo de Guatemala.
+        </div>
+    </div>
+</body>
+</html>

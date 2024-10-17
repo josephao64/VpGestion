@@ -3,100 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Cartas</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Incluir Font Awesome para los íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Incluir jsPDF desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Carta de Vacaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .title {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .signature {
+            margin-top: 50px;
+        }
+        .footer {
+            margin-top: 50px;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            text-align: center;
+        }
+        .form-container {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #eef;
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 600px) {
+            body {
+                margin: 20px;
+            }
+            .container {
+                padding: 20px;
+            }
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Generador de Cartas</h1>
-    
-    <!-- Selección del Tipo de Carta mediante botones -->
-    <div id="letterTypeSelection" style="text-align: center; margin-bottom: 20px;">
-        <button type="button" class="letter-type-button" onclick="selectLetterType('vacaciones')">
-            <i class="fas fa-plane-departure fa-2x"></i><br>
-            Concesión de Vacaciones
-        </button>
-        <button type="button" class="letter-type-button" onclick="selectLetterType('despido')">
-            <i class="fas fa-user-times fa-2x"></i><br>
-            Carta de Despido
-        </button>
+
+    <div class="container">
+        <!-- Formulario para ingresar datos -->
+        <div class="form-container">
+            <h2>Generar Carta de Vacaciones</h2>
+            <div class="form-group">
+                <label for="nombre-input">Nombre Completo:</label>
+                <input type="text" id="nombre-input" placeholder="Ingrese su nombre completo">
+            </div>
+            <div class="form-group">
+                <label for="dpi-input">DPI:</label>
+                <input type="text" id="dpi-input" placeholder="Ingrese su DPI">
+            </div>
+            <div class="form-group">
+                <label for="fecha-ingreso-input">Fecha de Ingreso:</label>
+                <input type="date" id="fecha-ingreso-input">
+            </div>
+            <div class="form-group">
+                <label for="periodo-input">Año del Período de Vacaciones:</label>
+                <select id="periodo-input">
+                    <!-- Opciones dinámicas en JavaScript -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fecha-emision-input">Fecha de Emisión:</label>
+                <input type="date" id="fecha-emision-input">
+            </div>
+            <button id="generar-carta-btn">Generar Carta</button>
+        </div>
+
+        <!-- Carta de Vacaciones -->
+        <div id="carta-container" class="hidden">
+            <div class="title">
+                <p id="fecha-emision-carta"></p>
+            </div>
+
+            <p>
+                Por medio de la presente, yo, <strong><span id="nombre"></span></strong>, dejo constancia de que he sido informado y he aceptado tomar las vacaciones que me corresponden del período del 
+                <span id="fecha-inicio-vacaciones"></span> al <span id="fecha-fin-vacaciones"></span>, el cual ha sido debidamente aprobado por la empresa.
+            </p>
+            
+            <p>
+                Asimismo, me comprometo a coordinar con el equipo para asegurar que mi ausencia no afecte el normal desarrollo de nuestras actividades. Además, me responsabilizo de dejar todas mis tareas y responsabilidades en orden antes de mi salida.
+            </p>
+            
+            <p>
+                Atentamente,
+            </p>
+
+            <div class="signature">
+                <p>Firmado,</p>
+            </div>
+
+            <div class="footer">
+                <p><strong><span id="nombre-footer"></span></strong><br>
+                DPI: <span id="dpi-footer"></span></p>
+            </div>
+        </div>
     </div>
-
-    <form id="letterForm" style="display: none;">
-        <!-- Selección de la Empresa (solo para Vacaciones) -->
-        <div id="companySelection" style="display: none;">
-            <label for="company">Seleccione la Empresa:</label>
-            <select id="company" name="company">
-                <option value="" disabled selected>Seleccione la empresa</option>
-                <option value="american_pizza">American Pizza</option>
-                <option value="brenda_elizabeth">Brenda Elizabeth Hernández</option>
-                <option value="corporacion_alimentos">Corporación de Alimentos S.A. American Pizza</option>
-            </select><br><br>
-        </div>
-
-        <!-- Campos Comunes -->
-        <label for="name">Nombre del Colaborador:</label>
-        <input type="text" id="name" name="name" placeholder="Ingrese nombre" required><br><br>
-
-        <label for="dpi">DPI del Colaborador:</label>
-        <input type="text" id="dpi" name="dpi" placeholder="Ingrese DPI" required><br><br>
-
-        <label for="position">Puesto:</label>
-        <input type="text" id="position" name="position" placeholder="Ingrese puesto" required><br><br>
-
-        <!-- Campos Específicos para Vacaciones -->
-        <div id="vacationFields" style="display: none;">
-            <label for="startVacation">Inicio de Vacaciones:</label>
-            <input type="date" id="startVacation" name="startVacation"><br><br>
-        </div>
-
-        <!-- Campos Específicos para Despido -->
-        <div id="terminationFields" style="display: none;">
-            <label for="terminationDate">Fecha de Despido:</label>
-            <input type="date" id="terminationDate" name="terminationDate"><br><br>
-            <label for="reason">Motivo del Despido:</label>
-            <textarea id="reason" name="reason" placeholder="Ingrese el motivo del despido" rows="4" required></textarea><br><br>
-        </div>
-
-        <button type="button" onclick="generateLetter()">Generar Carta</button>
-        <button type="button" onclick="exportPDF()">Exportar a PDF</button>
-    </form>
-
-    <div id="letterOutput" style="display: none;">
-        <div id="letterContent">
-            <!-- La carta generada se mostrará aquí -->
-        </div>
-    </div>
-
-    <!-- Imagenes ocultas para ser utilizadas en el PDF -->
-    <img id="logo1" src="1.png" alt="Logo Brenda y Corporación" style="display: none;">
-    <img id="logo2" src="2.png" alt="Logo American Pizza" style="display: none;">
-
-    <script src="script.js"></script>
 
     <script>
-        // Función para manejar la selección de tipo de carta mediante botones
-        function selectLetterType(type) {
-            // Establecer el valor del tipo de carta en un campo oculto o variable
-            document.getElementById('letterType').value = type;
-            
-            // Mostrar el formulario
-            document.getElementById('letterForm').style.display = 'block';
-            
-            // Llamar a la función para mostrar/ocultar campos según el tipo de carta
-            toggleFields();
+        // Función para formatear la fecha en formato 'dd de mes de aaaa'
+        function formatearFechaLarga(fecha) {
+            const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+            return fecha.toLocaleDateString('es-ES', opciones);
         }
 
-        // Añadir un campo oculto para almacenar el tipo de carta seleccionado
-        const form = document.getElementById('letterForm');
-        const letterTypeInput = document.createElement('input');
-        letterTypeInput.type = 'hidden';
-        letterTypeInput.id = 'letterType';
-        letterTypeInput.name = 'letterType';
-        form.prepend(letterTypeInput);
+        // Función para formatear la fecha en formato 'dd/mm/aaaa'
+        function formatearFechaCorta(fecha) {
+            const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // Función personalizada para parsear la fecha como local sin afectar el día
+        function parsearFechaLocal(input) {
+            const partes = input.split('-');
+            // Año, mes (0-11), día, hora 12:00 para prevenir desfases
+            return new Date(partes[0], partes[1] - 1, partes[2], 12, 0, 0);
+        }
+
+        // Función para agregar años a una fecha sin afectar el día debido a husos horarios
+        function agregarAnios(fecha, anios) {
+            const resultado = new Date(fecha);
+            resultado.setFullYear(resultado.getFullYear() + anios);
+            return resultado;
+        }
+
+        // Función para agregar días a una fecha sin afectar el día debido a husos horarios
+        function agregarDias(fecha, dias) {
+            const resultado = new Date(fecha);
+            resultado.setDate(resultado.getDate() + dias);
+            return resultado;
+        }
+
+        // Inicializar opciones del select de periodo
+        function inicializarOpcionesPeriodo() {
+            const periodoSelect = document.getElementById('periodo-input');
+            const currentYear = new Date().getFullYear();
+            const options = [];
+
+            // Agregar opciones desde el año actual hasta el año actual +5
+            for (let i = currentYear; i <= currentYear + 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                periodoSelect.appendChild(option);
+            }
+        }
+
+        // Llamar a la función para inicializar opciones
+        inicializarOpcionesPeriodo();
+
+        document.getElementById('generar-carta-btn').addEventListener('click', function() {
+            // Obtener valores de los inputs
+            const nombre = document.getElementById('nombre-input').value.trim();
+            const dpi = document.getElementById('dpi-input').value.trim();
+            const fechaIngresoInput = document.getElementById('fecha-ingreso-input').value;
+            const periodoYear = parseInt(document.getElementById('periodo-input').value);
+            const fechaEmisionInput = document.getElementById('fecha-emision-input').value;
+
+            // Validar inputs
+            if (!nombre || !dpi || !fechaIngresoInput || isNaN(periodoYear) || !fechaEmisionInput) {
+                alert('Por favor, complete todos los campos correctamente.');
+                return;
+            }
+
+            // Convertir fechas a objetos Date utilizando la función personalizada
+            const fechaIngreso = parsearFechaLocal(fechaIngresoInput);
+            const fechaEmision = parsearFechaLocal(fechaEmisionInput);
+
+            if (isNaN(fechaIngreso) || isNaN(fechaEmision)) {
+                alert('Por favor, ingrese fechas válidas.');
+                return;
+            }
+
+            // Obtener el año de la fecha de ingreso
+            const yearIngreso = fechaIngreso.getFullYear();
+
+            // Calcular la diferencia de años entre el periodo seleccionado y el año de ingreso
+            const diferenciaAnios = periodoYear - yearIngreso;
+
+            if (diferenciaAnios < 1) {
+                alert('El año del período de vacaciones debe ser al menos un año después del año de ingreso.');
+                return;
+            }
+
+            // Calcular Fecha de Inicio de Vacaciones: Fecha de Ingreso + (diferenciaAnios -1) años
+            const fechaInicioVacaciones = agregarAnios(fechaIngreso, diferenciaAnios - 1);
+
+            // Calcular Fecha de Fin de Vacaciones: Fecha de Inicio + 365 días -1 día
+            const fechaFinVacaciones = agregarDias(fechaInicioVacaciones, 364);
+
+            // Asignar valores a la carta
+            document.getElementById('nombre').textContent = nombre;
+            document.getElementById('nombre-footer').textContent = nombre;
+            document.getElementById('dpi-footer').textContent = dpi;
+
+            // Fecha de emisión de la carta
+            document.getElementById('fecha-emision-carta').textContent = formatearFechaLarga(fechaEmision);
+
+            // Fechas de vacaciones
+            document.getElementById('fecha-inicio-vacaciones').textContent = formatearFechaCorta(fechaInicioVacaciones);
+            document.getElementById('fecha-fin-vacaciones').textContent = formatearFechaCorta(fechaFinVacaciones);
+
+            // Mostrar la carta
+            document.getElementById('carta-container').classList.remove('hidden');
+
+            // Opcional: Desplazar la vista hacia la carta
+            document.getElementById('carta-container').scrollIntoView({ behavior: 'smooth' });
+        });
     </script>
+
 </body>
 </html>

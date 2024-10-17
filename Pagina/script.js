@@ -232,7 +232,7 @@ async function exportPDF() {
                     y += 20;
                     doc.setFont("Helvetica", "bold");
                     doc.setFontSize(16);
-                    doc.text("Brenda Elizabeth Hernández", 105, y, { align: "center" });
+                    doc.text("VIPIZZA. S,A.", 105, y, { align: "center" });
                     y += 10;
                     doc.setFont("Helvetica", "normal");
                     doc.setFontSize(12);

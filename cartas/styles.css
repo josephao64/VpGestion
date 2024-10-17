@@ -1,0 +1,52 @@
+/* cartas/styles.css */
+
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.botonesTipoCarta,
+form {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px 15px;
+}
+
+.botonesTipoCarta button {
+    margin-right: 10px;
+    margin-top: 10px;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#cartaGenerada {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+#contenidoCarta pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
