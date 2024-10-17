@@ -42,11 +42,7 @@ Inicio de Labor: ${window.formatDate(workStartDate)}
 
 No. de días de vacaciones: 15 DÍAS HÁBILES
 
-Estoy de acuerdo con lo establecido en este documento y hago constar que se ha dado
- cumplimiento a lo señalado en el artículo 130 del código de trabajo el cual expone 
- “Todo trabajador sin excepción, tiene derecho a un período de vacaciones remuneradas 
- después de cada año de trabajo al servicio de un mismo patrono, cuya duración mínima 
- es de quince días hábiles”. He disfrutado de las vacaciones señaladas.
+Estoy de acuerdo con lo establecido en este documento y hago constar que se ha dado cumplimiento a lo señalado en el artículo 130 del código de trabajo el cual expone “Todo trabajador sin excepción, tiene derecho a un período de vacaciones remuneradas después de cada año de trabajo al servicio de un mismo patrono, cuya duración mínima es de quince días hábiles”. He disfrutado de las vacaciones señaladas.
             `,
             firmaColaborador: "\nFirma del Colaborador",
             firmaEncargado: "\nFirma del Encargado",
