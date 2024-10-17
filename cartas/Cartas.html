@@ -1,0 +1,55 @@
+<!-- cartas/Cartas.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Cartas</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Incluir Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Incluir jsPDF desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Generador de Cartas</h1>
+
+    <!-- Enlaces a los membretes para asegurar que se cargan -->
+    <div style="display: none;">
+        <img src="MEMBRETEAMERICAN.png" alt="Membrete American Pizza">
+        <img src="MEMBRETEBRENDA.png" alt="Membrete Brenda Elizabeth Hernández">
+        <img src="MEMBRETECORPORACION.png" alt="Membrete Corporación de Alimentos S.A.">
+    </div>
+
+    <!-- Selección del Tipo de Carta mediante botones -->
+    <div id="botonesTipoCarta" class="botonesTipoCarta">
+        <!-- Los botones se generarán dinámicamente -->
+    </div>
+
+    <!-- Formulario dinámico -->
+    <form id="formularioCarta" style="display: none;">
+        <!-- Campos dinámicos según el tipo de carta -->
+        <div id="camposDinamicos">
+            <!-- Los campos adicionales aparecerán aquí -->
+        </div>
+        <button type="button" onclick="generarCarta()">Generar Carta</button>
+        <button type="button" onclick="exportarPDF()">Exportar a PDF</button>
+    </form>
+
+    <!-- Área para mostrar la carta generada -->
+    <div id="cartaGenerada" style="display: none;">
+        <div id="contenidoCarta">
+            <!-- La carta generada se mostrará aquí -->
+        </div>
+    </div>
+
+    <!-- Inicializar el objeto tiposDeCarta -->
+    <script src="tipos/tiposDeCartas.js"></script>
+    <!-- Archivos de los tipos de carta -->
+    <script src="tipos/concesionVacaciones.js"></script>
+    <script src="tipos/cartaDespido.js"></script>
+    <script src="tipos/cartaLlamadaAtencion.js"></script>
+    <!-- Agrega más scripts de tipos de cartas aquí si los tienes -->
+    <!-- Script principal -->
+    <script src="script.js"></script>
+</body>
+</html>
